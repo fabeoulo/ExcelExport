@@ -30,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserService userService;
     
     @Autowired
-    @Qualifier("webapiclient")
+    @Qualifier("webapiClient")
     private WebApiClient wc;
 
     @Override

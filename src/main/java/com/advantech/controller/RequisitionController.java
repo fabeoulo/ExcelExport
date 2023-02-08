@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.advantech.sap.SapService;
 import com.advantech.service.db1.FloorService;
+import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.sap.conn.jco.JCoException;
 import java.net.URISyntaxException;
 
@@ -79,6 +80,9 @@ public class RequisitionController {
 
     @Autowired
     private SapService sapService;
+    
+    @Autowired
+    private RequisitionStateChangeTrigger trigger;
 
     @JsonView(DataTablesOutput.View.class)
     @RequestMapping(value = "/findAll", method = {RequestMethod.POST})
@@ -135,6 +139,7 @@ public class RequisitionController {
         this.checkModelMaterial(newArrayList(requisition));
 
         service.save(requisition, remark);
+        trigger.checkRepair(newArrayList(requisition));
         return "success";
 
     }

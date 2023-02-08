@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebApiClient {
 
-    public String baseUrl;
+    private String baseUrl;
     private WebClient webClient;
 
     public WebApiClient() {
