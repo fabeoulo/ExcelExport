@@ -4,7 +4,7 @@
 
     <groupId>com.advantech</groupId>
     <artifactId>ExcelReport</artifactId>
-    <version>1.6.3</version>
+    <version>1.6.4</version>
     <packaging>war</packaging>
 
     <pluginRepositories>
@@ -46,6 +46,7 @@
         <poi.version>3.17</poi.version>
         <spring.version>5.2.19.RELEASE</spring.version>
         <spring-security.version>5.1.13.RELEASE</spring-security.version>
+        <spring-doc.version>1.6.13</spring-doc.version>
         <hibernate.version>5.3.7.Final</hibernate.version>
         <jackson.version>2.13.1</jackson.version>
         <quartz.version>2.3.2</quartz.version>
@@ -171,23 +172,7 @@
             <version>3.0.1-b08</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webflux</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor.netty</groupId>
-            <artifactId>reactor-netty</artifactId>
-            <version>1.0.24</version>
-            <type>zip</type>
-            <classifier>docs</classifier>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>3.4.24</version>
-        </dependency>
+       
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
@@ -510,19 +495,26 @@
             <version>2.9.1</version>
         </dependency>
         
-        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-spring-webflux -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>3.0.0</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>1.0.24</version>
+            <type>zip</type>
+            <classifier>docs</classifier>
         </dependency>
         
-<!--         https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui 
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>3.0.0</version>
-        </dependency>-->
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.4.24</version>
+        </dependency>
         
     </dependencies>
     
@@ -637,7 +629,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
-   
+
             <!--The output console set utf-8-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

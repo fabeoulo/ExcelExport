@@ -9,27 +9,23 @@ import com.advantech.job.SendReport;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
+import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
 import static com.google.common.collect.Lists.newArrayList;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
@@ -51,12 +47,16 @@ public class RequisitionStateChangeTrigger {
     @Autowired
     private UserNotificationService notificationService;
 
-    private final int[] repairUserList = {742, 753, 895, 1024, 1025, 36};
+    @Autowired
+    private RequisitionService rservice;
+
+    private int[] repairUserList;//= {742, 753, 895, 1024, 1025, 36};
     private final int[] StateChangeList = {2, 5};
     DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
 
-    public void checkRepair(List<Requisition> r) {
-        List<Requisition> checkedList = r.stream()
+    public void checkRepair(List<Requisition> rl) {
+        setRepairUserList();
+        List<Requisition> checkedList = rl.stream()
                 .filter(e -> {
                     int userId = e.getUser().getId();
                     int rsId = e.getRequisitionState().getId();
@@ -70,16 +70,19 @@ public class RequisitionStateChangeTrigger {
         sendRepairMail(checkedList);
     }
 
-    private String[] findEmail(List<Requisition> list) {
-        return list.stream().map(m -> m.getUser().getEmail()).toArray(size -> new String[size]);
+    private void setRepairUserList() {
+        UserNotification notifi = notificationService.findByName("requisition_state_change_target");
+        List<User> l = userService.findByUserNotifications(notifi);
+        repairUserList = l.stream().mapToInt(u -> u.getId()).toArray();
     }
 
-    private void sendRepairMail(List<Requisition> r) {
+    private void sendRepairMail(List<Requisition> rl) {
         try {
-            String[] mailTargetMy = findEmail(r);
-            UserNotification notifiCc = notificationService.findById(16).get();
+            Requisition re = rservice.findByIdWithLazy(rl.get(0).getId());
+//            UserNotification notifi = notificationService.findByName("requisition_state_change_target");
+            UserNotification notifiCc = notificationService.findByName("requisition_state_change_target_cc");
 
-            String[] mailTarget = {"Justin.Yeh@advantech.com.tw"};
+            String[] mailTarget = new String[]{re.getUser().getEmail()};
             String[] mailCcTarget = findUsersMail(notifiCc);//{"Justin.Yeh@advantech.com.tw"};
 
             if (mailTarget.length == 0) {
@@ -87,7 +90,7 @@ public class RequisitionStateChangeTrigger {
                 return;
             }
 
-            String mailBody = generateMailBody(r);
+            String mailBody = generateMailBody(newArrayList(re));
             String mailTitle = "維修到料通知";
 
             manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
@@ -97,7 +100,7 @@ public class RequisitionStateChangeTrigger {
         }
     }
 
-    private String generateMailBody(List<Requisition> r) throws IOException, SAXException, InvalidFormatException {
+    private String generateMailBody(List<Requisition> rl) throws IOException, SAXException, InvalidFormatException {
         StringBuilder sb = new StringBuilder();
 
         //設定mail格式(css...etc)
@@ -126,7 +129,7 @@ public class RequisitionStateChangeTrigger {
         sb.append("<th>備註</th>");
         sb.append("</tr>");
 
-        r.forEach(e -> {
+        rl.forEach(e -> {
             String Remark = e.getRemark();//""
             sb.append("<tr>");
             sb.append("<td>");

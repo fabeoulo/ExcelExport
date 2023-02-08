@@ -147,8 +147,8 @@
     <context:annotation-config/>
  
     <!--對base-package下及其子資料夾偵測並自動裝配Bean--> 
-    <!--            com.advantech.api,-->
     <context:component-scan base-package="
+            com.advantech.api,
             com.advantech.dao, 
             com.advantech.service, 
             com.advantech.chart, 
@@ -160,7 +160,7 @@
             com.advantech.trigger
     " />            
 
-    <bean id="webapiClient" class="com.advantech.api.WebApiClient">
+    <bean id="webApiClient" class="com.advantech.api.WebApiClient">
         <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
     </bean>
     

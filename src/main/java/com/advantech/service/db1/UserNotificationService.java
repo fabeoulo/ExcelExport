@@ -42,6 +42,10 @@ public class UserNotificationService {
         return repo.findById(id);
     }
 
+    public UserNotification findByName(String name) {
+        return repo.findByName(name);
+    }
+
     public void delete(UserNotification t) {
         repo.delete(t);
     }

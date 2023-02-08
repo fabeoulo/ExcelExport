@@ -78,7 +78,7 @@ public class RequisitionService {
     }
 
     public Requisition findByIdWithLazy(Integer id) {
-        Requisition i = repo.findById(id).get();
+        Requisition i = repo.findById(id).orElse(null);//.get();
         
         if (i == null) {
             return null;

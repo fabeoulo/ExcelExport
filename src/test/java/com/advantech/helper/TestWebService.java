@@ -51,7 +51,4 @@ public class TestWebService {
         HibernateObjectPrinter.print(l);
     }
 
-
 }
-
-

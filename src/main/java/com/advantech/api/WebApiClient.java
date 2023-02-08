@@ -6,17 +6,17 @@ package com.advantech.api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import java.time.Duration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.stereotype.Component;
 
 /**
  *

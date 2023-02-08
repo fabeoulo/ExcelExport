@@ -80,7 +80,7 @@ public class RequisitionController {
 
     @Autowired
     private SapService sapService;
-    
+
     @Autowired
     private RequisitionStateChangeTrigger trigger;
 
@@ -147,7 +147,7 @@ public class RequisitionController {
     private void checkModelMaterial(List<Requisition> requisitions) throws Exception {
         for (Requisition r : requisitions) {
             //Fail when sap info not retrieve from retrieveSapInfos() function
-            checkArgument(r.getModelName() != null && !"".equals(r.getModelName()), 
+            checkArgument(r.getModelName() != null && !"".equals(r.getModelName()),
                     "Can't find material info " + r.getMaterialNumber() + " in po " + r.getPo());
         }
     }
