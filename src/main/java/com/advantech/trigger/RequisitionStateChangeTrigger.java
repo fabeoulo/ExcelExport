@@ -91,7 +91,7 @@ public class RequisitionStateChangeTrigger {
             }
 
             String mailBody = generateMailBody(newArrayList(re));
-            String mailTitle = "維修到料通知";
+            String mailTitle = "維修用料已申請通知-" + re.getPo();
 
             manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
 
@@ -124,8 +124,6 @@ public class RequisitionStateChangeTrigger {
         sb.append("<th>申請人</th>");
         sb.append("<th>申請狀態</th>");
         sb.append("<th>申請日期</th>");
-        sb.append("<th>領料日期</th>");
-        sb.append("<th>退料日期</th>");
         sb.append("<th>備註</th>");
         sb.append("</tr>");
 
@@ -152,12 +150,6 @@ public class RequisitionStateChangeTrigger {
             sb.append("</td>");
             sb.append("<td>");
             sb.append(fmt.print(new DateTime(e.getCreateDate())));
-            sb.append("</td>");
-            sb.append("<td>");
-            sb.append(fmt.print(new DateTime(e.getReceiveDate())));
-            sb.append("</td>");
-            sb.append("<td>");
-            sb.append(fmt.print(new DateTime(e.getReturnDate())));
             sb.append("</td>");
             sb.append("<td>");
             sb.append(e.getRemark());
