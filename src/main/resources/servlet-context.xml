@@ -217,7 +217,7 @@
         <property name="mailSender" ref="mailSender"/>
     </bean>
     
-    <!--other import-->
+    <!--WebService import-->
     <oxm:jaxb2-marshaller id="marshaller" context-path="org.tempuri"/>
     
     <bean id="soapMessageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory">
@@ -250,6 +250,14 @@
         <property name="defaultUri" value="http://172.20.128.100/auto_testing_service/Service.asmx?WSDL"/>
     </bean>
 
+    <!--WareHourse WebService port-->
+    <bean id="webServiceTemplate3" class="org.springframework.ws.client.core.WebServiceTemplate">
+        <constructor-arg ref="soapMessageFactory"/>
+        <property name="marshaller" ref="marshaller" />
+        <property name="unmarshaller" ref="marshaller" />
+        <property name="defaultUri" value="http://172.22.250.98/WareHourseWebService/Service.asmx"/>
+    </bean>
+    
     <!--Inject webservice-->
     <util:map id="resourceMap" key-type="com.advantech.webservice.Factory" 
                       value-type="org.springframework.ws.client.core.WebServiceTemplate">
@@ -257,6 +265,7 @@
         <entry key="TWM3" value-ref="webServiceTemplate" />
         <entry key="TWM6" value-ref="webServiceTemplate1" />
         <entry key="TWM2" value-ref="webServiceTemplate2" />
+        <entry key="M3WH" value-ref="webServiceTemplate3" />
     </util:map>
        
     <!--regist for WsClient.class use, -->

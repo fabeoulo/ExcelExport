@@ -29,7 +29,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserService userService;
     
-    @Autowired
+    @Autowired    
+    @Qualifier("webApiClient")
     private WebApiClient wc;
 
     @Override

@@ -19,7 +19,8 @@ public enum Factory implements Encodeable {
     TWM3("M3"),
     TWM6("M6"),
     TWM8("M8"),
-    TWM9("M9");
+    TWM9("M9"),
+    M3WH("WH");
 
     private final String s;
     private static final Map<String, Factory> map = new HashMap<>();
