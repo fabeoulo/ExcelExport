@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://tempuri.org/">
+<wsdl:types>
+<s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+<s:element name="HelloWorld">
+<s:complexType/>
+</s:element>
+<s:element name="HelloWorldResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="HelloWorldResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="Insert_WareHourse_eFlow_Mas">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="sparam" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="Insert_WareHourse_eFlow_MasResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Insert_WareHourse_eFlow_MasResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="GetMaterialDocFromRFID">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="sparam" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="GetMaterialDocFromRFIDResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="GetMaterialDocFromRFIDResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="GetGroupFromRFID">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="sparam" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="GetGroupFromRFIDResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="GetGroupFromRFIDResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="Modify_WareHourse_Storage">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="sparam" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="Modify_WareHourse_StorageResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Modify_WareHourse_StorageResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="TestSapFunction">
+<s:complexType/>
+</s:element>
+<s:element name="TestSapFunctionResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="TestSapFunctionResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+</s:schema>
+</wsdl:types>
+<wsdl:message name="HelloWorldSoapIn">
+<wsdl:part name="parameters" element="tns:HelloWorld"/>
+</wsdl:message>
+<wsdl:message name="HelloWorldSoapOut">
+<wsdl:part name="parameters" element="tns:HelloWorldResponse"/>
+</wsdl:message>
+<wsdl:message name="Insert_WareHourse_eFlow_MasSoapIn">
+<wsdl:part name="parameters" element="tns:Insert_WareHourse_eFlow_Mas"/>
+</wsdl:message>
+<wsdl:message name="Insert_WareHourse_eFlow_MasSoapOut">
+<wsdl:part name="parameters" element="tns:Insert_WareHourse_eFlow_MasResponse"/>
+</wsdl:message>
+<wsdl:message name="GetMaterialDocFromRFIDSoapIn">
+<wsdl:part name="parameters" element="tns:GetMaterialDocFromRFID"/>
+</wsdl:message>
+<wsdl:message name="GetMaterialDocFromRFIDSoapOut">
+<wsdl:part name="parameters" element="tns:GetMaterialDocFromRFIDResponse"/>
+</wsdl:message>
+<wsdl:message name="GetGroupFromRFIDSoapIn">
+<wsdl:part name="parameters" element="tns:GetGroupFromRFID"/>
+</wsdl:message>
+<wsdl:message name="GetGroupFromRFIDSoapOut">
+<wsdl:part name="parameters" element="tns:GetGroupFromRFIDResponse"/>
+</wsdl:message>
+<wsdl:message name="Modify_WareHourse_StorageSoapIn">
+<wsdl:part name="parameters" element="tns:Modify_WareHourse_Storage"/>
+</wsdl:message>
+<wsdl:message name="Modify_WareHourse_StorageSoapOut">
+<wsdl:part name="parameters" element="tns:Modify_WareHourse_StorageResponse"/>
+</wsdl:message>
+<wsdl:message name="TestSapFunctionSoapIn">
+<wsdl:part name="parameters" element="tns:TestSapFunction"/>
+</wsdl:message>
+<wsdl:message name="TestSapFunctionSoapOut">
+<wsdl:part name="parameters" element="tns:TestSapFunctionResponse"/>
+</wsdl:message>
+<wsdl:portType name="ServiceSoap">
+<wsdl:operation name="HelloWorld">
+<wsdl:input message="tns:HelloWorldSoapIn"/>
+<wsdl:output message="tns:HelloWorldSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="Insert_WareHourse_eFlow_Mas">
+<wsdl:input message="tns:Insert_WareHourse_eFlow_MasSoapIn"/>
+<wsdl:output message="tns:Insert_WareHourse_eFlow_MasSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="GetMaterialDocFromRFID">
+<wsdl:input message="tns:GetMaterialDocFromRFIDSoapIn"/>
+<wsdl:output message="tns:GetMaterialDocFromRFIDSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="GetGroupFromRFID">
+<wsdl:input message="tns:GetGroupFromRFIDSoapIn"/>
+<wsdl:output message="tns:GetGroupFromRFIDSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="Modify_WareHourse_Storage">
+<wsdl:input message="tns:Modify_WareHourse_StorageSoapIn"/>
+<wsdl:output message="tns:Modify_WareHourse_StorageSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="TestSapFunction">
+<wsdl:input message="tns:TestSapFunctionSoapIn"/>
+<wsdl:output message="tns:TestSapFunctionSoapOut"/>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="ServiceSoap" type="tns:ServiceSoap">
+<soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="HelloWorld">
+<soap:operation soapAction="http://tempuri.org/HelloWorld" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Insert_WareHourse_eFlow_Mas">
+<soap:operation soapAction="http://tempuri.org/Insert_WareHourse_eFlow_Mas" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="GetMaterialDocFromRFID">
+<soap:operation soapAction="http://tempuri.org/GetMaterialDocFromRFID" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="GetGroupFromRFID">
+<soap:operation soapAction="http://tempuri.org/GetGroupFromRFID" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Modify_WareHourse_Storage">
+<soap:operation soapAction="http://tempuri.org/Modify_WareHourse_Storage" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="TestSapFunction">
+<soap:operation soapAction="http://tempuri.org/TestSapFunction" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:binding name="ServiceSoap12" type="tns:ServiceSoap">
+<soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="HelloWorld">
+<soap12:operation soapAction="http://tempuri.org/HelloWorld" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Insert_WareHourse_eFlow_Mas">
+<soap12:operation soapAction="http://tempuri.org/Insert_WareHourse_eFlow_Mas" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="GetMaterialDocFromRFID">
+<soap12:operation soapAction="http://tempuri.org/GetMaterialDocFromRFID" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="GetGroupFromRFID">
+<soap12:operation soapAction="http://tempuri.org/GetGroupFromRFID" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Modify_WareHourse_Storage">
+<soap12:operation soapAction="http://tempuri.org/Modify_WareHourse_Storage" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="TestSapFunction">
+<soap12:operation soapAction="http://tempuri.org/TestSapFunction" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:service name="Service">
+<wsdl:port name="ServiceSoap" binding="tns:ServiceSoap">
+<soap:address location="http://172.22.250.98/WareHourseWebService/Service.asmx"/>
+</wsdl:port>
+<wsdl:port name="ServiceSoap12" binding="tns:ServiceSoap12">
+<soap12:address location="http://172.22.250.98/WareHourseWebService/Service.asmx"/>
+</wsdl:port>
+</wsdl:service>
+</wsdl:definitions>

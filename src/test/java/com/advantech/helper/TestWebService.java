@@ -8,13 +8,24 @@ package com.advantech.helper;
 import com.advantech.webservice.Factory;
 import com.advantech.webservice.port.FqcKanBanQueryPort;
 import com.advantech.webservice.port.QryWipAttQueryPort;
+import com.advantech.webservice.root.WareHourseQuery;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.google.common.base.Preconditions.checkState;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.ws.client.core.WebServiceTemplate;
+import org.tempuri.InsertWareHourseEFlowMas;
+import org.tempuri.InsertWareHourseEFlowMasResponse;
+import org.tempuri.ObjectFactory;
 
 /**
  *
@@ -49,6 +60,44 @@ public class TestWebService {
         List l = modelNameQryPort.query(po, Factory.TWM3);
 
         HibernateObjectPrinter.print(l);
+    }
+
+    @Autowired
+    @Qualifier("resourceMap")
+    private Map<Factory, WebServiceTemplate> resourceMap;
+
+    @Autowired
+    WareHourseQuery whq;
+
+    @Test
+    public void wareHourseQuery() throws Exception {
+
+        ObjectFactory factory = new ObjectFactory();
+        InsertWareHourseEFlowMas wh = factory.createInsertWareHourseEFlowMas();
+//        WareHourseQuery whq = new WareHourseQuery();
+        WareHourseQuery.RequitionDetail aD = new WareHourseQuery.RequitionDetail();
+        aD.setPo("TYM000973ZA");
+        aD.setMaterialNo("2130022912N000");
+        aD.setRequireQty(7000000);
+//        aD.setReason("THL010291ZA 超領急件");
+//        aD.setJobnumber("A-8754");
+//        aD.setUserName("5F 鄭麓成");
+
+        whq.setRequitions(Lists.newArrayList(aD, aD));
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(whq);
+
+        HibernateObjectPrinter.print(jsonString);
+        wh.setSparam(jsonString);
+
+        Factory f = Factory.M3WH;
+        WebServiceTemplate t = resourceMap.get(f);
+        checkState(t != null, f.token() + " webService template is not inject");
+        InsertWareHourseEFlowMasResponse response = (InsertWareHourseEFlowMasResponse) t.marshalSendAndReceive(wh);
+        String s = response.getInsertWareHourseEFlowMasResult();
+        checkState(s.equals(""), "request fail.");
+//        HibernateObjectPrinter.print(response);
+
     }
 
 }

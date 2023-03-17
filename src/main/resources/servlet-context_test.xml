@@ -143,6 +143,7 @@
  
     <!--對base-package下及其子資料夾偵測並自動裝配Bean--> 
     <context:component-scan base-package="
+            com.advantech.api,
             com.advantech.dao, 
             com.advantech.service, 
             com.advantech.chart, 
@@ -153,7 +154,7 @@
             com.advantech.sap
     " />
 
-    <bean id="webapiclient" class="com.advantech.helper.WebApiClient">
+    <bean id="webApiclient" class="com.advantech.api.WebApiClient">
         <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
     </bean>
     
@@ -249,12 +250,23 @@
         <property name="defaultUri" value="http://172.19.5.204/auto_testing_service/Service.asmx?WSDL"/>
     </bean>
     
+    <!--WareHourse WebService port-->
+    <bean id="webServiceTemplate3" class="org.springframework.ws.client.core.WebServiceTemplate">
+        <constructor-arg ref="soapMessageFactory"/>
+        <property name="marshaller" ref="marshaller" />
+        <property name="unmarshaller" ref="marshaller" />
+        <property name="defaultUri" value="http://172.22.250.98/WareHourseWebService/Service.asmx"/>
+    </bean>
+    
     <!--Inject webservice-->
-    <bean id="multiWsClient" class="com.advantech.webservice.MultiWsClient">
-        <constructor-arg ref="webServiceTemplate" />
-        <constructor-arg ref="webServiceTemplate1" />
-        <constructor-arg ref="webServiceTemplate2" />
-    </bean>    
+    <util:map id="resourceMap" key-type="com.advantech.webservice.Factory" 
+              value-type="org.springframework.ws.client.core.WebServiceTemplate">
+        <!-- Map between String key and List -->
+        <entry key="TWM3" value-ref="webServiceTemplate" />
+        <entry key="TWM6" value-ref="webServiceTemplate1" />
+        <entry key="TWM2" value-ref="webServiceTemplate2" />
+        <entry key="M3WH" value-ref="webServiceTemplate3" />
+    </util:map>
     
     <!--regist for WsClient.class use, -->
     <bean id="objectFactory" class="org.tempuri.ObjectFactory" />
