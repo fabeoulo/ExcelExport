@@ -37,14 +37,14 @@ public class TestWebClient {
     }
 
     @Autowired
-    @Qualifier("webapiclient")
+    @Qualifier("webApiClient")
     private WebApiClient wc;
 
     @Test
     public void GetUserInAtmc2() {
         String jobNo = "A-10376";//A-10376 sysop
         System.out.println("wc.baseUrl= " + wc.getBaseUrl());
-        System.out.println(" wc.isUserInAtmc= " + wc.getUserInAtmc(jobNo));
+        System.out.println(" wc.getUserInAtmc= " + wc.getUserInAtmc(jobNo));
         WebApiUser item = wc.getUserInAtmc(jobNo);
         if (item != null) {
             System.out.println(" item.getEmplr_Id()= " + item.Emplr_Id);

@@ -133,12 +133,17 @@
     </bean>
     
     <jpa:repositories base-package="com.advantech.repo.db1" 
-                          factory-class="org.springframework.data.jpa.datatables.repository.DataTablesRepositoryFactoryBean"       
-                          entity-manager-factory-ref="entityManagerFactory" transaction-manager-ref="transactionManager"  
+                      factory-class="org.springframework.data.jpa.datatables.repository.DataTablesRepositoryFactoryBean"       
+                      entity-manager-factory-ref="entityManagerFactory" transaction-manager-ref="transactionManager"  
     />
  
     <jpa:repositories base-package="com.advantech.repo.db2" entity-manager-factory-ref="entityManagerFactory2" transaction-manager-ref="transactionManager2" />
- 
+
+    <!--    <bean id="swagger2Config"
+          class="springfox.documentation.swagger2.configuration.Swagger2DocumentationConfiguration">
+    </bean>
+    
+    <bean class="com.advantech.api.SwaggerConfig" /> -->
     <context:annotation-config/>
  
     <!--對base-package下及其子資料夾偵測並自動裝配Bean--> 
@@ -151,8 +156,9 @@
             com.advantech.job,
             com.advantech.webservice,
             com.advantech.helper,
-            com.advantech.sap
-    " />
+            com.advantech.sap,
+            com.advantech.trigger
+    " />            
 
     <bean id="webApiClient" class="com.advantech.api.WebApiClient">
         <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
@@ -257,7 +263,7 @@
         <property name="unmarshaller" ref="marshaller" />
         <property name="defaultUri" value="http://172.22.250.98/WareHourseWebService/Service.asmx"/>
     </bean>
-    
+	
     <!--Inject webservice-->
     <util:map id="resourceMap" key-type="com.advantech.webservice.Factory" 
               value-type="org.springframework.ws.client.core.WebServiceTemplate">

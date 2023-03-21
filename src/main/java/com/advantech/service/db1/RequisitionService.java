@@ -28,6 +28,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
+import org.hibernate.Hibernate;
 
 /**
  *
@@ -74,6 +75,19 @@ public class RequisitionService {
 
     public Optional<Requisition> findById(Integer id) {
         return repo.findById(id);
+    }
+
+    public Requisition findByIdWithLazy(Integer id) {
+        Requisition i = repo.findById(id).orElse(null);//.get();
+        
+        if (i == null) {
+            return null;
+        }
+
+        //Initialize the lazy loading relative object
+        Hibernate.initialize(i.getUser());
+        Hibernate.initialize(i.getRequisitionState());
+        return i;
     }
 
     public List<ModelMaterialDetails> findModelMaterialDetails(String modelName) {
