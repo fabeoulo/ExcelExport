@@ -42,7 +42,7 @@ public class TestSap {
     @Test
     public void testWarehouse() throws JCoException, URISyntaxException {
 
-        JCoFunction function = port.getMaterialInfo("PNH1102ZA", null);
+        JCoFunction function = port.getMaterialInfo("THM006325ZA", null);
 
         JCoTable master = function.getTableParameterList().getTable("ZWOMASTER");//调用接口返回结果
         JCoTable detail = function.getTableParameterList().getTable("ZWODETAIL");//调用接口返回结果
@@ -50,6 +50,7 @@ public class TestSap {
         for (int i = 0; i < master.getNumRows(); i++) {
             master.setRow(i);
             System.out.println(master.getString("MATNR"));
+            System.out.println(master.getString("GSMNG"));
         }
 
         for (int i = 0; i < detail.getNumRows(); i++) {

@@ -31,9 +31,10 @@ public class SapService {
     public List<SapMaterialInfo> retrieveSapMaterialInfos(String po, String... materialNumbers) throws JCoException, URISyntaxException {
 
         List<SapMaterialInfo> result = new ArrayList();
-        
+
         JCoFunction function = port.getMaterialInfo(po, null);
         JCoTable detailTable = function.getTableParameterList().getTable("ZWODETAIL");//调用接口返回结果
+        JCoTable masterTable = function.getTableParameterList().getTable("ZWOMASTER");//调用接口返回结果
 
         if (detailTable.getNumRows() == 0) {
             return result;
@@ -62,6 +63,7 @@ public class SapService {
                 JCoFunction function2 = port.getMaterialPrice(materialNumber, f);
                 BigDecimal unitPrice = this.retrievePriceFromTable(function2.getTableParameterList().getTable("LE_ZSD_COST"));
                 pojo.setUnitPrice(unitPrice);
+                pojo.setTotalQty(new BigDecimal(masterTable.getString("GSMNG")));
                 result.add(pojo);
             }
         }

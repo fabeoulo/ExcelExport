@@ -50,7 +50,7 @@
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <property name="connectionTestQuery" value="SELECT 1" />
         <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver" />
-        <property name="jdbcUrl" value="jdbc:jtds:sqlserver://M3-SERVER/ExcelExport" />
+        <property name="jdbcUrl" value="jdbc:jtds:sqlserver://172.20.131.241/ExcelExport" />
         <property name="username" value="waychien" />
         <property name="password" value="m3server" />
     </bean>

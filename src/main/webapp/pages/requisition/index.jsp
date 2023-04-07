@@ -415,7 +415,7 @@
                         const tb = $("#material-detail tbody tr");
                         const po = $("#model-table2 #po").val();
                         const floor = $("#model-table2 #floor\\.id").val();
-                        
+
                         const myArray = tb.map(function () {
                             const o = {
                                 po: po,
@@ -429,9 +429,9 @@
                         const data = {
                             "myList": myArray
                         };
-                        batchSave(data, function() {
+                        batchSave(data, function () {
                             $("#myModal2 input, textarea").val("");
-                            $("#myModal2 select").prop('selectedIndex',0);
+                            $("#myModal2 select").prop('selectedIndex', 0);
                             $("#myModal2 #material-detail").find("tbody>tr").not(":eq(0)").detach();
                         });
                     }
@@ -546,7 +546,7 @@
                                     align: "right"
                                 }
                             });
-                            
+
                             if (fn != null) {
                                 fn();
                             }
@@ -670,11 +670,14 @@
                                 target.html("<h5>No data</h5>");
                                 return;
                             }
-                            const {materialNumber, amount, unitPrice, storageSpaces} = arr[0];
+                            const {materialNumber, amount, unitPrice, storageSpaces, totalQty} = arr[0];
+                            var realTotalQty = isNullOrZero(totalQty) ? -1 : totalQty;
+                            var unitAmount = (Number(amount) / Number(realTotalQty)).toFixed(1);
                             target.html('<h5>料號: ' + materialNumber +
                                     ' 數量: ' + amount +
                                     ' 單價: ' + unitPrice +
-                                    ' 儲區: ' + storageSpaces + '</h5>');
+                                    ' 儲區: ' + storageSpaces +
+                                    ' 單台用量: ' + unitAmount + '</h5>');
 
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
@@ -730,6 +733,9 @@
 
             });
 
+            function isNullOrZero(testString) {
+                return testString == null || testString == 0;
+            }
         </script>
     </head>
     <body>
