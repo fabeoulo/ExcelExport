@@ -18,10 +18,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Wei.Cheng
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "root")
+@XmlRootElement(name = "NewDataSet")
 public class FqcKanBans implements Serializable, QueryResult<FqcKanBan> {
 
-    @XmlElement(name = "QryData", type = FqcKanBan.class)
+    @XmlElement(name = "Table1", type = FqcKanBan.class)
     private List<FqcKanBan> QryData;
 
     @Override

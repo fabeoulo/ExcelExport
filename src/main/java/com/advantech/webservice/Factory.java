@@ -16,8 +16,8 @@ import java.util.Map;
 public enum Factory implements Encodeable {
 
     TWM2("M2"),
-    TWM3("M3"),
-    TWM6("M6"),
+    TWM3("PD03"),
+    TWM6("PD03"),
     TWM8("M8"),
     TWM9("M9"),
     M3WH("WH");

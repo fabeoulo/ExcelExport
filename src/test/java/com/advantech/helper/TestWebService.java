@@ -44,7 +44,7 @@ public class TestWebService {
     @Autowired
     private QryWipAttQueryPort modelNameQryPort;
 
-//    @Test
+//    @Test//245
     public void test1() throws Exception {
 
         List l = kanbanPort.query(Factory.TWM3);
@@ -52,11 +52,13 @@ public class TestWebService {
         HibernateObjectPrinter.print(l);
     }
 
-    @Test
+//    @Test//245
     public void test2() throws Exception {
 
-        String po = "THK002854Z22A";
+        String po = "TAM000108ZA";
 
+        HibernateObjectPrinter.print(Factory.TWM3.toString());
+        
         List l = modelNameQryPort.query(po, Factory.TWM3);
 
         HibernateObjectPrinter.print(l);

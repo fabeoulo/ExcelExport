@@ -57,7 +57,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "method",
-    "wipatt"
+    "wipatt",
+    "extDept"
 })
 @XmlRootElement(name = "root")
 public class QryWipAttQueryRoot {
@@ -66,6 +67,8 @@ public class QryWipAttQueryRoot {
     protected QryWipAttQueryRoot.METHOD method;
     @XmlElement(name = "WIP_ATT", required = true)
     protected QryWipAttQueryRoot.WIPATT wipatt;
+    @XmlElement(name = "EXT_DEPT", required = true)
+    protected String extDept = "PD03";
 
     public QryWipAttQueryRoot() {
         this.method = new QryWipAttQueryRoot.METHOD();
@@ -112,6 +115,15 @@ public class QryWipAttQueryRoot {
         this.wipatt = value;
     }
 
+    public String getExtDept() {
+        return extDept;
+    }
+
+    public void setExtDept(String extDept) {
+        this.extDept = extDept;
+    }
+
+    
     /**
      * <p>
      * anonymous complex type 的 Java 類別.
@@ -136,7 +148,7 @@ public class QryWipAttQueryRoot {
     public static class METHOD {
 
         @XmlAttribute(name = "ID", required = true)
-        protected String id = "WIPSO.QryWipAtt001";
+        protected String id = "Advantech.QAM.IPQ.BLL.QryWipAtt001";
 
         /**
          * 取得 id 特性的值.
