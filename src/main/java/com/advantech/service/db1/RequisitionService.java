@@ -28,6 +28,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
+import com.advantech.model.db1.Requisition_;
+import static com.google.common.collect.Lists.newArrayList;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import org.hibernate.Hibernate;
 
 /**
@@ -78,16 +86,15 @@ public class RequisitionService {
     }
 
     public Requisition findByIdWithLazy(Integer id) {
-        Requisition i = repo.findById(id).orElse(null);//.get();
-        
-        if (i == null) {
-            return null;
-        }
+        return repo.getOne(id);
+    }
 
-        //Initialize the lazy loading relative object
-        Hibernate.initialize(i.getUser());
-        Hibernate.initialize(i.getRequisitionState());
-        return i;
+    public List<Requisition> findAllById(List<Integer> ids) {
+        return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            Path<Integer> idEntryPath = root.get(Requisition_.ID);
+            return cb.and(idEntryPath.in(ids));
+        });
+//        return repo.findAllById(ids);
     }
 
     public List<ModelMaterialDetails> findModelMaterialDetails(String modelName) {
@@ -145,13 +152,29 @@ public class RequisitionService {
 
     public void changeState(int requisition_id, int state_id) {
         Requisition r = this.findById(requisition_id).get();
-        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-        RequisitionState state = stateRepo.getOne(state_id);
-        r.setRequisitionState(state);
-        RequisitionEvent e = new RequisitionEvent(r, user, state, "");
+        changeState(newArrayList(r), state_id);
+    }
 
-        repo.save(r);
-        eventRepo.save(e);
+    public <S extends Requisition> int changeState(List<S> l, int state_id) {
+
+        List<RequisitionEvent> reLists = new ArrayList<>();
+        for (Requisition r : l) {
+            RequisitionState state = stateRepo.getOne(state_id);
+            r.setRequisitionState(state);
+            Date now = new Date();
+            if (state_id == 4 || state_id == 5) {
+                r.setReceiveDate(now);
+            } else if (state_id == 6 || state_id == 7) {
+                r.setReturnDate(now);
+            }
+
+            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+            RequisitionEvent e = new RequisitionEvent(r, user, state, "");
+            reLists.add(e);
+        }
+        repo.saveAll(l);
+        eventRepo.saveAll(reLists);
+        return 1;
     }
 
     public void delete(Requisition t) {

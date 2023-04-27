@@ -12,6 +12,7 @@ import com.advantech.model.db1.UserNotification;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
+import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -76,13 +77,15 @@ public class RequisitionStateChangeTrigger {
         repairUserList = l.stream().mapToInt(u -> u.getId()).toArray();
     }
 
-    private void sendRepairMail(List<Requisition> rl) {
+    private void sendRepairMail2(List<Requisition> rl) {
         try {
-            Requisition re = rservice.findByIdWithLazy(rl.get(0).getId());
-//            UserNotification notifi = notificationService.findByName("requisition_state_change_target");
+            List<Integer> li = rl.stream().map(t -> t.getId()).collect(Collectors.toList());
+            List<Requisition> rlWithLazy = rservice.findAllById(li);
+            
+            UserNotification notifi = notificationService.findByName("requisition_state_change_target");
             UserNotification notifiCc = notificationService.findByName("requisition_state_change_target_cc");
 
-            String[] mailTarget = new String[]{re.getUser().getEmail()};
+            String[] mailTarget = findUsersMail(notifi);
             String[] mailCcTarget = findUsersMail(notifiCc);//{"Justin.Yeh@advantech.com.tw"};
 
             if (mailTarget.length == 0) {
@@ -90,8 +93,8 @@ public class RequisitionStateChangeTrigger {
                 return;
             }
 
-            String mailBody = generateMailBody(newArrayList(re));
-            String mailTitle = "維修用料已申請通知-" + re.getPo();
+            String mailBody = generateMailBody(rlWithLazy);
+            String mailTitle = "維修用料已申請通知-" + rlWithLazy.get(0).getPo();
 
             manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
 
@@ -168,4 +171,29 @@ public class RequisitionStateChangeTrigger {
         List<User> l = userService.findByUserNotifications(notifi);
         return l.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
     }
+
+    private void sendRepairMail(List<Requisition> rl) {
+        try {
+            Requisition re = rservice.findByIdWithLazy(rl.get(0).getId());
+//            UserNotification notifi = notificationService.findByName("requisition_state_change_target");
+            UserNotification notifiCc = notificationService.findByName("requisition_state_change_target_cc");
+
+            String[] mailTarget = new String[]{re.getUser().getEmail()};
+            String[] mailCcTarget = findUsersMail(notifiCc);//{"Justin.Yeh@advantech.com.tw"};
+
+            if (mailTarget.length == 0) {
+                logger.info("Trigger sendReport can't find mail target.");
+                return;
+            }
+
+            String mailBody = generateMailBody(newArrayList(re));
+            String mailTitle = "維修用料已申請通知-" + re.getPo();
+
+            manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
+
+        } catch (SAXException | InvalidFormatException | IOException | MessagingException ex) {
+            logger.error("Send mail fail.", ex);
+        }
+    }
+
 }

@@ -8,11 +8,11 @@ package com.advantech.helper;
 import com.advantech.webservice.Factory;
 import com.advantech.webservice.port.FqcKanBanQueryPort;
 import com.advantech.webservice.port.QryWipAttQueryPort;
-import com.advantech.webservice.root.WareHourseQuery;
+import com.advantech.webservice.root.WareHourseInsert;
+import com.advantech.webservice.root.WareHourseInsert.RequitionDetail;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -71,18 +71,17 @@ public class TestWebService {
 
         ObjectFactory factory = new ObjectFactory();
         InsertWareHourseEFlowMas wh = factory.createInsertWareHourseEFlowMas();
-        WareHourseQuery whq = new WareHourseQuery();
-        WareHourseQuery.RequitionDetail aD = new WareHourseQuery.RequitionDetail();
+        WareHourseInsert whq = new WareHourseInsert();
+        RequitionDetail aD = new RequitionDetail();
         aD.setPo("THL010291ZA");
         aD.setMaterialNo("1930004607");
         aD.setRequireQty(1);
         aD.setReason("THL010291ZA 超領急件");
         aD.setJobnumber("A-8754");
         aD.setUserName("5F 鄭麓成");
-
         whq.setRequitions(Lists.newArrayList(aD, aD));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(whq);
+
+        String jsonString = getJsonString(whq);
 
         HibernateObjectPrinter.print(jsonString);
         wh.setSparam(jsonString);
@@ -92,9 +91,13 @@ public class TestWebService {
         checkState(t != null, f.token() + " webService template is not inject");
         InsertWareHourseEFlowMasResponse response = (InsertWareHourseEFlowMasResponse) t.marshalSendAndReceive(wh);
         String s = response.getInsertWareHourseEFlowMasResult();
-        checkState(s.equals(""),"request fail.");
+        checkState(s.equals(""), "request fail.");
 //        HibernateObjectPrinter.print(response);
 
+    }
+
+    private String getJsonString(Object o) throws Exception {
+        return new ObjectMapper().writeValueAsString(o);
     }
 
 }

@@ -16,6 +16,7 @@ import com.advantech.model.db1.RequisitionState;
 import com.advantech.model.db1.RequisitionState_;
 import com.advantech.model.db1.RequisitionType;
 import com.advantech.model.db1.Requisition_;
+import com.advantech.model.db1.User;
 import com.advantech.service.db1.RequisitionEventService;
 import com.advantech.service.db1.RequisitionReasonService;
 import com.advantech.service.db1.RequisitionService;
@@ -47,10 +48,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.advantech.sap.SapService;
+import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.FloorService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
+import com.advantech.webservice.port.WareHourseInsertPort;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoException;
 import java.net.URISyntaxException;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -80,6 +87,9 @@ public class RequisitionController {
 
     @Autowired
     private SapService sapService;
+
+    @Autowired
+    private WareHourseInsertPort whInsertPort;
 
     @Autowired
     private RequisitionStateChangeTrigger trigger;
@@ -118,6 +128,29 @@ public class RequisitionController {
 //            }
         }
 
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})
+    protected String insertEflow(@RequestParam String datas, @RequestParam String commitJobNo) throws Exception {
+
+        List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {
+        });
+        l = l.stream().filter(t -> t.getRequisitionState().getId() == 4).collect(Collectors.toList());
+        if (l.isEmpty()) {
+            return "待領料數量0.";
+        }
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.");
+
+//        String response = whInsertPort.insertWareHourse(l, commitJobNo);
+        String response = "";
+        if (response.equals("")) {
+            service.changeState(l, 5);
+//            trigger.checkRepair(l);
+            return "success";
+        }
+        return "失敗 response:=" + response;
     }
 
     @ResponseBody
@@ -225,7 +258,7 @@ public class RequisitionController {
     protected List<RequisitionState> findRequisitionStateOptions() {
         return requisitionStateService.findAll((Root<RequisitionState> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
             Path<Integer> idEntryPath = root.get(RequisitionState_.ID);
-            return cb.not(idEntryPath.in(newArrayList(1, 3, 4)));
+            return cb.not(idEntryPath.in(newArrayList(1, 3)));
         });
     }
 

@@ -5,16 +5,17 @@
 package com.advantech.webservice.root;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  * @author Justin.Yeh
  */
-public class WareHourseQuery {
+public class WareHourseInsert {
 //只有當場區、工單、料號能正確查出庫存，才卡數量不能大於庫存
 //否則一律不卡
-    
+
     @JsonProperty("PLANT")
     String plant = "TWM3";
 
@@ -26,6 +27,10 @@ public class WareHourseQuery {
 
     @JsonProperty("AUFNR_LIST")
     List<RequitionDetail> requitions;
+
+    public WareHourseInsert() {
+        this.requitions = new ArrayList<>();
+    }
 
     public String getPlant() {
         return plant;

@@ -59,8 +59,12 @@ public class TestService {
     public void test() {
         System.out.println("Requisition.isPresent= " + rservice.findById(62288).isPresent());
 
+        List<Integer> list = Arrays.asList(63781, 46232, 62239,62239);
+        List<Requisition> rl = rservice.findAllById(list);
+        
         //Requisition r = rservice.findById(62288).get();
         Requisition r = rservice.findByIdWithLazy(63781);
+        HibernateObjectPrinter.print(r);
 
         r = rservice.findById(63781).orElse(null);
         final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.advantech.model.db1.ModelMaterialDetails;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 /**
  *
@@ -24,5 +25,7 @@ public interface RequisitionRepository extends JpaRepository<Requisition, Intege
     @Query(value = "{CALL usp_qryModelMaterialMap(:modelName)}",
             nativeQuery = true)
     public List<ModelMaterialDetails> findModelMaterialDetails(@Param("modelName") String modelName);
-    
+
+    public List<Requisition> findAllById(List<Integer> ids);
+
 }
