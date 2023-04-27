@@ -5,6 +5,7 @@
 package com.advantech.webservice.root;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
@@ -13,12 +14,10 @@ import org.springframework.stereotype.Component;
  *
  * @author Justin.Yeh
  */
-@Component
-public class WareHourseQuery {
+public class WareHourseInsert {
 //只有當場區、工單、料號能正確查出庫存，才卡數量不能大於庫存
 //否則一律不卡
-    
-    @NotNull
+
     @JsonProperty("PLANT")
     String plant = "TWM9";
 
@@ -30,6 +29,10 @@ public class WareHourseQuery {
 
     @JsonProperty("AUFNR_LIST")
     List<RequitionDetail> requitions;
+
+    public WareHourseInsert() {
+        this.requitions = new ArrayList<>();
+    }
 
     public String getPlant() {
         return plant;

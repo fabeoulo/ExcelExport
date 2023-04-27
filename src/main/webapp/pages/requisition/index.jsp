@@ -255,6 +255,11 @@
                                     $('#myModal').modal('show');
                                     var arr = table.rows('.selected').data();
                                     var data = arr[0];
+                                    if (data.requisitionState.id != 4) {
+                                        $("#model-table #requisitionState\\.id option[value='4']").hide();
+                                    } else {
+                                        $("#model-table #requisitionState\\.id option[value='4']").show();
+                                    }
                                     $("#model-table #id").val(data.id);
                                     $("#model-table #po").val(data.po);
                                     $("#model-table #materialNumber").val(data.materialNumber);
@@ -268,6 +273,29 @@
                                     $("#model-table #remark").val(data.remark);
                                     $("#model-table #receiveDate").val(data.receiveDate);
                                     $("#model-table #returnDate").val(data.returnDate);
+                                }
+                            },
+                            {
+                                "text": '開領料單',
+                                "attr": {
+                                },
+                                "action": function (e, dt, node, config) {
+                                    var cnt = table.rows('.selected').count();
+                                    if (cnt < 1)
+                                        return alert("Please select a row at least.");
+
+                                    if (!confirm(cnt + " rows selected. OK?"))
+                                        return;
+                                    var arr = table.rows('.selected').data();
+                                    var datas = [];
+                                    for (var i = 0; i < arr.length; i++) {
+                                        datas.push(arr[i]);
+                                    }
+
+                                    eFlow({
+                                        "datas": JSON.stringify(datas),
+                                        "commitJobNo": "<c:out value="${user.jobnumber}" />"
+                                    });
                                 }
                             },
                             {
@@ -683,6 +711,24 @@
                     });
                 }
 
+                function eFlow(data) {
+                    $.ajax({
+                        type: "POST",
+                        url: "<c:url value="/RequisitionController/insertEflow" />",
+                        dataType: "json",
+                        data: data,
+                        success: function (response) {
+                            console.log("eFlow :=" + response);
+                            location.reload(true);//enduser use IE not support ws
+                            return alert(response);
+
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            $("#dialog-msg3").html(xhr.responseText);
+                        }
+                    });
+                }
+
                 //Websocket connect part
                 var hostname = window.location.host;//Get the host ip address to link to the server.
 
@@ -701,7 +747,7 @@
                             var d = event.data;
                             d = d.replace(/\"/g, "");
                             console.log(d);
-                            if (("ADD" == d || "REMOVE" == d)) {
+                            if (("ADD" == d || "REMOVE" == d || "UPDATE" == d)) {
                                 refreshTable();
                                 if (isEditor) {
                                     $.notify('資料已更新', {placement: {

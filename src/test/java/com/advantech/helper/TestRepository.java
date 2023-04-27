@@ -41,6 +41,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
+import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db2.OrderTypes;
 import com.advantech.model.db2.Orders;
 import com.advantech.model.db2.Teams;
@@ -49,6 +50,13 @@ import com.advantech.repo.db2.OrderTypesRepository;
 import com.advantech.repo.db2.OrdersRepository;
 import com.advantech.repo.db2.TeamsRepository;
 import com.advantech.repo.db2.UsersRepository;
+import com.advantech.webservice.Factory;
+import com.google.common.collect.Lists;
+import java.util.Arrays;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 
 /**
  *
@@ -274,16 +282,33 @@ public class TestRepository {
     @Autowired
     private RequisitionRepository requisitionRepo;
 
-//    @Test
+    @Test
     @Transactional
     @Rollback(true)
     public void testRequisition() {
-        Requisition r = requisitionRepo.getOne(32);
-        assertNotNull(r);
+        Requisition r = requisitionRepo.getOne(63781);
+//        assertNotNull(r);
+//        System.out.println(r.getRequisitionState().getName());
+////        System.out.println(r.getRequisitionType().getName());
+////        System.out.println(r.getRequisitionReason().getName());
+//        
+        Requisition i = requisitionRepo.findById(99).orElse(null);
+//        System.out.println(i.getRequisitionState().getName());
 
-        System.out.println(r.getRequisitionState().getName());
-        System.out.println(r.getRequisitionType().getName());
-        System.out.println(r.getRequisitionReason().getName());
+        List<Integer> list = Arrays.asList(63781, 46232, 62239,62239);
+        List<Requisition> rl = requisitionRepo.findAllById(list);
+
+//        List<Requisition> rl= requisitionRepo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+//            Path<Integer> idEntryPath = root.get("id");
+//            return cb.and(idEntryPath.in(list));
+//        });
+
+        List<Integer> li = Lists.newArrayList(r, i).stream().map(t -> t.getId()).collect(Collectors.toList());
+        List<Requisition> rl2 = requisitionRepo.findAllById(li);
+        String[] sa = rl.stream().map(l -> l.getPo()).toArray(size -> new String[size]);
+        String ss = String.join(",", sa);
+        HibernateObjectPrinter.print(ss);
+
     }
 
 //    @Test
@@ -371,7 +396,7 @@ public class TestRepository {
     @Autowired
     private TeamsRepository teamsRepo;
 
-  //  @Test
+    //  @Test
     @Transactional("tx2")
     @Rollback(false)
     public void testOrder() {
@@ -380,9 +405,9 @@ public class TestRepository {
         OrderTypes od = orderTypesRepo.getOne(1);
         Users u = usersRepo.getOne("A-0023");
         Teams t = teamsRepo.getOne(1);
-        
+
         Orders o = new Orders(od, t, u, 1, "1", new DateTime().toDate(), null, new DateTime().toDate(), null);
-        
+
         ordersRepo.save(o);
 //        Orders o = ordersRepo.getOne(10732);
 

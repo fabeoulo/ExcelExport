@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * 不只webservice在用
  * @author Wei.Cheng 假如要用其他廠區的話，Factory必須吻合DB設定
  */
 public enum Factory implements Encodeable {
@@ -53,4 +53,7 @@ public enum Factory implements Encodeable {
         throw new IllegalArgumentException("Can't find enum with value " + t);
     }
 
+    public String getName() {
+        return super.toString();
+    }
 }
