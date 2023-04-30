@@ -34,7 +34,8 @@ public class FqcKanBanQueryPort extends BasicQueryPort {
     }
 
     public List<FqcKanBan> query(Factory f) throws Exception {
-        List<FqcKanBan> l = this.query(new FqcKanBanQueryRoot(), f);
+        FqcKanBanQueryRoot root = new FqcKanBanQueryRoot();
+        List<FqcKanBan> l = this.query(root, f);
         return l;
     }
 

@@ -44,13 +44,16 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "method"
+    "method",
+    "extDept"
 })
 @XmlRootElement(name = "root")
 public class FqcKanBanQueryRoot {
 
     @XmlElement(name = "METHOD", required = true)
     protected FqcKanBanQueryRoot.METHOD method;
+    @XmlElement(name = "EXT_DEPT", required = true)
+    protected String extDept = "PD03";
 
     public FqcKanBanQueryRoot() {
         this.method = new FqcKanBanQueryRoot.METHOD();
@@ -74,6 +77,14 @@ public class FqcKanBanQueryRoot {
      */
     public void setMETHOD(FqcKanBanQueryRoot.METHOD value) {
         this.method = value;
+    }
+
+    public String getExtDept() {
+        return extDept;
+    }
+
+    public void setExtDept(String extDept) {
+        this.extDept = extDept;
     }
 
     /**
@@ -100,7 +111,7 @@ public class FqcKanBanQueryRoot {
     public static class METHOD {
 
         @XmlAttribute(name = "ID", required = true)
-        protected String id = "FQCSO.QryFqcKanBan";
+        protected String id = "Advantech.QAM.FQC.BLL.QryFqcKanBan";
 
         /**
          * 取得 id 特性的值.

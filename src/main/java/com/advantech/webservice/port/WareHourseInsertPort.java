@@ -69,7 +69,7 @@ public class WareHourseInsertPort {
         InsertWareHourseEFlowMas wh = new ObjectFactory().createInsertWareHourseEFlowMas();
         wh.setSparam(jsonString);
         WebServiceTemplate t = resourceMap.get(f);
-        checkState(t != null, f.token() + " webService template is not inject");
+        checkState(t != null, f.getName() + " webService template is not inject");
         InsertWareHourseEFlowMasResponse response = (InsertWareHourseEFlowMasResponse) t.marshalSendAndReceive(wh);
         return response.getInsertWareHourseEFlowMasResult();
 //        return "";

@@ -37,7 +37,7 @@ public class SapQueryPort {
         input.setValue("SDATE", "");
         input.setValue("EDATE", "");
         input.setValue("SPFLG", "");
-        input.setValue("PLANT", factory == null ? "" : "TW" + factory.token());
+        input.setValue("PLANT", factory == null ? "" : factory.getName());
 
         function.execute(destination);
 
@@ -45,7 +45,7 @@ public class SapQueryPort {
 
     }
 
-    public JCoFunction getMaterialPrice(String material, Factory factory) throws JCoException, URISyntaxException{
+    public JCoFunction getMaterialPrice(String material, Factory factory) throws JCoException, URISyntaxException {
         JCoFunction function;
         JCoDestination destination = sapConn.getConn();
 
@@ -55,7 +55,7 @@ public class SapQueryPort {
         JCoParameterList input = function.getImportParameterList();
 
         input.setValue("MATNR", material);
-        input.setValue("WERKS", "TW" + factory.token());
+        input.setValue("WERKS", factory.getName());
 
         function.execute(destination);
 

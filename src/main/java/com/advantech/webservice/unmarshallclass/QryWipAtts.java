@@ -18,10 +18,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Wei.Cheng
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "root")
+@XmlRootElement(name = "NewDataSet")
 public class QryWipAtts implements Serializable, QueryResult<QryWipAtt> {
 
-    @XmlElement(name = "QryWipAtt001", type = QryWipAtt.class)
+    @XmlElement(name = "Table1", type = QryWipAtt.class)
     private List<QryWipAtt> QryData;
 
     @Override

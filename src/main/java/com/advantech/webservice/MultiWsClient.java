@@ -47,7 +47,7 @@ public class MultiWsClient {
 
     private Object marshalSendAndReceive(Object request, final Factory f) {
         WebServiceTemplate t = this.getWebServiceTemplate(f);
-        checkState(t != null, f.token() + " webService template is not inject");
+        checkState(t != null, f.getName() + " webService template is not inject");
         return t.marshalSendAndReceive(request);
     }
 
