@@ -719,7 +719,15 @@
                         data: data,
                         success: function (response) {
                             console.log("eFlow :=" + response);
-                            location.reload(true);//enduser use IE not support ws
+//                            location.reload(true);//enduser use IE not support ws
+                            refreshTable();
+                            if (isEditor) {
+                                $.notify('資料更新中', {placement: {
+                                        from: "bottom",
+                                        align: "right"
+                                    }
+                                });
+                            }
                             return alert(response);
 
                         },

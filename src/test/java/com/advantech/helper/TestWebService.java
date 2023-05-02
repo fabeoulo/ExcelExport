@@ -78,13 +78,13 @@ public class TestWebService {
         
         WareHourseInsert whq = new WareHourseInsert();
         RequitionDetail aD = new RequitionDetail();
-        aD.setPo("TYM000973ZA");
-        aD.setMaterialNo("2130022912N000");
-        aD.setRequireQty(7000000);
-//        aD.setReason("THL010291ZA 超領急件");
-//        aD.setJobnumber("A-8754");
-//        aD.setUserName("5F 鄭麓成");
-        whq.setRequitions(Lists.newArrayList(aD, aD));
+        aD.setPo("THL010291ZA");
+        aD.setMaterialNo("1930004607");
+        aD.setRequireQty(1);
+        aD.setReason("testtest");
+        aD.setJobnumber("sysop");
+        aD.setUserName("7F sysop");
+        whq.setRequitions(Lists.newArrayList( aD));
 
         String jsonString = getJsonString(whq);
 

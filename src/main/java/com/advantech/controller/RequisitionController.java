@@ -137,10 +137,10 @@ public class RequisitionController {
             return "待領料數量0.";
         }
         User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-        checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.");
+        checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.請重新登入");
 
-//        String response = whInsertPort.insertWareHourse(l, commitJobNo);
-        String response = "";
+        String response = whInsertPort.insertWareHourse(l, commitJobNo);
+//        String response = "";
         if (response.equals("")) {
             service.changeState(l, 5);
 //            trigger.checkRepair(l);

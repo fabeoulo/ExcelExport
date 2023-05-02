@@ -255,7 +255,7 @@
         <constructor-arg ref="soapMessageFactory"/>
         <property name="marshaller" ref="marshaller" />
         <property name="unmarshaller" ref="marshaller" />
-        <property name="defaultUri" value="http://172.22.250.98/WareHourseWebService/Service.asmx"/>
+        <property name="defaultUri" value="http://172.20.128.223/WareHourseWebService/Service.asmx"/>
     </bean>
     
     <!--Inject webservice-->
