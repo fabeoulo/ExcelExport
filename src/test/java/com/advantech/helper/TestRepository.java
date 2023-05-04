@@ -50,11 +50,12 @@ import com.advantech.repo.db2.OrderTypesRepository;
 import com.advantech.repo.db2.OrdersRepository;
 import com.advantech.repo.db2.TeamsRepository;
 import com.advantech.repo.db2.UsersRepository;
-import com.advantech.webservice.Factory;
+import com.advantech.service.db1.RequisitionService;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
@@ -286,29 +287,29 @@ public class TestRepository {
     @Transactional
     @Rollback(true)
     public void testRequisition() {
-        Requisition r = requisitionRepo.getOne(63781);
+//        Requisition r = requisitionRepo.getOne(63781);
 //        assertNotNull(r);
 //        System.out.println(r.getRequisitionState().getName());
 ////        System.out.println(r.getRequisitionType().getName());
 ////        System.out.println(r.getRequisitionReason().getName());
 //        
-        Requisition i = requisitionRepo.findById(99).orElse(null);
+//        Requisition i = requisitionRepo.findById(99).orElse(null);
 //        System.out.println(i.getRequisitionState().getName());
 
-        List<Integer> list = Arrays.asList(63781, 46232, 62239,62239);
-        List<Requisition> rl = requisitionRepo.findAllById(list);
+        List<Integer> listInt = Arrays.asList(66214, 66215, 66206, 66174);
+        List<Requisition> rll = requisitionRepo.findAllById(listInt);
 
-//        List<Requisition> rl= requisitionRepo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-//            Path<Integer> idEntryPath = root.get("id");
-//            return cb.and(idEntryPath.in(list));
-//        });
-
-        List<Integer> li = Lists.newArrayList(r, i).stream().map(t -> t.getId()).collect(Collectors.toList());
-        List<Requisition> rl2 = requisitionRepo.findAllById(li);
-        String[] sa = rl.stream().map(l -> l.getPo()).toArray(size -> new String[size]);
+        List<Requisition> rl = requisitionRepo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            root.fetch(Requisition_.USER, JoinType.LEFT);
+            root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
+            Path<Integer> idEntryPath = root.get(Requisition_.ID);
+            return cb.and(idEntryPath.in(listInt));
+        });
+        HibernateObjectPrinter.print(rl);
+        
+        String[] sa = rl.stream().map(l -> l.getUser().getUsername()+"-"+l.getRequisitionState().getName()).toArray(size -> new String[size]);
         String ss = String.join(",", sa);
         HibernateObjectPrinter.print(ss);
-
     }
 
 //    @Test
