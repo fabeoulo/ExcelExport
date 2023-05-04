@@ -12,12 +12,11 @@ import com.advantech.model.db1.UserNotification;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
-import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -77,24 +76,21 @@ public class RequisitionStateChangeTrigger {
         repairUserList = l.stream().mapToInt(u -> u.getId()).toArray();
     }
 
-    private void sendRepairMail2(List<Requisition> rl) {
+    private void sendRepairMail(List<Requisition> rl) {
         try {
-            List<Integer> li = rl.stream().map(t -> t.getId()).collect(Collectors.toList());
-            List<Requisition> rlWithLazy = rservice.findAllById(li);
-            
-            UserNotification notifi = notificationService.findByName("requisition_state_change_target");
-            UserNotification notifiCc = notificationService.findByName("requisition_state_change_target_cc");
-
-            String[] mailTarget = findUsersMail(notifi);
-            String[] mailCcTarget = findUsersMail(notifiCc);//{"Justin.Yeh@advantech.com.tw"};
+            String[] mailTarget = findEMailByNotifyName("requisition_state_change_target");
+            String[] mailCcTarget = findEMailByNotifyName("requisition_state_change_target_cc");
 
             if (mailTarget.length == 0) {
                 logger.info("Trigger sendReport can't find mail target.");
                 return;
             }
 
+            List<Integer> li = rl.stream().map(t -> t.getId()).collect(Collectors.toList());
+            List<Requisition> rlWithLazy = rservice.findAllByIdWithUserAndState(li);
+
             String mailBody = generateMailBody(rlWithLazy);
-            String mailTitle = "維修用料已申請通知-" + rlWithLazy.get(0).getPo();
+            String mailTitle = "維修用料已申請通知-" + getFirstPoByGroupUser(rlWithLazy);
 
             manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
 
@@ -116,7 +112,7 @@ public class RequisitionStateChangeTrigger {
         sb.append("</style>");
         sb.append("<div id='mailBody'>");
         sb.append("<h3>Dear User:</h3>");
-        sb.append("<h3>維修到料如下:</h3>");
+        sb.append("<h3>維修用料申請如下:</h3>");
 
         sb.append("<table>");
         sb.append("<tr>");
@@ -167,33 +163,20 @@ public class RequisitionStateChangeTrigger {
         return sb.toString();
     }
 
-    private String[] findUsersMail(UserNotification notifi) {
+    private String[] findEMailByNotifyName(String Name) {
+        UserNotification notifi = notificationService.findByName(Name);
         List<User> l = userService.findByUserNotifications(notifi);
         return l.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
     }
 
-    private void sendRepairMail(List<Requisition> rl) {
-        try {
-            Requisition re = rservice.findByIdWithLazy(rl.get(0).getId());
-//            UserNotification notifi = notificationService.findByName("requisition_state_change_target");
-            UserNotification notifiCc = notificationService.findByName("requisition_state_change_target_cc");
-
-            String[] mailTarget = new String[]{re.getUser().getEmail()};
-            String[] mailCcTarget = findUsersMail(notifiCc);//{"Justin.Yeh@advantech.com.tw"};
-
-            if (mailTarget.length == 0) {
-                logger.info("Trigger sendReport can't find mail target.");
-                return;
-            }
-
-            String mailBody = generateMailBody(newArrayList(re));
-            String mailTitle = "維修用料已申請通知-" + re.getPo();
-
-            manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
-
-        } catch (SAXException | InvalidFormatException | IOException | MessagingException ex) {
-            logger.error("Send mail fail.", ex);
-        }
+    private String getFirstPoByGroupUser(List<Requisition> rl) {
+        Map<User, String> mapP0 = rl.stream()
+                .collect(Collectors.groupingBy(Requisition::getUser,
+                        Collectors.collectingAndThen(Collectors.toList(),
+                                list -> list.stream()
+                                        .map(Requisition::getPo)
+                                        .findFirst()
+                                        .orElse(""))));
+        return String.join(",", mapP0.values());
     }
-
 }

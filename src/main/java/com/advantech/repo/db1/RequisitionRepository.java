@@ -26,6 +26,4 @@ public interface RequisitionRepository extends JpaRepository<Requisition, Intege
             nativeQuery = true)
     public List<ModelMaterialDetails> findModelMaterialDetails(@Param("modelName") String modelName);
 
-    public List<Requisition> findAllById(List<Integer> ids);
-
 }

@@ -57,7 +57,6 @@ public class WareHourseInsertPort {
 
         String jsonString = getJsonString(whq);
         String s = eFlowSendAndReceive(jsonString, Factory.M3WH);
-//        checkState(s.equals(""), "InsertWareHourseEFlowMasResult:=" + s);
         return s;
     }
 

@@ -130,8 +130,7 @@ public class RequisitionController {
     @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})
     protected String insertEflow(@RequestParam String datas, @RequestParam String commitJobNo) throws Exception {
 
-        List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {
-        });
+        List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {});
         l = l.stream().filter(t -> t.getRequisitionState().getId() == 4).collect(Collectors.toList());
         if (l.isEmpty()) {
             return "待領料數量0.";
@@ -140,10 +139,9 @@ public class RequisitionController {
         checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.請重新登入");
 
         String response = whInsertPort.insertWareHourse(l, commitJobNo);
-//        String response = "";
         if (response.equals("")) {
             service.changeState(l, 5);
-//            trigger.checkRepair(l);
+            trigger.checkRepair(l);
             return "success";
         }
         return "失敗 response:=" + response;

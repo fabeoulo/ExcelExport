@@ -33,6 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.ArrayList;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
@@ -87,8 +88,10 @@ public class RequisitionService {
         return repo.getOne(id);
     }
 
-    public List<Requisition> findAllById(List<Integer> ids) {
+    public List<Requisition> findAllByIdWithUserAndState(List<Integer> ids) {
         return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            root.fetch(Requisition_.USER, JoinType.LEFT);
+            root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
             Path<Integer> idEntryPath = root.get(Requisition_.ID);
             return cb.and(idEntryPath.in(ids));
         });
@@ -170,7 +173,8 @@ public class RequisitionService {
             reLists.add(e);
         }
         repo.saveAll(l);
-        eventRepo.saveAll(reLists);
+        eventRepo.saveAll(reLists);        
+        
         return 1;
     }
 
