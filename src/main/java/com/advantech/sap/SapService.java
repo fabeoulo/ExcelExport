@@ -4,6 +4,7 @@
  */
 package com.advantech.sap;
 
+import com.advantech.model.db1.Requisition;
 import com.advantech.webservice.Factory;
 import com.google.common.base.CharMatcher;
 import com.sap.conn.jco.JCoException;
@@ -13,7 +14,9 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +61,7 @@ public class SapService {
                 pojo.setAmount(new BigDecimal(detailTable.getString("BDMNG").trim()));
                 pojo.setStorageSpaces(detailTable.getString("STORLOC_BIN").trim());
 
+                pojo.setWerk(detailTable.getString("WERKS").trim());
                 Factory f = Factory.valueOf(detailTable.getString("WERKS").trim());
 
                 JCoFunction function2 = port.getMaterialPrice(materialNumber, f);
@@ -78,5 +82,20 @@ public class SapService {
         }
         return BigDecimal.ZERO;
     }
+    
+    public Map<String, BigDecimal> getStockMap(List<Requisition> l) throws Exception {
+        JCoFunction function = port.getMaterialStock(l);
+        JCoTable output = function.getTableParameterList().getTable("ZMARD_OUTPUT");
+        Map<String, BigDecimal> stockMap = new HashMap<>();
+        for (int i = 0; i < output.getNumRows(); i++) {
+            output.setRow(i);
+            String mat = removeLeadingZeros(output.getString("MATNR"));
+            stockMap.merge(mat, new BigDecimal(output.getString("LABST")), BigDecimal::add);
+        }
+        return stockMap;
+    }
 
+    private String removeLeadingZeros(String str) {
+        return str.replaceAll("^0+", "");
+    }
 }

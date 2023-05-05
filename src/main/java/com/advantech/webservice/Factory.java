@@ -11,19 +11,20 @@ import java.util.Map;
 
 /**
  * 不只webservice在用
+ *
  * @author Wei.Cheng 假如要用其他廠區的話，Factory必須吻合DB設定
  */
 public enum Factory implements Encodeable {
 
     TWM2("M2"),
-    TWM3("PD03"),
-    TWM6("PD03"),
+    TWM3("M3"),
+    TWM6("M6"),
     TWM8("M8"),
     TWM9("M9"),
     M3WH("WH");
 
     private final String s;
-    private static final Map<String, Factory> map = new HashMap<>();
+    private static final Map<String, Factory> map = new HashMap<>();//getEnum("PD03") return TWM6
 
     static {
         for (Factory f : Factory.values()) {

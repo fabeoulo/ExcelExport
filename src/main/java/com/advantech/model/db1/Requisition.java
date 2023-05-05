@@ -44,6 +44,7 @@ public class Requisition implements Serializable {
     private String materialNumber;
     private String modelName;
     private BigDecimal unitPrice;
+    private String werk;
     private int amount;
     private RequisitionState requisitionState;
     private RequisitionReason requisitionReason;
@@ -108,6 +109,15 @@ public class Requisition implements Serializable {
 
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    @Column(name = "werk", length = 10)
+    public String getWerk() {
+        return werk;
+    }
+
+    public void setWerk(String werk) {
+        this.werk = werk;
     }
 
     @Column(name = "amount")

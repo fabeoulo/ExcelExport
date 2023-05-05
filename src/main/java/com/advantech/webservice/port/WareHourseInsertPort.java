@@ -10,10 +10,10 @@ import com.advantech.webservice.root.WareHourseInsert;
 import com.advantech.webservice.root.WareHourseInsert.RequitionDetail;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,26 +38,36 @@ public class WareHourseInsertPort {
     private Map<Factory, WebServiceTemplate> resourceMap;
 
     public String insertWareHourse(List<Requisition> requisitions, String commitJobNo) throws Exception {
+        
+        String response = "";
+        Map<String, List<Requisition>> groupedMap = requisitions.stream()
+                .collect(Collectors.groupingBy(Requisition::getWerk));
+        for (Map.Entry<String, List<Requisition>> entry : groupedMap.entrySet()) {
+            String werk = entry.getKey();
+            List<Requisition> rl = entry.getValue();
 
-        WareHourseInsert whq = new WareHourseInsert();
-        List<RequitionDetail> details = new ArrayList<>();
-        for (Requisition r : requisitions) {
-            String userInfo = r.getUser().getUsername() + " " + r.getFloor().getName();
-            String reason = r.getRemark() + " " + userInfo;
-            RequitionDetail aD = new RequitionDetail();
-            aD.setPo(r.getPo());
-            aD.setMaterialNo(r.getMaterialNumber());
-            aD.setRequireQty(Math.abs(r.getAmount()));
-            aD.setJobnumber(commitJobNo);
-            aD.setUserName(userInfo);
-            aD.setReason(reason);
-            details.add(aD);
+            List<RequitionDetail> details = new ArrayList<>();
+            for (Requisition r : rl) {
+                String userInfo = r.getUser().getUsername() + " " + r.getFloor().getName();
+                String reason = r.getRemark() + " " + userInfo;
+
+                RequitionDetail aD = new RequitionDetail();
+                aD.setPo(r.getPo());
+                aD.setMaterialNo(r.getMaterialNumber());
+                aD.setRequireQty(Math.abs(r.getAmount()));
+                aD.setJobnumber(commitJobNo);
+                aD.setUserName(userInfo);
+                aD.setReason(reason);
+                details.add(aD);
+            }
+            WareHourseInsert whq = new WareHourseInsert();
+            whq.setRequitions(details);
+            whq.setPlant(werk);
+
+            String jsonString = getJsonString(whq);
+            response += eFlowSendAndReceive(jsonString, Factory.M3WH);
         }
-        whq.setRequitions(details);
-
-        String jsonString = getJsonString(whq);
-        String s = eFlowSendAndReceive(jsonString, Factory.M3WH);
-        return s;
+        return response;
     }
 
     private String getJsonString(Object o) throws Exception {
