@@ -17,6 +17,7 @@ import com.advantech.model.db1.RequisitionState_;
 import com.advantech.model.db1.RequisitionType;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
+import com.advantech.sap.SapQueryPort;
 import com.advantech.service.db1.RequisitionEventService;
 import com.advantech.service.db1.RequisitionReasonService;
 import com.advantech.service.db1.RequisitionService;
@@ -55,7 +56,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoException;
+import com.sap.conn.jco.JCoFunction;
+import com.sap.conn.jco.JCoTable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -130,19 +137,47 @@ public class RequisitionController {
     @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})
     protected String insertEflow(@RequestParam String datas, @RequestParam String commitJobNo) throws Exception {
 
-        List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {});
+        //check state
+        List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {
+        });
         l = l.stream().filter(t -> t.getRequisitionState().getId() == 4).collect(Collectors.toList());
         if (l.isEmpty()) {
             return "待領料數量0.";
         }
-        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-        checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.請重新登入");
 
-        String response = whInsertPort.insertWareHourse(l, commitJobNo);
+//        //check login
+//        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+//        checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.請重新登入");//not handle error msg
+
+        //check stock
+        Map<String, BigDecimal> stockMap = sapService.getStockMap(l);
+        String[] stockMsg = {""};
+        List<Requisition> lPass = l.stream().filter(t -> {
+            String mat = t.getMaterialNumber();
+            BigDecimal stock = stockMap.get(mat);
+            Boolean boo = !(stock == null || stock.compareTo(BigDecimal.ZERO) == 0);
+            if (!boo) {
+                String remarkStock = " [庫存：" + stock + "],";
+                t.setRemark(t.getRemark() + remarkStock);
+                stockMsg[0] += "料號：" + mat + remarkStock;
+            }
+            return boo;
+        }).collect(Collectors.toList());
+        List<Requisition> lNoStock = l.stream().filter(i -> !lPass.contains(i)).collect(Collectors.toList());
+
+        //insert WH
+        String response = whInsertPort.insertWareHourse(lPass, commitJobNo);
+//        String response = "";//for quickly debug
         if (response.equals("")) {
-            service.changeState(l, 5);
+            service.changeState(lPass, 5);
+            service.changeState(lNoStock, 2);
 //            trigger.checkRepair(l);
-            return "success";
+
+            if (stockMsg[0].isEmpty()) {
+                return "success";
+            } else {
+                return "部份成功,有庫存不足. " + stockMsg[0];
+            }
         }
         return "失敗 response:=" + response;
     }
@@ -198,6 +233,7 @@ public class RequisitionController {
                 }
                 r.setModelName(info.getModelName());
                 r.setUnitPrice(info.getUnitPrice());
+                r.setWerk(info.getWerk());
             }
         }
         return requisitions;

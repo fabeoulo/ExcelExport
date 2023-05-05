@@ -169,7 +169,7 @@ public class RequisitionService {
             }
 
             User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-            RequisitionEvent e = new RequisitionEvent(r, user, state, "");
+            RequisitionEvent e = new RequisitionEvent(r, user, state, r.getRemark());
             reLists.add(e);
         }
         repo.saveAll(l);

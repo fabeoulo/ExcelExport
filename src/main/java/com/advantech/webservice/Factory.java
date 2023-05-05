@@ -11,6 +11,7 @@ import java.util.Map;
 
 /**
  * 不只webservice在用
+ *
  * @author Wei.Cheng 假如要用其他廠區的話，Factory必須吻合DB設定
  */
 public enum Factory implements Encodeable {
@@ -23,7 +24,7 @@ public enum Factory implements Encodeable {
     M3WH("WH");
 
     private final String s;
-    private static final Map<String, Factory> map = new HashMap<>();
+    private static final Map<String, Factory> map = new HashMap<>();//getEnum("PD03") return TWM6
 
     static {
         for (Factory f : Factory.values()) {

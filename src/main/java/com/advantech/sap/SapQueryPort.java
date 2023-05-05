@@ -5,24 +5,30 @@
  */
 package com.advantech.sap;
 
+import com.advantech.model.db1.Requisition;
 import com.advantech.webservice.Factory;
+import com.sap.conn.jco.JCo;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
 import com.sap.conn.jco.JCoParameterList;
+import com.sap.conn.jco.JCoTable;
 import java.net.URISyntaxException;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  *
- * @author MFG.ESOP
+ * @author Justin.Yeh
  */
 @Component
 public class SapQueryPort {
 
     @Autowired
     private SAPConn1 sapConn;
+
+    String[] lgort = {"0015", "0008", "0012", "0055", "0058", "CUST"};
 
     public JCoFunction getMaterialInfo(String po, Factory factory) throws JCoException, URISyntaxException {
         JCoFunction function;
@@ -40,7 +46,6 @@ public class SapQueryPort {
         input.setValue("PLANT", factory == null ? "" : "TW" + factory.token());
 
         function.execute(destination);
-
         return function;
 
     }
@@ -58,8 +63,27 @@ public class SapQueryPort {
         input.setValue("WERKS", "TW" + factory.token());
 
         function.execute(destination);
-
         return function;
 
+    }
+
+    public JCoFunction getMaterialStock(List<Requisition> rl) throws JCoException, URISyntaxException {
+        JCoFunction function;
+        JCoDestination destination = sapConn.getConn();
+
+        function = destination.getRepository().getFunction("ZCN_GET_BIN_STOCK_N");
+
+        JCoTable zmardTable = function.getTableParameterList().getTable("ZMARD_INPUT");
+        for (Requisition detail : rl) {
+            for (String l : lgort) {
+                zmardTable.appendRow();
+                zmardTable.setValue("WERKS", detail.getWerk());
+                zmardTable.setValue("MATNR", detail.getMaterialNumber());
+                zmardTable.setValue("LGORT", l);
+            }
+        }
+
+        function.execute(destination);
+        return function;
     }
 }
