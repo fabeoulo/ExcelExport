@@ -287,11 +287,11 @@ public class TestRepository {
     @Transactional
     @Rollback(true)
     public void testRequisition() {
-//        Requisition r = requisitionRepo.getOne(63781);
-//        assertNotNull(r);
-//        System.out.println(r.getRequisitionState().getName());
-////        System.out.println(r.getRequisitionType().getName());
-////        System.out.println(r.getRequisitionReason().getName());
+        Requisition r = requisitionRepo.getOne(63781);
+        assertNotNull(r);
+        System.out.println(r.getRequisitionState().getName());
+//        System.out.println(r.getRequisitionType().getName());
+//        System.out.println(r.getRequisitionReason().getName());
 //        
 //        Requisition i = requisitionRepo.findById(99).orElse(null);
 //        System.out.println(i.getRequisitionState().getName());

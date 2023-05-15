@@ -37,16 +37,16 @@ import org.springframework.transaction.annotation.Transactional;
 })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TestService {
-    
+
     @Autowired
     private ExceptionService service;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private RequisitionService rservice;
-    
+
     @Test
     public void test1() {
 
@@ -54,20 +54,38 @@ public class TestService {
 //        Factory f = Factory.getEnum("PD03");
 //        HibernateObjectPrinter.print(f);
     }
-    
+
     @Autowired
     private RequisitionStateChangeTrigger trigger;
-    
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testTrigger() {
+        List<Integer> listInt = Arrays.asList(66124, 66125);
+        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
+
+        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
+        final int[] checkStateList = {2, 5};
+
+        trigger.checkRepair(rl);
+        List<Requisition> checkedList = rl.stream().filter(e -> {
+            int userId = e.getUser().getId();
+            int rsId = e.getRequisitionState().getId();
+            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
+        }).collect(Collectors.toList());
+    }
+
     @Test
     @Transactional
     @Rollback(true)
     public void test() {
-        System.out.println("Requisition.isPresent= " + rservice.findById(62288).isPresent());
-        
+//        System.out.println("Requisition.isPresent= " + rservice.findById(62288).isPresent());
+
         List<Integer> listInt = Arrays.asList(66124, 66125);
         List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
         HibernateObjectPrinter.print(rl);
-        
+
         List<Requisition> rl3 = rl.stream().filter(i -> {
             Boolean boo = i.getId() == 66124;
             if (!boo) {
@@ -76,7 +94,7 @@ public class TestService {
             return boo;
         }).collect(Collectors.toList());
         List<Requisition> rl4 = rl.stream().filter(i -> !rl3.contains(i)).collect(Collectors.toList());
-        
+
         String[] stateName = rl.stream().map(l -> l.getUser().getUsername() + "-" + l.getRequisitionState().getName()).toArray(size -> new String[size]);
         String ss = String.join(",", stateName);
         HibernateObjectPrinter.print(ss);
@@ -92,21 +110,11 @@ public class TestService {
 //        String ss = String.join(",", mapP0.values());
 //        HibernateObjectPrinter.print(ss);
 
-        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
-        final int[] checkStateList = {2, 5};
-        
-        trigger.checkRepair(rl);
-        List<Requisition> checkedList = rl.stream().filter(e -> {
-            int userId = e.getUser().getId();
-            int rsId = e.getRequisitionState().getId();
-            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
-        }).collect(Collectors.toList());
-        
     }
-    
+
     @Autowired
     private UserNotificationService notificationService;
-    
+
     @Test
     @Transactional
     @Rollback(true)
@@ -114,7 +122,7 @@ public class TestService {
         UserNotification un = notificationService.findByName("requisition_state_change_target");
         List<User> ls = userService.findByUserNotifications(un);
         List<Integer> li = ls.stream().map(User::getId).collect(Collectors.toList());
-        
+
         HibernateObjectPrinter.print(ls);
     }
 }

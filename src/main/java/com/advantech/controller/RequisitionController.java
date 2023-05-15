@@ -56,12 +56,14 @@ import com.advantech.webservice.port.WareHourseInsertPort;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
+import com.mysql.cj.conf.PropertyKey;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
 import com.sap.conn.jco.JCoTable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -152,29 +154,36 @@ public class RequisitionController {
 //        //check login
 //        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
 //        checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.請重新登入");//not handle error msg
-
         //check stock
         Map<String, BigDecimal> stockMap = sapService.getStockMap(l);
         String[] stockMsg = {""};
-        List<Requisition> lPass = l.stream().filter(t -> {
+        List<Requisition> passList = new ArrayList<>();
+        List<Requisition> lackList = new ArrayList<>();
+        List<Requisition> noStockList = new ArrayList<>();
+        l.forEach(t -> {
             String mat = t.getMaterialNumber();
             BigDecimal stock = stockMap.get(mat);
-            Boolean boo = !(stock == null || stock.compareTo(BigDecimal.ZERO) == 0);
-            if (!boo) {
-                String remarkStock = " [庫存：" + stock + "],";
-                t.setRemark(t.getRemark() + remarkStock);
-                stockMsg[0] += "料號：" + mat + remarkStock;
+            if (stock != null && stock.compareTo(BigDecimal.ZERO) == 0) {
+                noStockList.add(t);
+            } else if (stock != null && stock.compareTo(BigDecimal.valueOf(t.getAmount())) == -1) {
+                lackList.add(t);
+            } else {
+                passList.add(t);
+                return;
             }
-            return boo;
-        }).collect(Collectors.toList());
-        List<Requisition> lNoStock = l.stream().filter(i -> !lPass.contains(i)).collect(Collectors.toList());
+            String remarkStock = " [庫存量：" + stock + "],";
+            t.setRemark(t.getRemark() + remarkStock);
+            stockMsg[0] += "料號：" + mat + remarkStock;
+        });
 
         //insert WH
-        String response = whInsertPort.insertWareHourse(lPass, commitJobNo);
+        String response = whInsertPort.insertWareHourse(passList, commitJobNo);
 //        String response = "";//for quickly debug
         if (response.equals("")) {
-            service.changeState(lPass, 5);
-            service.changeState(lNoStock, 2);
+
+            service.updateWithStateAndEvent(lackList, 4);
+            service.updateWithStateAndEvent(passList, 5);
+            service.updateWithStateAndEvent(noStockList, 2);
             trigger.checkRepair(l);
 
             if (stockMsg[0].isEmpty()) {
