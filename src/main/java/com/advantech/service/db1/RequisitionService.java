@@ -151,15 +151,15 @@ public class RequisitionService {
     }
 
     public void changeState(int requisition_id, int state_id) {
-        Requisition r = this.findById(requisition_id).get();
-        changeState(newArrayList(r), state_id);
+        Requisition r = this.findByIdWithLazy(requisition_id);
+        updateWithStateAndEvent(newArrayList(r), state_id);
     }
 
-    public <S extends Requisition> int changeState(List<S> l, int state_id) {
+    public int updateWithStateAndEvent(List<Requisition> l, int state_id) {
 
+        RequisitionState state = stateRepo.getOne(state_id);
         List<RequisitionEvent> reLists = new ArrayList<>();
         for (Requisition r : l) {
-            RequisitionState state = stateRepo.getOne(state_id);
             r.setRequisitionState(state);
             Date now = new Date();
             if (state_id == 4 || state_id == 5) {
@@ -173,8 +173,8 @@ public class RequisitionService {
             reLists.add(e);
         }
         repo.saveAll(l);
-        eventRepo.saveAll(reLists);        
-        
+        eventRepo.saveAll(reLists);
+
         return 1;
     }
 

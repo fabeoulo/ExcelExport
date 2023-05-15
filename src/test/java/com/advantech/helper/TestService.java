@@ -62,7 +62,7 @@ public class TestService {
     @Test
     @Transactional
     @Rollback(true)
-    public void test() {
+    public void testTrigger() {
 //        System.out.println("Requisition.isPresent= " + rservice.findById(88).isPresent());
 
         List<Integer> listInt = Arrays.asList(88, 90);
@@ -96,7 +96,6 @@ public class TestService {
             int rsId = e.getRequisitionState().getId();
             return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
         }).collect(Collectors.toList());
-
     }
 //    
 //    @Autowired
