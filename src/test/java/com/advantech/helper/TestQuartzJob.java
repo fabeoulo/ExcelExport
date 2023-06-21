@@ -5,6 +5,7 @@
  */
 package com.advantech.helper;
 
+import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendWhReports;
@@ -34,11 +35,14 @@ public class TestQuartzJob {
     @Autowired
     private SyncData syncJob;
     
-    @Autowired
-    private SendWhReports whReportJob;
+//    @Autowired
+//    private SendWhReports whReportJob;
     
     @Autowired
     private SendOvertimeReport sendOvertimeReport;
+    
+    @Autowired
+    private SendLackWithStock sendLackWithStock;
     
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
@@ -48,14 +52,14 @@ public class TestQuartzJob {
         reportJob.execute();
     }
     
-    @Test
+//    @Test
     public void testSync() {
         syncJob.execute();
     }
     
 //    @Test
     public void testSendWhReports() {
-        whReportJob.execute();
+//        whReportJob.execute();
     }
     
 //    @Test
@@ -63,4 +67,8 @@ public class TestQuartzJob {
         sendOvertimeReport.execute();
     }
    
+    @Test
+    public void testSendLackWithStock() {
+        sendLackWithStock.execute();
+    }
 }

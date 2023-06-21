@@ -86,4 +86,8 @@ public class SapQueryPort {
         function.execute(destination);
         return function;
     }
+
+    public void setGoodLgort() {
+        lgort = new String[]{"0015", "CUST"};
+    }
 }

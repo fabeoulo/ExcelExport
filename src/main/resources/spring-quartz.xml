@@ -76,6 +76,18 @@
         <property name="cronExpression" value="0 30 8 ? * MON-FRI *" />
     </bean>
 
+    <!--job7 setting-->
+    <bean name="SendLackWithStock-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="sendLackWithStock" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="SendLackWithStock-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SendLackWithStock-Job" />
+        <property name="cronExpression" value="0 0 9,15 ? * MON-FRI *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -86,6 +98,7 @@
                 <ref bean="SendWhReports-Trig"/>
                 <!--<ref bean="SendOvertimeReport-Trig"/>-->
                 <ref bean="SendWhReportsM8-Trig"/>
+                <ref bean="SendLackWithStock-Trig"/>
             </list>
         </property>
         <property name="schedulerName">

@@ -8,19 +8,18 @@ package com.advantech.service.db2;
 import com.advantech.model.db1.User;
 import com.advantech.model.db2.Items;
 import com.advantech.model.db2.Orders;
-import com.advantech.model.db2.QryWipAtt;
 import com.advantech.model.db2.Users;
 import com.advantech.repo.db2.ItemsRepository;
 import com.advantech.repo.db2.OrdersRepository;
 import com.advantech.repo.db2.UsersRepository;
 import com.advantech.sap.SapQueryPort;
-import com.advantech.webservice.Factory;
-import com.advantech.webservice.port.QryWipAttQueryPort;
 import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoFunction;
 import com.sap.conn.jco.JCoTable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,6 +48,10 @@ public class OrdersService {
 
     public List<Orders> findAll() {
         return repo.findAll();
+    }
+
+    public List<Orders> findAllLackWithUserItem(Integer teamsId) {
+        return repo.findAllLackWithUserItem(teamsId);
     }
 
     public Optional<Orders> findById(Integer id) {
