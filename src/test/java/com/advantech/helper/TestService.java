@@ -8,16 +8,28 @@ package com.advantech.helper;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
+import com.advantech.model.db2.Items;
+import com.advantech.model.db2.Orders;
+import com.advantech.sap.SapService;
 import com.advantech.service.db1.ExceptionService;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
+import com.advantech.service.db2.OrdersService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.Factory;
 import static com.google.common.base.Preconditions.checkArgument;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +62,10 @@ public class TestService {
     @Test
     public void test1() {
 
+        Date d = new Date();
+        DateTimeFormatter fmtD = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
+        String mailTitle2 = fmtD.print(d.getTime());
+        HibernateObjectPrinter.print(mailTitle2);
 //        service.testTransaction();
 //        Factory f = Factory.getEnum("PD03");
 //        HibernateObjectPrinter.print(f);
@@ -74,6 +90,60 @@ public class TestService {
             int rsId = e.getRequisitionState().getId();
             return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
         }).collect(Collectors.toList());
+    }
+
+    @Autowired
+    private SapService sapService;
+    @Autowired
+    private OrdersService ordersService;
+
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testLackStock() throws Exception {
+        Integer teamId = 2;// 1 for test
+        List<Orders> lackOrders = ordersService.findAllLackWithUserItem(teamId);//order by id
+//        if (lackOrders.isEmpty()) {
+//            return;
+//        }
+
+        List<Requisition> lackReq = getReqFromLack(lackOrders,new ArrayList<>());
+        Map<String, BigDecimal> stockMap = sapService.getStockMapWithGoodLgort(lackReq);
+
+        List<Orders> checkedOrders = lackOrders.stream().filter(o -> {
+            Items firstItem = o.getItemses().stream().findFirst().orElse(null);
+            if (firstItem != null && stockMap.containsKey(firstItem.getLabel3())) {
+                String key = firstItem.getLabel3();
+                BigDecimal stock = stockMap.get(key);
+                BigDecimal require = new BigDecimal(o.getNumber());
+                BigDecimal restStock = stock.subtract(require);
+                if (restStock.compareTo(new BigDecimal(0)) == 1) {
+                    stockMap.put(key, restStock);
+                    return true;
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+//        checkedOrders = new ArrayList<>();
+        lackReq = getReqFromLack(checkedOrders,lackReq);
+        List<String> lackMails = checkedOrders.stream().map(l -> l.getUsers().getMail())
+                .filter(e -> e != null && !e.trim().equals("")).distinct().collect(Collectors.toList());
+        List<String> reqMails = lackReq.stream().map(r -> r.getUser().getEmail())
+                .filter(e -> e != null && !e.trim().equals("")).distinct().collect(Collectors.toList());
+        lackMails.addAll(reqMails);
+        String[] findEMailFromLack = lackMails.stream().toArray(size -> new String[size]);
+        HibernateObjectPrinter.print(findEMailFromLack);
+    }
+
+    private List<Requisition> getReqFromLack(List<Orders> lackOrders, List<Requisition> lackReq) {
+        if (lackOrders.isEmpty()) {
+            return Arrays.asList();
+        }
+        List<Integer> listInt = lackOrders.stream().map(l -> l.getRequisionId()).collect(Collectors.toList());
+
+        return lackReq.isEmpty() ? rservice.findAllByIdWithUserAndState(listInt)
+                : lackReq.stream().filter(r -> listInt.contains(r.getId())).collect(Collectors.toList());
     }
 
     @Test

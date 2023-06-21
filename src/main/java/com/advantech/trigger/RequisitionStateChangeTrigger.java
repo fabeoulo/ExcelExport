@@ -71,15 +71,15 @@ public class RequisitionStateChangeTrigger {
     }
 
     private void setRepairUserList() {
-        UserNotification notifi = notificationService.findByName("requisition_state_change_target");
+        UserNotification notifi = notificationService.findById(13).get();
         List<User> l = userService.findByUserNotifications(notifi);
         repairUserList = l.stream().mapToInt(u -> u.getId()).toArray();
     }
 
     private void sendRepairMail(List<Requisition> rl) {
         try {
-            String[] mailTarget = findEMailByNotifyName("requisition_state_change_target");
-            String[] mailCcTarget = findEMailByNotifyName("requisition_state_change_target_cc");
+            String[] mailTarget = findEMailByNotifyId(13);
+            String[] mailCcTarget = findEMailByNotifyId(16);
 
             if (mailTarget.length == 0) {
                 logger.info("Trigger sendReport can't find mail target.");
@@ -163,8 +163,8 @@ public class RequisitionStateChangeTrigger {
         return sb.toString();
     }
 
-    private String[] findEMailByNotifyName(String Name) {
-        UserNotification notifi = notificationService.findByName(Name);
+    private String[] findEMailByNotifyId(Integer id) {
+        UserNotification notifi = notificationService.findById(id).get();
         List<User> l = userService.findByUserNotifications(notifi);
         return l.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
     }

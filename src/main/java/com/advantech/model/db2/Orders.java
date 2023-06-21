@@ -40,6 +40,7 @@ public class Orders implements java.io.Serializable {
     private Date timeOpen;
     private Date timeClose;
     private Date respectDate;
+    private Integer requisionId;
     private Set<Items> itemses = new HashSet<Items>(0);
 
     public Orders() {
@@ -156,6 +157,15 @@ public class Orders implements java.io.Serializable {
 
     public void setRespectDate(Date respectDate) {
         this.respectDate = respectDate;
+    }
+
+    @Column(name = "requision_id", nullable = true)
+    public Integer getRequisionId() {
+        return requisionId;
+    }
+
+    public void setRequisionId(Integer requisionId) {
+        this.requisionId = requisionId;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "orders")

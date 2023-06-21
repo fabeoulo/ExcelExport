@@ -82,7 +82,7 @@ public class SapService {
         }
         return BigDecimal.ZERO;
     }
-    
+
     public Map<String, BigDecimal> getStockMap(List<Requisition> l) throws Exception {
         JCoFunction function = port.getMaterialStock(l);
         JCoTable output = function.getTableParameterList().getTable("ZMARD_OUTPUT");
@@ -97,5 +97,10 @@ public class SapService {
 
     private String removeLeadingZeros(String str) {
         return str.replaceAll("^0+", "");
+    }
+
+    public Map<String, BigDecimal> getStockMapWithGoodLgort(List<Requisition> l) throws Exception {
+        port.setGoodLgort();
+        return getStockMap(l);
     }
 }

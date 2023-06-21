@@ -321,7 +321,8 @@
                                     $("#model-table #itemses\\[0\\]\\.label1").val(data.po);
                                     $("#model-table #itemses\\[0\\]\\.label3").val(data.materialNumber);
                                     $("#model-table #number").val(data.amount);
-                                    $("#model-table #comment").val(data.remark);
+                                    $("#model-table #comment").val("申請人：" + data.user.username + "。" + data.remark);
+                                    $("#model-table #email").val(data.user.email).attr("disabled",true);
                                 }
                             },
                             {
@@ -474,6 +475,7 @@
                         var orderType = $("#myModal3 #model-table #orderTypes\\.id").val();
                         var respectDate = $("#myModal3 #model-table #respectDate").val();
                         var comment = $("#myModal3 #model-table #comment").val();
+//                        var email = $("#myModal3 #model-table #email").val();
 
                         if (isNaN(number) || number == "") {
                             alert("Amount please insert a number.");
@@ -494,7 +496,8 @@
                             "number": number,
                             "orderTypes.id": orderType,
                             "respectDate": respectDate,
-                            "comment": comment
+                            "comment": comment,
+//                            "itemEmail": email
                         };
 
                         saveToOrders(data);
@@ -1050,6 +1053,12 @@
                                     <td class="lab">不良敘述</td>
                                     <td>
                                         <textarea id="comment"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lab">申請人Email</td>
+                                    <td>
+                                        <input type="text" id="email" readonly="readonly">
                                     </td>
                                 </tr>
                             </table>
