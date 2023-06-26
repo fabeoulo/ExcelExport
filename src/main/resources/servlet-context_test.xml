@@ -50,9 +50,9 @@
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <property name="connectionTestQuery" value="SELECT 1" />
         <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver" />
-        <property name="jdbcUrl" value="jdbc:jtds:sqlserver://M3-SERVER/ExcelExport" />
-        <property name="username" value="waychien" />
-        <property name="password" value="m3server" />
+        <property name="jdbcUrl" value="jdbc:jtds:sqlserver://172.22.250.151/ATMC" />
+        <property name="username" value="ATMCSa" />
+        <property name="password" value="@tmc$a392" />
     </bean>
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" destroy-method="destroy"> 
@@ -250,7 +250,7 @@
         <property name="defaultUri" value="http://172.19.5.204/auto_testing_service/Service.asmx?WSDL"/>
     </bean>
     
-    <!--WareHourse WebService port-->
+    <!--M9 WareHourse WebService port-->
     <bean id="webServiceTemplate3" class="org.springframework.ws.client.core.WebServiceTemplate">
         <constructor-arg ref="soapMessageFactory"/>
         <property name="marshaller" ref="marshaller" />

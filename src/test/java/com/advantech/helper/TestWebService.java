@@ -8,6 +8,7 @@ package com.advantech.helper;
 import com.advantech.webservice.Factory;
 import com.advantech.webservice.port.FqcKanBanQueryPort;
 import com.advantech.webservice.port.QryWipAttQueryPort;
+import com.advantech.webservice.port.WareHourseInsertPort;
 import com.advantech.webservice.root.WareHourseInsert;
 import com.advantech.webservice.root.WareHourseInsert.RequitionDetail;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +68,7 @@ public class TestWebService {
     private Map<Factory, WebServiceTemplate> resourceMap;
 
     @Autowired
-    WareHourseQuery whq;
+    WareHourseInsertPort whPort;
 
     @Test
     public void wareHourseQuery() throws Exception {
