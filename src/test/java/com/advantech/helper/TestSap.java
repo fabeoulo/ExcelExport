@@ -83,7 +83,7 @@ public class TestSap {
     @Transactional
     @Rollback(true)
     public void testStock() throws JCoException, URISyntaxException {
-        List<Integer> listInt = Arrays.asList(66125,46232);
+        List<Integer> listInt = Arrays.asList(88,90);
         List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
         JCoFunction function = port.getMaterialStock(rl);
         JCoTable output = function.getTableParameterList().getTable("ZMARD_OUTPUT");
@@ -98,7 +98,7 @@ public class TestSap {
 
         BigDecimal stock = stockMap.get(rl.get(0).getMaterialNumber());
         Boolean boo = !(stock == null || stock.compareTo(BigDecimal.ZERO) == 0);
-        HibernateObjectPrinter.print(stock.compareTo(BigDecimal.ZERO));
+        HibernateObjectPrinter.print(boo);
     }
 
     private String removeLeadingZeros(String str) {

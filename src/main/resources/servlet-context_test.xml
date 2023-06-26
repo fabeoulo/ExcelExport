@@ -69,6 +69,7 @@
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"></bean>
         </property>
         
+        
         <property name="jpaProperties">
             <props> 
                 <!--不要用 <prop key="hibernate.current_session_context_class">thread</prop>--> 
@@ -76,8 +77,10 @@
                 <prop key="hibernate.query.factory_class">org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory</prop>
                 <prop key="hibernate.jdbc.batch_size">${HIBERNATE.JDBC.BATCHSIZE}</prop>
                 <prop key="hibernate.id.new_generator_mappings" >false</prop>
-                <!--<prop key="hibernate.show_sql">true</prop>-->
-                <!--<prop key="hibernate.format_sql">true</prop>-->
+                <prop key="hibernate.default_schema">M9_Picking</prop>
+                <prop key="hibernate.dialect">com.advantech.helper.SqlServerDialectWithNvarchar</prop>
+                <!--                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>-->
                 <!--<prop key="hibernate.hbm2ddl.auto">update</prop>-->
             </props> 
         </property> 
