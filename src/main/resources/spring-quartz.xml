@@ -88,6 +88,18 @@
         <property name="cronExpression" value="0 0 9,15 ? * MON-FRI *" />
     </bean>
     
+    <!--job8 setting-->
+    <bean name="SendRequiredToPMC-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="sendRequiredToPMC" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="SendRequiredToPMC-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SendRequiredToPMC-Job" />
+        <property name="cronExpression" value="0 0 12,17 ? * MON-FRI *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -99,6 +111,7 @@
                 <!--<ref bean="SendOvertimeReport-Trig"/>-->
                 <ref bean="SendWhReportsM8-Trig"/>
                 <ref bean="SendLackWithStock-Trig"/>
+                <ref bean="SendRequiredToPMC-Trig"/>
             </list>
         </property>
         <property name="schedulerName">

@@ -61,14 +61,60 @@ public class TestService {
 
     @Test
     public void test1() {
-
-        Date d = new Date();
         DateTimeFormatter fmtD = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
-        String mailTitle2 = fmtD.print(d.getTime());
-        HibernateObjectPrinter.print(mailTitle2);
+
+        DateTime dt = new DateTime();
+        DateTime sdt;
+        DateTime edt;
+        if (dt.getHourOfDay() < 17) {
+            sdt = dt.minusDays(1).withTime(17, 0, 0, 1);
+            edt = dt.withTime(12, 0, 0, 0);
+        } else {
+            sdt = dt.withTime(12, 0, 0, 1);
+            edt = dt.withTime(17, 0, 0, 0);
+        }
+        Date sd = sdt.toDate();
+        Date ed = edt.toDate();
+
+        String mailTitle = fmtD.print(sd.getTime());
+        String mailTitle2 = fmtD.print(ed.getTime());
+        HibernateObjectPrinter.print(mailTitle, mailTitle2);
+
 //        service.testTransaction();
 //        Factory f = Factory.getEnum("PD03");
 //        HibernateObjectPrinter.print(f);
+    }
+
+    private Date sd, ed;
+
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testToPMC() {
+//        setDatetime(sd, ed);
+
+        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
+        return;
+    }
+
+    private void setDatetime(Date sd, Date ed) {
+        DateTimeFormatter fmtD = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
+
+        DateTime dt = new DateTime();
+        DateTime sdt, edt;
+        if (dt.getHourOfDay() < 17) {
+            sdt = dt.minusDays(1).withTime(17, 0, 0, 1);
+            edt = dt.withTime(12, 0, 0, 0);
+        } else {
+            sdt = dt.withTime(12, 0, 0, 1);
+            edt = dt.withTime(17, 0, 0, 0);
+        }
+        sd = sdt.toDate();
+        ed = edt.toDate();
+
+        String mailTitle = fmtD.print(sd.getTime());
+        String mailTitle2 = fmtD.print(ed.getTime());
+        HibernateObjectPrinter.print(mailTitle, mailTitle2);
     }
 
     @Autowired

@@ -8,6 +8,7 @@ package com.advantech.helper;
 import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
+import com.advantech.job.SendRequiredToPMC;
 import com.advantech.job.SendWhReports;
 import com.advantech.job.SyncData;
 import org.junit.Test;
@@ -44,6 +45,9 @@ public class TestQuartzJob {
     @Autowired
     private SendLackWithStock sendLackWithStock;
     
+    @Autowired
+    private SendRequiredToPMC sendRequiredToPMC;
+    
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
@@ -67,8 +71,13 @@ public class TestQuartzJob {
         sendOvertimeReport.execute();
     }
    
-    @Test
+//    @Test
     public void testSendLackWithStock() {
         sendLackWithStock.execute();
+    }
+    
+    @Test
+    public void testSendRequiredToPMC() {
+        sendRequiredToPMC.execute();
     }
 }

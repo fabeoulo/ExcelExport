@@ -28,6 +28,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
+import com.advantech.model.db1.RequisitionState_;
 import com.advantech.model.db1.Requisition_;
 import static com.google.common.collect.Lists.newArrayList;
 import java.util.ArrayList;
@@ -35,7 +36,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -59,6 +62,8 @@ public class RequisitionService {
 
     @Autowired
     private RequisitionReasonRepository reasonRepo;
+
+    private Date sD, eD;
 
     public DataTablesOutput<Requisition> findAll(DataTablesInput dti) {
         return repo.findAll(dti);
@@ -95,6 +100,39 @@ public class RequisitionService {
             Path<Integer> idEntryPath = root.get(Requisition_.ID);
             return cb.and(idEntryPath.in(ids));
         });
+    }
+
+    public List<Requisition> findAllByHalfdayWithUserAndState() {
+        return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            root.fetch(Requisition_.USER, JoinType.LEFT);
+            root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
+
+            setDatetime();
+            Path<Date> dateEntryPath = root.get(Requisition_.receiveDate);
+            Predicate datePredicate = cb.between(dateEntryPath, sD, eD);
+
+            Path<RequisitionState> rsEntryPath = root.get(Requisition_.requisitionState);
+            Predicate statePredicate = cb.equal(rsEntryPath.get(RequisitionState_.id), 5);
+
+            cq.where(cb.and(datePredicate, statePredicate));
+
+            cq.orderBy(cb.asc(root.get(Requisition_.werk)));
+            return cq.getRestriction();
+        });
+    }
+
+    private void setDatetime() {
+        DateTime dt = new DateTime();
+        DateTime sdt, edt;
+        if (dt.getHourOfDay() < 17) {
+            sdt = dt.minusDays(1).withTime(17, 0, 0, 1);
+            edt = dt.withTime(12, 0, 0, 0);
+        } else {
+            sdt = dt.withTime(12, 0, 0, 1);
+            edt = dt.withTime(17, 0, 0, 0);
+        }
+        sD = sdt.toDate();
+        eD = edt.toDate();
     }
 
     public List<ModelMaterialDetails> findModelMaterialDetails(String modelName) {
