@@ -52,56 +52,56 @@ public class TestService {
         service.testTransaction();
     }
 
-    @Autowired
-    private RequisitionStateChangeTrigger trigger;
-
-    @Test
-    @Transactional
-    public void test() {
-        System.out.println("Requisition.isPresent= " + rservice.findById(62288).isPresent());
-
-        List<Integer> listInt = Arrays.asList(66124, 66125);
-        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
-        HibernateObjectPrinter.print(rl);
-        
-        String[] stateName = rl.stream().map(l -> l.getUser().getUsername()+"-"+l.getRequisitionState().getName()).toArray(size -> new String[size]);
-        String ss = String.join(",", stateName);
-        HibernateObjectPrinter.print(ss);
+//    @Autowired
+//    private RequisitionStateChangeTrigger trigger;
+//
+//    @Test
+//    @Transactional
+//    public void test() {
+//        System.out.println("Requisition.isPresent= " + rservice.findById(62288).isPresent());
+//
+//        List<Integer> listInt = Arrays.asList(66124, 66125);
+//        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
 //        HibernateObjectPrinter.print(rl);
-//        Map<User, String> mapP0 = rl.stream()
-//                .collect(Collectors.groupingBy(Requisition::getUser,
-//                        Collectors.collectingAndThen(Collectors.toList(),
-//                                list -> list.stream()
-//                                        .map(Requisition::getPo)
-//                                        .findFirst()
-//                                        .orElse(""))));
-//        HibernateObjectPrinter.print(mapP0.values());
-//        String ss = String.join(",", mapP0.values());
+//        
+//        String[] stateName = rl.stream().map(l -> l.getUser().getUsername()+"-"+l.getRequisitionState().getName()).toArray(size -> new String[size]);
+//        String ss = String.join(",", stateName);
 //        HibernateObjectPrinter.print(ss);
-
-
-        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
-        final int[] checkStateList = {2, 5};
-
-        trigger.checkRepair(rl);
-        List<Requisition> checkedList = rl.stream().filter(e -> {
-            int userId = e.getUser().getId();
-            int rsId = e.getRequisitionState().getId();
-            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
-        }).collect(Collectors.toList());
-
-    }
-
-    @Autowired
-    private UserNotificationService notificationService;
-
-    @Test
-    @Transactional
-    public void testUserNotificationService() {
-        UserNotification un = notificationService.findByName("requisition_state_change_target");
-        List<User> ls = userService.findByUserNotifications(un);
-        List<Integer> li = ls.stream().map(User::getId).collect(Collectors.toList());
-
-        HibernateObjectPrinter.print(ls);
-    }
+////        HibernateObjectPrinter.print(rl);
+////        Map<User, String> mapP0 = rl.stream()
+////                .collect(Collectors.groupingBy(Requisition::getUser,
+////                        Collectors.collectingAndThen(Collectors.toList(),
+////                                list -> list.stream()
+////                                        .map(Requisition::getPo)
+////                                        .findFirst()
+////                                        .orElse(""))));
+////        HibernateObjectPrinter.print(mapP0.values());
+////        String ss = String.join(",", mapP0.values());
+////        HibernateObjectPrinter.print(ss);
+//
+//
+//        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
+//        final int[] checkStateList = {2, 5};
+//
+//        trigger.checkRepair(rl);
+//        List<Requisition> checkedList = rl.stream().filter(e -> {
+//            int userId = e.getUser().getId();
+//            int rsId = e.getRequisitionState().getId();
+//            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
+//        }).collect(Collectors.toList());
+//
+//    }
+//
+//    @Autowired
+//    private UserNotificationService notificationService;
+//
+//    @Test
+//    @Transactional
+//    public void testUserNotificationService() {
+//        UserNotification un = notificationService.findByName("requisition_state_change_target");
+//        List<User> ls = userService.findByUserNotifications(un);
+//        List<Integer> li = ls.stream().map(User::getId).collect(Collectors.toList());
+//
+//        HibernateObjectPrinter.print(ls);
+//    }
 }

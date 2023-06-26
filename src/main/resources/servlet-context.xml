@@ -252,12 +252,12 @@
         <property name="defaultUri" value="http://172.20.128.100/auto_testing_service/Service.asmx?WSDL"/>
     </bean>
 
-    <!--WareHourse WebService port-->
+    <!--M9 WareHourse WebService port-->
     <bean id="webServiceTemplate3" class="org.springframework.ws.client.core.WebServiceTemplate">
         <constructor-arg ref="soapMessageFactory"/>
         <property name="marshaller" ref="marshaller" />
         <property name="unmarshaller" ref="marshaller" />
-        <property name="defaultUri" value="http://172.20.128.223/WareHourseWebService/Service.asmx"/>
+        <property name="defaultUri" value="http://172.22.250.98/WareHourseWebService/Service.asmx"/>
     </bean>
     
     <!--Inject webservice-->

@@ -141,7 +141,7 @@ public class RequisitionController {
         String response = whInsertPort.insertWareHourse(l, commitJobNo);
         if (response.equals("")) {
             service.changeState(l, 5);
-            trigger.checkRepair(l);
+//            trigger.checkRepair(l);
             return "success";
         }
         return "失敗 response:=" + response;
