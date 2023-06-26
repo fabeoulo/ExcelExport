@@ -37,7 +37,7 @@ public class TestWebClient {
     }
 
     @Autowired
-    @Qualifier("webapiclient")
+    @Qualifier("webApiClient")
     private WebApiClient wc;
 
     @Test
