@@ -8,6 +8,7 @@ package com.advantech.controller;
 import com.advantech.helper.RequisitionListContainer;
 import com.advantech.sap.SapMaterialInfo;
 import com.advantech.model.db1.Floor;
+import com.advantech.model.db1.Floor_;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionEvent;
 import com.advantech.model.db1.RequisitionEvent_;
@@ -17,6 +18,7 @@ import com.advantech.model.db1.RequisitionState_;
 import com.advantech.model.db1.RequisitionType;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
+import com.advantech.model.db1.User_;
 import com.advantech.sap.SapQueryPort;
 import com.advantech.service.db1.RequisitionEventService;
 import com.advantech.service.db1.RequisitionReasonService;
@@ -67,6 +69,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 
 /**
  *
@@ -111,8 +115,10 @@ public class RequisitionController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime endDate) {
 
-//        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-//        Floor floor = user.getFloor();
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        Floor floor = user.getFloor();
+        Integer m6FloorId = 7;
+        boolean isM6 = floor.getId() == m6FloorId;
         if (startDate != null && endDate != null) {
             final Date sD = startDate.toDate();
             final Date eD = endDate.withHourOfDay(23).toDate();
@@ -120,23 +126,36 @@ public class RequisitionController {
             return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
                 Path<Date> dateEntryPath = root.get(Requisition_.createDate);
 //                if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-                return cb.between(dateEntryPath, sD, eD);
-//                } else {
+                Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
+                if (!isM6) {
+//                    return cb.between(dateEntryPath, sD, eD);
+                    return cq.where(cb.and(
+                            cb.between(dateEntryPath, sD, eD),
+                            cb.notEqual(userJoin.get(User_.FLOOR).get(Floor_.ID), m6FloorId)
+                    )).getRestriction();
+                } else {
 //                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-//                    return cq.where(cb.and(cb.between(dateEntryPath, sD, eD), cb.equal(userJoin.get(User_.FLOOR), floor))).getRestriction();
-//                }
+                    return cq.where(cb.and(
+                            cb.between(dateEntryPath, sD, eD),
+                            cb.equal(userJoin.get(User_.FLOOR), floor)
+                    )).getRestriction();
+                }
             });
         } else {
 //            if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-            return service.findAll(input);
-//            } else {
-//                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-//                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-//                    return cb.equal(userJoin.get(User_.FLOOR), floor);
-//                });
-//            }
+            if (!isM6) {
+//                return service.findAll(input);
+                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
+                    return cb.notEqual(userJoin.get(User_.FLOOR).get(Floor_.ID), m6FloorId);
+                });
+            } else {
+                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
+                    return cb.equal(userJoin.get(User_.FLOOR), floor);
+                });
+            }
         }
-
     }
 
     @ResponseBody

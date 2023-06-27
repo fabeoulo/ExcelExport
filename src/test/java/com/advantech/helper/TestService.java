@@ -6,6 +6,7 @@
 package com.advantech.helper;
 
 import com.advantech.model.db1.Requisition;
+import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.model.db2.Items;
@@ -27,12 +28,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -73,11 +80,11 @@ public class TestService {
             sdt = dt.withTime(12, 0, 0, 1);
             edt = dt.withTime(17, 0, 0, 0);
         }
-        Date sd = sdt.toDate();
-        Date ed = edt.toDate();
+        Date sD = sdt.toDate();
+        Date eD = edt.toDate();
 
-        String mailTitle = fmtD.print(sd.getTime());
-        String mailTitle2 = fmtD.print(ed.getTime());
+        String mailTitle = fmtD.print(sD.getTime());
+        String mailTitle2 = fmtD.print(eD.getTime());
         HibernateObjectPrinter.print(mailTitle, mailTitle2);
 
 //        service.testTransaction();
@@ -85,23 +92,22 @@ public class TestService {
 //        HibernateObjectPrinter.print(f);
     }
 
-    private Date sd, ed;
+    private Date sD, eD;
 
     @Test
     @Transactional
     @Rollback(true)
     public void testToPMC() {
-//        setDatetime(sd, ed);
+//        setDatetime(sD, eD);
 
         List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
         return;
     }
 
-    private void setDatetime(Date sd, Date ed) {
-        DateTimeFormatter fmtD = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
-
+    private void setDate() {
         DateTime dt = new DateTime();
-        DateTime sdt, edt;
+        DateTime sdt;
+        DateTime edt;
         if (dt.getHourOfDay() < 17) {
             sdt = dt.minusDays(1).withTime(17, 0, 0, 1);
             edt = dt.withTime(12, 0, 0, 0);
@@ -109,12 +115,33 @@ public class TestService {
             sdt = dt.withTime(12, 0, 0, 1);
             edt = dt.withTime(17, 0, 0, 0);
         }
-        sd = sdt.toDate();
-        ed = edt.toDate();
+        sD = sdt.toDate();
+        eD = edt.toDate();
+    }
 
-        String mailTitle = fmtD.print(sd.getTime());
-        String mailTitle2 = fmtD.print(ed.getTime());
-        HibernateObjectPrinter.print(mailTitle, mailTitle2);
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testDataTablesOutput() {
+        setDate();
+
+        DataTablesInput input=new DataTablesInput();
+        DataTablesOutput<Requisition> dto = //rservice.findAll(input);
+                rservice.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+                Path<Date> dateEntryPath = root.get(Requisition_.createDate);
+//                if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
+                return cb.between(dateEntryPath, sD, eD);
+//                } else {
+//                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
+//                    return cq.where(cb.and(cb.between(dateEntryPath, sD, eD), cb.equal(userJoin.get(User_.FLOOR), floor))).getRestriction();
+//                }
+            });
+        List<Requisition> filteredData = dto.getData().stream()
+                .filter(r -> r.getUser().getId() == 53)
+                .collect(Collectors.toList());
+
+        HibernateObjectPrinter.print(filteredData);
+        dto.setData(filteredData);
     }
 
     @Autowired
@@ -153,7 +180,7 @@ public class TestService {
 //            return;
 //        }
 
-        List<Requisition> lackReq = getReqFromLack(lackOrders,new ArrayList<>());
+        List<Requisition> lackReq = getReqFromLack(lackOrders, new ArrayList<>());
         Map<String, BigDecimal> stockMap = sapService.getStockMapWithGoodLgort(lackReq);
 
         List<Orders> checkedOrders = lackOrders.stream().filter(o -> {
@@ -172,7 +199,7 @@ public class TestService {
         }).collect(Collectors.toList());
 
 //        checkedOrders = new ArrayList<>();
-        lackReq = getReqFromLack(checkedOrders,lackReq);
+        lackReq = getReqFromLack(checkedOrders, lackReq);
         List<String> lackMails = checkedOrders.stream().map(l -> l.getUsers().getMail())
                 .filter(e -> e != null && !e.trim().equals("")).distinct().collect(Collectors.toList());
         List<String> reqMails = lackReq.stream().map(r -> r.getUser().getEmail())
