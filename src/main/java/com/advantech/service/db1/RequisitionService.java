@@ -135,12 +135,16 @@ public class RequisitionService {
 
         RequisitionState defaultState = stateRepo.getOne(4);
         RequisitionType defaultType = typeRepo.getOne(1);
-        RequisitionReason defaultReason = reasonRepo.getOne(2);
+        List<RequisitionReason> reasonL = reasonRepo.findAll();
+        RequisitionReason defaultReason = reasonL.stream().filter(rl -> rl.getId() == 2).findFirst().get();
 
         for (Requisition r : l) {
+            RequisitionReason reason = reasonL.stream().filter(rl -> rl.getId() == r.getRequisitionReason().getId())
+                    .findFirst().orElse(defaultReason);
+
             r.setRequisitionState(defaultState);
             r.setRequisitionType(defaultType);
-            r.setRequisitionReason(defaultReason);
+            r.setRequisitionReason(reason);
             r.setUser(user);
             repo.save(r);
             RequisitionEvent e = new RequisitionEvent(r, user, defaultState, r.getRemark());

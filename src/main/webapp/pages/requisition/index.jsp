@@ -192,6 +192,7 @@
                                 "action": function (e, dt, node, config) {
                                     $("#model-table input").val("");
                                     $("#model-table #id").val(0);
+                                    $("#model-table2 #floor\\.id").prop('selectedIndex', 7);
                                 }
                             }
                         ]
@@ -236,6 +237,7 @@
                                 "action": function (e, dt, node, config) {
                                     $("#model-table input").val("");
                                     $("#model-table #id").val(0);
+                                    $("#model-table2 #floor\\.id").prop('selectedIndex', 7);
                                 }
                             },
                             {
@@ -443,13 +445,14 @@
                         const tb = $("#material-detail tbody tr");
                         const po = $("#model-table2 #po").val();
                         const floor = $("#model-table2 #floor\\.id").val();
-                        
+
                         const myArray = tb.map(function () {
                             const o = {
                                 po: po,
                                 materialNumber: $(this).find("input").eq(0).val(),
                                 amount: $(this).find("input").eq(1).val(),
                                 remark: $(this).find("#remark").val(),
+                                "requisitionReason.id": $(this).find("#requisitionReason\\.id").val(),
                                 "floor.id": floor
                             };
                             return o;
@@ -457,9 +460,9 @@
                         const data = {
                             "myList": myArray
                         };
-                        batchSave(data, function() {
+                        batchSave(data, function () {
                             $("#myModal2 input, textarea").val("");
-                            $("#myModal2 select").prop('selectedIndex',0);
+                            $("#myModal2 select").prop('selectedIndex', 0);
                             $("#myModal2 #material-detail").find("tbody>tr").not(":eq(0)").detach();
                         });
                     }
@@ -574,7 +577,7 @@
                                     align: "right"
                                 }
                             });
-                            
+
                             if (fn != null) {
                                 fn();
                             }
@@ -612,6 +615,10 @@
                 function initDropDownOptions() {
 
                     const requestParams = [
+                        {
+                            url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
+                            target: $("#model-table2 #requisitionReason\\.id")
+                        },
                         {
                             url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
                             target: $("#model-table #requisitionReason\\.id")
@@ -936,6 +943,7 @@
                                                 <tr>
                                                     <th>料號</th>
                                                     <th>數量</th>
+                                                    <th width="15%">原因</th>
                                                     <th>備註</th>
                                                     <th>動作</th>
                                                 </tr>
@@ -947,6 +955,9 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" id="amount" />
+                                                    </td>
+                                                    <td>
+                                                        <select id="requisitionReason.id"></select>
                                                     </td>
                                                     <td>
                                                         <textarea id="remark" ></textarea>
