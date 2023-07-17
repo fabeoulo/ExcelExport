@@ -446,6 +446,7 @@
                                 materialNumber: $(this).find("input").eq(0).val(),
                                 amount: $(this).find("input").eq(1).val(),
                                 remark: $(this).find("#remark").val(),
+                                "requisitionReason.id": $(this).find("#requisitionReason\\.id").val(),
                                 "floor.id": floor
                             };
                             return o;
@@ -610,6 +611,10 @@
                 function initDropDownOptions() {
 
                     const requestParams = [
+                        {
+                            url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
+                            target: $("#model-table2 #requisitionReason\\.id")
+                        },
                         {
                             url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
                             target: $("#model-table #requisitionReason\\.id")
@@ -981,6 +986,9 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" id="amount" />
+                                                    </td>
+                                                    <td>
+                                                        <select id="requisitionReason.id"></select>
                                                     </td>
                                                     <td>
                                                         <textarea id="remark" ></textarea>
