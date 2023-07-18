@@ -26,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, CrudReposi
 
     @Procedure("M9_Picking.usp_QuickInsertUser")
     public void saveUserByProc(String jobnumber);
+
+    @Procedure("M9_Picking.usp_QuickInsertUserWithName")
+    public void saveUserWithNameByProc(String jobnumber, String email, String name);
 }

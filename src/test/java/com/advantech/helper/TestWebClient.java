@@ -6,14 +6,19 @@ package com.advantech.helper;
 
 import com.advantech.api.WebApiUser;
 import com.advantech.api.WebApiClient;
+import com.advantech.model.db1.User;
 import com.advantech.repo.db1.UserRepository;
+import com.advantech.service.db1.UserService;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -41,16 +46,41 @@ public class TestWebClient {
     private WebApiClient wc;
 
     @Test
-    public void GetUserInAtmc2() {
-        String jobNo = "A-10376";//A-10376 sysop
+    public void testGetUserInAtmc2() {
+        String jobNo = "A-F0287";
         System.out.println("wc.baseUrl= " + wc.getBaseUrl());
         System.out.println(" wc.isUserInAtmc= " + wc.getUserInAtmc(jobNo));
-        WebApiUser item = wc.getUserInAtmc(jobNo);
-        if (item != null) {
-            System.out.println(" item.getEmplr_Id()= " + item.Emplr_Id);
-            System.out.println(" item.getLocal_Name()= " + item.Local_Name);
-            System.out.println(" item.dep2= " + item.Dep2);
+
+        WebApiUser atmcUser = GetUserInAtmc(jobNo);
+        if (atmcUser != null) {
+            System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.Emplr_Id);
+            HibernateObjectPrinter.print(" atmcUser.getLocal_Name()= " + atmcUser.Local_Name);
+            System.out.println(" atmcUser.getEmail_Addr= " + atmcUser.Email_Addr);
         }
+    }
+
+    @Autowired
+    private UserService userService;
+
+//    @Test
+//    @Transactional
+//    @Rollback(false)
+    public void testUserCheck() {
+        List<User> userL = userService.findAll();
+        for (User u : userL) {
+            if (u.getJobnumber().equals(u.getUsername())) {
+                WebApiUser atmcUser = GetUserInAtmc(u.getJobnumber());
+                if (atmcUser != null && atmcUser.Active == 1) {
+                    u.setUsername(atmcUser.Local_Name);
+                    u.setEmail(atmcUser.Email_Addr);
+                    userService.save(u);
+                }
+            }
+        }
+    }
+
+    private WebApiUser GetUserInAtmc(String jobNo) {
+        return wc.getUserInAtmc(jobNo);
     }
 
 //    @Test
@@ -79,15 +109,14 @@ public class TestWebClient {
 ////            return false;
 //        }
 //        if (urlist != null) {
-//            for (WebApiUser item : urlist) {
-//                System.out.println(" item.getEmplr_Id()= " + item.Emplr_Id);
-//                System.out.println(" item.getLocal_Name()= " + item.Local_Name);
-//                System.out.println(" item.dep2= " + item.Dep2);
+//            for (WebApiUser atmcUser : urlist) {
+//                System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.Emplr_Id);
+//                System.out.println(" atmcUser.getLocal_Name()= " + atmcUser.Local_Name);
+//                System.out.println(" atmcUser.dep2= " + atmcUser.Dep2);
 //            }
 ////            return true;
 //        }
 //        System.out.println("body: " + body);
-
 //        Mono<AtmcEmp[]> bodyAtmcEmp2 = webClient
 //                .get()
 //                .uri(baseUrl + jobNo)
@@ -103,10 +132,10 @@ public class TestWebClient {
 //        }
 //
 //        List<AtmcEmp> urlist2 = Arrays.asList(AE2);
-//        for (AtmcEmp item : urlist2) {
-//            System.out.println(" AtmcEmp.Active()= " + item.Active);
-//            System.out.println(" AtmcEmp.Shift_Id()= " + item.Shift_Id);
-//            System.out.println(" AtmcEmp.Emplr_Id= " + item.Emplr_Id);
+//        for (AtmcEmp atmcUser : urlist2) {
+//            System.out.println(" AtmcEmp.Active()= " + atmcUser.Active);
+//            System.out.println(" AtmcEmp.Shift_Id()= " + atmcUser.Shift_Id);
+//            System.out.println(" AtmcEmp.Emplr_Id= " + atmcUser.Emplr_Id);
 //        }
 //        return urlist2;
     }

@@ -157,7 +157,7 @@
             com.advantech.sap
     " />
 
-    <bean id="webApiclient" class="com.advantech.api.WebApiClient">
+    <bean id="webApiClient" class="com.advantech.api.WebApiClient">
         <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
     </bean>
     

@@ -111,4 +111,11 @@ public class TestService {
 //        
 //        HibernateObjectPrinter.print(ls);
 //    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(false)
+    public void testUserNotificationService() {
+        userService.saveUserWithNameByProc("A-9095", "Asryder.Wang@advantech.com.tw", "王彥喆");
+    }
 }
