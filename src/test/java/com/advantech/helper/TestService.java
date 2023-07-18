@@ -125,17 +125,18 @@ public class TestService {
     public void testDataTablesOutput() {
         setDate();
 
-        DataTablesInput input=new DataTablesInput();
-        DataTablesOutput<Requisition> dto = //rservice.findAll(input);
+        DataTablesInput input = new DataTablesInput();
+        DataTablesOutput<Requisition> dto
+                = //rservice.findAll(input);
                 rservice.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-                Path<Date> dateEntryPath = root.get(Requisition_.createDate);
+                    Path<Date> dateEntryPath = root.get(Requisition_.createDate);
 //                if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-                return cb.between(dateEntryPath, sD, eD);
+                    return cb.between(dateEntryPath, sD, eD);
 //                } else {
 //                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
 //                    return cq.where(cb.and(cb.between(dateEntryPath, sD, eD), cb.equal(userJoin.get(User_.FLOOR), floor))).getRestriction();
 //                }
-            });
+                });
         List<Requisition> filteredData = dto.getData().stream()
                 .filter(r -> r.getUser().getId() == 53)
                 .collect(Collectors.toList());
@@ -267,5 +268,12 @@ public class TestService {
         List<Integer> li = ls.stream().map(User::getId).collect(Collectors.toList());
 
         HibernateObjectPrinter.print(ls);
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(false)
+    public void testSaveUserWithName() {
+        userService.saveUserWithNameByProc("A-10769", "Asryder.Wang@advantech.com.tw", "王彥喆");
     }
 }

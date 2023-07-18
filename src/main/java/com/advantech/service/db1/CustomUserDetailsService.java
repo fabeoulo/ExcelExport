@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.advantech.api.WebApiClient;
+import com.advantech.api.WebApiUser;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
@@ -28,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
     private UserService userService;
-    
+	
     @Autowired
     @Qualifier("webApiClient")
     private WebApiClient wc;
@@ -37,8 +38,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String jobnumber) throws UsernameNotFoundException {
         User user = userService.findByJobnumber(jobnumber);
         if (user == null) {
-            if (wc.getUserInAtmc(jobnumber) != null) {
-                userService.saveUserByProc(jobnumber);
+            WebApiUser atmcUser = wc.getUserInAtmc(jobnumber);
+            if (atmcUser != null && atmcUser.Active == 1) {
+                userService.saveUserWithNameByProc(atmcUser.Emplr_Id, atmcUser.Email_Addr, atmcUser.Local_Name);
                 user = userService.findByJobnumber(jobnumber);
             } else {
                 System.out.println("User not found");

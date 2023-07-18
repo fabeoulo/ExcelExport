@@ -57,9 +57,13 @@ public class UserService {
         Hibernate.initialize(i.getUserProfiles());
         return i;
     }
-    
+
     public void saveUserByProc(String JobNo) {
         repo.saveUserByProc(JobNo);
+    }
+
+    public void saveUserWithNameByProc(String JobNo, String email, String name) {
+        repo.saveUserWithNameByProc(JobNo, email, name);
     }
 
     public <S extends User> S save(S s) {
