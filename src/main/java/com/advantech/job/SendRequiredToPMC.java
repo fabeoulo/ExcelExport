@@ -5,9 +5,12 @@
 package com.advantech.job;
 
 import com.advantech.model.db1.Requisition;
+import com.advantech.sap.SapService;
 import com.advantech.service.db1.RequisitionService;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -33,6 +36,9 @@ public class SendRequiredToPMC extends SendEmailBase {
     @Autowired
     private RequisitionService rservice;
 
+    @Autowired
+    private SapService sapService;
+
     public void execute() {
         try {
             this.sendMail();
@@ -57,9 +63,10 @@ public class SendRequiredToPMC extends SendEmailBase {
         manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
     }
 
-    public String generateMailBody() throws IOException, SAXException, InvalidFormatException {
+    public String generateMailBody() throws IOException, SAXException, InvalidFormatException, Exception {
 
         List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
+        Map<String, String> mrpCodeMap = sapService.getMrpCodeMap(rl);
 
         StringBuilder sb = new StringBuilder();
 
@@ -86,9 +93,13 @@ public class SendRequiredToPMC extends SendEmailBase {
         sb.append("<th>料號</th>");
         sb.append("<th>數量</th>");
         sb.append("<th>廠區</th>");
+        sb.append("<th>MRP_Code</th>");
         sb.append("</tr>");
 
         for (Requisition r : rl) {
+            String mapKey = r.getMaterialNumber() + r.getWerk();
+            String mrpCode = mrpCodeMap.get(mapKey);
+
             if ("TWM3".equals(r.getWerk())) {
                 sb.append("<tr class='m3'>");
             } else {
@@ -108,6 +119,9 @@ public class SendRequiredToPMC extends SendEmailBase {
             sb.append("</td>");
             sb.append("<td>");
             sb.append(r.getWerk());
+            sb.append("</td>");
+            sb.append("<td>");
+            sb.append(StringUtils.isBlank(mrpCode) ? "" : mrpCode);
             sb.append("</td>");
             sb.append("</tr>");
         }

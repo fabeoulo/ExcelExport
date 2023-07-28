@@ -103,4 +103,20 @@ public class SapService {
         port.setGoodLgort();
         return getStockMap(l);
     }
+    
+    public Map<String, String> getMrpCodeMap(List<Requisition> l) throws Exception {
+        JCoFunction function = port.getMrpCode(l);
+        JCoTable output = function.getTableParameterList().getTable("TBLOUT");
+
+        Map<String, String> MrpMap = new HashMap<>();
+        for (int i = 0; i < output.getNumRows(); i++) {
+            output.setRow(i);
+            String mat = removeLeadingZeros(output.getString("MATNR"));
+            String key = mat + output.getString("WERKS");
+            MrpMap.merge(key, output.getString("DISPO"), (oldValue, newValue) -> {
+                return oldValue;
+            });
+        }
+        return MrpMap;
+    }
 }
