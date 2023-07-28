@@ -192,7 +192,8 @@
                                 "action": function (e, dt, node, config) {
                                     $("#model-table input").val("");
                                     $("#model-table #id").val(0);
-                                    $("#model-table2 #floor\\.id").prop('selectedIndex', 7);
+                                    $("#model-table2 #requisitionReason\\.id  option[value='2']").prop('selected', true);
+                                    $("#model-table2 #floor\\.id  option[value='9']").prop('selected', true);
                                 }
                             }
                         ]
@@ -237,7 +238,8 @@
                                 "action": function (e, dt, node, config) {
                                     $("#model-table input").val("");
                                     $("#model-table #id").val(0);
-                                    $("#model-table2 #floor\\.id").prop('selectedIndex', 7);
+                                    $("#model-table2 #requisitionReason\\.id  option[value='2']").prop('selected', true);
+                                    $("#model-table2 #floor\\.id  option[value='9']").prop('selected', true);
                                 }
                             },
                             {
@@ -288,11 +290,11 @@
 
                                     if (!confirm(cnt + " rows selected. OK?"))
                                         return;
-                                    var arr = table.rows('.selected').data();
-                                    var datas = [];
-                                    for (var i = 0; i < arr.length; i++) {
-                                        datas.push(arr[i]);
-                                    }
+                                    var datas = table.rows('.selected').data().toArray();
+//                                    var datas = [];
+//                                    for (var i = 0; i < arr.length; i++) {
+//                                        datas.push(arr[i]);
+//                                    }
 
                                     eFlow({
                                         "datas": JSON.stringify(datas),
@@ -652,13 +654,26 @@
                                     var options = d[i];
                                     sel.append("<option value='" + options.id + "'>" + options.name + "</option>");
                                 }
+                                
+                                if (sel.is($("#model-table2 #requisitionReason\\.id")))
+                                    adjustQuisitionReason();
                             },
                             error: function (xhr, ajaxOptions, thrownError) {
                                 alert(xhr.responseText);
                             }
                         });
                     });
+                }
 
+                function adjustQuisitionReason() {
+                    const selectElement = $("#model-table2 #requisitionReason\\.id");
+                    const secondOption = selectElement.find("option:eq(1)");
+                    selectElement.prepend(secondOption);
+                    
+                    $("#model-table2 #requisitionReason\\.id option").each(function (index) {
+                        const letter = String.fromCharCode(65 + index); // A is 65 in ASCII, B is 66, and so on
+                        $(this).text(letter + ". " + $(this).text());
+                    });
                 }
 
                 function refreshTable() {
@@ -943,7 +958,7 @@
                                                 <tr>
                                                     <th>料號</th>
                                                     <th>數量</th>
-                                                    <th width="15%">原因</th>
+                                                    <th width="20%">原因</th>
                                                     <th>備註</th>
                                                     <th>動作</th>
                                                 </tr>
