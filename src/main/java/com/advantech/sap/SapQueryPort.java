@@ -90,4 +90,21 @@ public class SapQueryPort {
     public void setGoodLgort() {
         lgort = new String[]{"0015", "CUST"};
     }
+
+    public JCoFunction getMrpCode(List<Requisition> rl) throws JCoException, URISyntaxException {
+        JCoFunction function;
+        JCoDestination destination = sapConn.getConn();
+
+        function = destination.getRepository().getFunction("ZPP_MATERIAL_MASTER_RFC");
+
+        JCoTable zmardTable = function.getTableParameterList().getTable("TBLIN");
+        for (Requisition detail : rl) {
+            zmardTable.appendRow();
+            zmardTable.setValue("WERKS", detail.getWerk());
+            zmardTable.setValue("MATNR", detail.getMaterialNumber());
+        }
+
+        function.execute(destination);
+        return function;
+    }
 }

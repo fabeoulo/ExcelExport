@@ -84,7 +84,7 @@ public class TestSap {
     @Transactional
     @Rollback(true)
     public void testStock() throws JCoException, URISyntaxException {
-        List<Integer> listInt = Arrays.asList(66125,46232);
+        List<Integer> listInt = Arrays.asList(66125, 46232);
         List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
         JCoFunction function = port.getMaterialStock(rl);
         JCoTable output = function.getTableParameterList().getTable("ZMARD_OUTPUT");
@@ -106,4 +106,24 @@ public class TestSap {
         return str.replaceAll("^0+", "");
     }
 
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testMrpCode() throws JCoException, URISyntaxException {
+        List<Integer> listInt = Arrays.asList(66125, 46232);
+        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
+        JCoFunction function = port.getMrpCode(rl);
+        JCoTable output = function.getTableParameterList().getTable("TBLOUT");
+
+        Map<String, String> MrpMap = new HashMap<>();
+        for (int i = 0; i < output.getNumRows(); i++) {
+            output.setRow(i);
+            String mat = removeLeadingZeros(output.getString("MATNR"));
+            String key = mat + output.getString("WERKS");
+            MrpMap.merge(key, output.getString("DISPO"), (oldValue, newValue) -> {
+                return oldValue;
+            });
+        }
+        HibernateObjectPrinter.print(MrpMap);
+    }
 }

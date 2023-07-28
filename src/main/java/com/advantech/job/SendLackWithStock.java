@@ -80,7 +80,7 @@ public class SendLackWithStock extends SendEmailBase {
                 BigDecimal stock = stockMap.get(key);
                 BigDecimal require = new BigDecimal(o.getNumber());
                 BigDecimal restStock = stock.subtract(require);
-                if (restStock.compareTo(new BigDecimal(0)) == 1) {
+                if (restStock.compareTo(new BigDecimal(0)) >= 0) {
                     stockMap.put(key, restStock);
                     return true;
                 }
@@ -101,7 +101,7 @@ public class SendLackWithStock extends SendEmailBase {
         return lackReq.isEmpty() ? rservice.findAllByIdWithUserAndState(listInt)
                 : lackReq.stream().filter(r -> listInt.contains(r.getId())).collect(Collectors.toList());
     }
-    
+
     protected void sendMail() throws Exception {
 
         String[] mailTarget = findEMailFromLack();
