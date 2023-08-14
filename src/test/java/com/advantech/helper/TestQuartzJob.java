@@ -10,6 +10,8 @@ import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendRequiredToPMC;
 import com.advantech.job.SendWhReports;
+import com.advantech.job.SendWhReportsLinkou;
+import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SyncData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,22 +34,27 @@ public class TestQuartzJob {
 
     @Autowired
     private SendReport reportJob;
-    
+
     @Autowired
     private SyncData syncJob;
-    
+
 //    @Autowired
 //    private SendWhReports whReportJob;
-    
+    @Autowired
+    private SendWhReportsDonghu sendDonghu;
+
+    @Autowired
+    private SendWhReportsLinkou sendLinkou;
+
     @Autowired
     private SendOvertimeReport sendOvertimeReport;
-    
+
     @Autowired
     private SendLackWithStock sendLackWithStock;
-    
+
     @Autowired
     private SendRequiredToPMC sendRequiredToPMC;
-    
+
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
@@ -55,27 +62,37 @@ public class TestQuartzJob {
     public void testMail() {
         reportJob.execute();
     }
-    
+
 //    @Test
     public void testSync() {
         syncJob.execute();
     }
-    
+
+//    @Test
+    public void testSendWhReportsDonghu() {
+        sendDonghu.execute();
+    }
+//    @Test
+
+    public void testSendWhReportsLinkou() {
+        sendLinkou.execute();
+    }
+
 //    @Test
     public void testSendWhReports() {
 //        whReportJob.execute();
     }
-    
+
 //    @Test
     public void testSendSendOvertimeReport() {
         sendOvertimeReport.execute();
     }
-   
+
 //    @Test
     public void testSendLackWithStock() {
         sendLackWithStock.execute();
     }
-    
+
     @Test
     public void testSendRequiredToPMC() {
         sendRequiredToPMC.execute();
