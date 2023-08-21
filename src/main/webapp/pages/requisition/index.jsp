@@ -283,17 +283,12 @@
                                     var cnt = table.rows('.selected').count();
                                     if (cnt < 1)
                                         return alert("Please select a row at least.");
-
                                     if (!confirm(cnt + " rows selected. OK?"))
                                         return;
-                                    var arr = table.rows('.selected').data();
-                                    var datas = [];
-                                    for (var i = 0; i < arr.length; i++) {
-                                        datas.push(arr[i]);
-                                    }
-
+                                    
+                                    var arr = table.rows('.selected').data().toArray();
                                     eFlow({
-                                        "datas": JSON.stringify(datas),
+                                        "datas": JSON.stringify(arr),
                                         "commitJobNo": "<c:out value="${user.jobnumber}" />"
                                     });
                                 }

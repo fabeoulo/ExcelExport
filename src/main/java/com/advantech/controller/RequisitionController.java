@@ -184,7 +184,7 @@ public class RequisitionController {
             BigDecimal stock = stockMap.get(mat);
             if (stock != null && stock.compareTo(BigDecimal.ZERO) == 0) {
                 noStockList.add(t);
-            } else if (stock != null && stock.compareTo(BigDecimal.valueOf(t.getAmount())) == -1) {
+            } else if (stock != null && stock.compareTo(BigDecimal.valueOf(Math.abs(t.getAmount()))) == -1) {
                 lackList.add(t);
             } else {
                 passList.add(t);
