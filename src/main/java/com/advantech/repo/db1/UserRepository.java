@@ -27,9 +27,9 @@ public interface UserRepository extends JpaRepository<User, Integer>, CrudReposi
 
     public List<User> findByUserNotifications(UserNotification notifi);
 
-    @Modifying
-    @Query(value = "{CALL usp_QuickInsertUser(:jobnumber)}", nativeQuery = true)
-    public void saveUserByProc(@Param("jobnumber") String jobnumber);
+//    @Modifying
+//    @Query(value = "{CALL usp_QuickInsertUser(:jobnumber)}", nativeQuery = true)
+//    public void saveUserByProc(@Param("jobnumber") String jobnumber);
 
     @Procedure("usp_QuickInsertUserWithName")
     public void saveUserWithNameByProc(String jobnumber, String email, String name);

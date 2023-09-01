@@ -30,20 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class TestWebClient {
 
     @Autowired
-    private UserRepository userRepo;
-
-//   @Test
-//    @Transactional //repo inside Transactional //Rollback default is true
-//    @Rollback(false)
-    public void testQuickInsert() {
-        String jobnumber = "A-7060";
-        userRepo.saveUserByProc(jobnumber);
-        System.out.println("testQuickInsert ");
-    }
-
-    @Autowired
     @Qualifier("webApiClient")
     private WebApiClient wc;
+
+    @Autowired
+    private UserService userService;
 
     @Test
     public void testGetUserInAtmc2() {
@@ -57,9 +48,24 @@ public class TestWebClient {
             System.out.println(" atmcUser.getEmail_Addr= " + atmcUser.Email_Addr);
         }
     }
-
-    @Autowired
-    private UserService userService;
+    private WebApiUser GetUserInAtmc(String jobNo) {
+        return wc.getUserInAtmc(jobNo);
+    }
+    
+//   @Test
+//    @Transactional //repo inside Transactional //Rollback default is true
+//    @Rollback(false)
+    public void testQuickInsert() {
+        String jobNo = "A-7060";
+        WebApiUser atmcUser = GetUserInAtmc(jobNo);
+        if (atmcUser != null) {
+//            System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.Emplr_Id);
+//            HibernateObjectPrinter.print(" atmcUser.getLocal_Name()= " + atmcUser.Local_Name);
+//            System.out.println(" atmcUser.getEmail_Addr= " + atmcUser.Email_Addr);
+//        userService.saveUserWithNameByProc(jobNo);
+        }
+        System.out.println("testQuickInsert ");
+    }
 
 //    @Test
 //    @Transactional
@@ -76,10 +82,6 @@ public class TestWebClient {
                 }
             }
         }
-    }
-
-    private WebApiUser GetUserInAtmc(String jobNo) {
-        return wc.getUserInAtmc(jobNo);
     }
 
 //    @Test

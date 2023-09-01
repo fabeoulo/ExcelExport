@@ -58,10 +58,6 @@ public class UserService {
         return i;
     }
 
-    public void saveUserByProc(String JobNo) {
-        repo.saveUserByProc(JobNo);
-    }
-
     public void saveUserWithNameByProc(String JobNo, String email, String name) {
         repo.saveUserWithNameByProc(JobNo, email, name);
     }
