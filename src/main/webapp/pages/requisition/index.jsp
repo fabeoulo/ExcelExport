@@ -158,7 +158,7 @@
                     "bAutoWidth": false,
                     "displayLength": 10,
                     "lengthChange": true,
-                    "lengthMenu": [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]],
+                    "lengthMenu": isEditor ? [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, 'all']] : [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]],
                     "filter": true,
                     "info": true,
                     "paginate": true,
@@ -216,17 +216,6 @@
                         "dom": 'Bfrtip',
                         "buttons": [
                             'pageLength',
-//                            {
-//                                "text": '新增需求',
-//                                "attr": {
-//                                    "data-toggle": "modal",
-//                                    "data-target": "#myModal"
-//                                },
-//                                "action": function (e, dt, node, config) {
-//                                    $("#model-table input").val("");
-//                                    $("#model-table #id").val(0);
-//                                }
-//                            },
                             {
                                 "text": '新增需求',
                                 "attr": {
@@ -643,6 +632,9 @@
                                     var options = d[i];
                                     sel.append("<option value='" + options.id + "'>" + options.name + "</option>");
                                 }
+
+                                if (sel.is($("#model-table2 #requisitionReason\\.id")))
+                                    adjustRequisitionReason();
                             },
                             error: function (xhr, ajaxOptions, thrownError) {
                                 alert(xhr.responseText);
@@ -650,6 +642,15 @@
                         });
                     });
 
+                function adjustRequisitionReason() {
+                    const selectElement = $("#model-table2 #requisitionReason\\.id");
+                    const secondOption = selectElement.find("option:eq(1)");
+                    selectElement.prepend(secondOption);
+
+                    $("#model-table2 #requisitionReason\\.id option").each(function (index) {
+                        const letter = String.fromCharCode(65 + index); // A is 65 in ASCII, B is 66, and so on
+                        $(this).text(letter + ". " + $(this).text());
+                    });
                 }
 
                 function refreshTable() {
@@ -723,13 +724,12 @@
 //                            location.reload(true);
 //                            //enduser use IE not support ws
                             refreshTable();
-                            if (isEditor) {
-                                $.notify('資料更新中', {placement: {
-                                        from: "bottom",
-                                        align: "right"
-                                    }
-                                });
-                            }
+                            ws.send("UPDATE");
+                            $.notify('資料已更新', {placement: {
+                                    from: "bottom",
+                                    align: "right"
+                                }
+                            });
                             return alert(response);
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
@@ -783,6 +783,24 @@
                 if (ws != null) {
                 }
 
+                table.on('length.dt', function (e, settings, len) {
+                    // console.log('Length changed to ' + len);
+                    $('.buttons-excel').attr("hidden", false);
+                    if (isWebSocketClose()) {
+                        connectToServer();
+                    }
+                    if (len === -1) {
+                        disconnectToServer();
+                        if ($("#datepicker_from").val() === "" || $("#datepicker_to").val() === "") {
+                            alert("Please reload and input date interval first.");
+                            $('.buttons-excel').attr("hidden", true);
+                        }
+                    }
+                });
+
+                function isWebSocketClose() {
+                    return ws && (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING);
+                }
             });
 
             function isNullOrZero(testString) {
