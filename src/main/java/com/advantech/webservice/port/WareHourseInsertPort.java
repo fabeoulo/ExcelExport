@@ -60,11 +60,11 @@ public class WareHourseInsertPort {
                 aD.setReason(reason);
                 details.add(aD);
             }
-            WareHourseInsert whq = new WareHourseInsert();
-            whq.setRequitions(details);
-            whq.setPlant(werk);
+            WareHourseInsert whi = new WareHourseInsert();
+            whi.setRequitions(details);
+            whi.setPlant(werk);
 
-            String jsonString = getJsonString(whq);
+            String jsonString = getJsonString(whi);
             response += eFlowSendAndReceive(jsonString, Factory.M3WH);
         }
         return response;

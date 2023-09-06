@@ -98,7 +98,7 @@ public class RequisitionController {
 
     @Autowired
     private WareHourseInsertPort whInsertPort;
-    
+
     @JsonView(DataTablesOutput.View.class)
     @RequestMapping(value = "/findAll", method = {RequestMethod.POST})
     protected DataTablesOutput<Requisition> findAll(
@@ -161,7 +161,7 @@ public class RequisitionController {
             BigDecimal stock = stockMap.get(mat);
             if (stock != null && stock.compareTo(BigDecimal.ZERO) == 0) {
                 noStockList.add(t);
-            } else if (stock != null && stock.compareTo(BigDecimal.valueOf(t.getAmount())) == -1) {
+            } else if (stock != null && stock.compareTo(BigDecimal.valueOf(Math.abs(t.getAmount()))) == -1) {
                 lackList.add(t);
             } else {
                 passList.add(t);
@@ -216,7 +216,7 @@ public class RequisitionController {
     private void checkModelMaterial(List<Requisition> requisitions) throws Exception {
         for (Requisition r : requisitions) {
             //Fail when sap info not retrieve from retrieveSapInfos() function
-            checkArgument(r.getModelName() != null && !"".equals(r.getModelName()), 
+            checkArgument(r.getModelName() != null && !"".equals(r.getModelName()),
                     "Can't find material info " + r.getMaterialNumber() + " in po " + r.getPo());
         }
     }

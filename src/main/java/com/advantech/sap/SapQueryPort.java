@@ -50,7 +50,7 @@ public class SapQueryPort {
 
     }
 
-    public JCoFunction getMaterialPrice(String material, Factory factory) throws JCoException, URISyntaxException{
+    public JCoFunction getMaterialPrice(String material, Factory factory) throws JCoException, URISyntaxException {
         JCoFunction function;
         JCoDestination destination = sapConn.getConn();
 

@@ -69,6 +69,7 @@
             $(function () {
                 initDropDownOptions();
                 var isEditor = ${isOper || isAdmin};
+                var isRepair = "<c:out value="${user.unit.id}" />" === "9";
                 console.log(isEditor);
 
                 var dataTable_config = {
@@ -118,7 +119,7 @@
                         },
                         {
                             "targets": [15, 16],
-                            "visible": isEditor,
+                            "visible": isEditor || isRepair,
                             "searchable": false
                         },
                         {
@@ -167,7 +168,54 @@
                     "order": [[0, "desc"]]
                 };
 
-                if (${isUser && !isOper}) {
+                var addBtn = {
+                    "text": '新增需求',
+                    "attr": {
+                        "data-toggle": "modal",
+                        "data-target": "#myModal2"
+                    },
+                    "action": function (e, dt, node, config) {
+                        $("#model-table input").val("");
+                        $("#model-table #id").val(0);
+                        $("#model-table2 #requisitionReason\\.id  option[value='2']").prop('selected', true);
+                        $("#model-table2 #floor\\.id  option[value='9']").prop('selected', true);
+                    }
+                };
+
+                var insertWhBtn = {
+                    "text": '開單領料',
+                    "action": function (e, dt, node, config) {
+                        var cnt = table.rows('.selected').count();
+                        if (cnt < 1)
+                            return alert("Please select a row at least.");
+
+                        if (!confirm(cnt + " rows selected. OK?"))
+                            return;
+
+                        var datas = table.rows('.selected').data().toArray();
+                        if (isRepair) {
+                            datas = datas.filter((item) => item.user.unit.id === 9);
+                            if (datas.length < 1)
+                                return  alert("No repair team item.");
+                        }
+                        eFlow({
+                            "datas": JSON.stringify(datas),
+                            "commitJobNo": "<c:out value="${user.jobnumber}" />"
+                        });
+                    }
+                };
+
+                if (${isUser} && isRepair) {
+                    var extraSettingRepair = {
+                        "dom": 'Bfrtip',
+                        "buttons": [
+                            'pageLength',
+                            addBtn,
+                            insertWhBtn
+                        ]
+                    };
+                    $.extend(dataTable_config, extraSettingRepair);
+                } else if (${isUser && !isOper}) {
                     var extraSetting = {
                         "dom": 'Bfrtip',
                         "buttons": [
@@ -183,19 +231,7 @@
 //                                    $("#model-table #id").val(0);
 //                                }
 //                            },
-                            {
-                                "text": '需求申請',
-                                "attr": {
-                                    "data-toggle": "modal",
-                                    "data-target": "#myModal2"
-                                },
-                                "action": function (e, dt, node, config) {
-                                    $("#model-table input").val("");
-                                    $("#model-table #id").val(0);
-                                    $("#model-table2 #requisitionReason\\.id  option[value='2']").prop('selected', true);
-                                    $("#model-table2 #floor\\.id  option[value='9']").prop('selected', true);
-                                }
-                            }
+                            addBtn
                         ]
                     };
                     $.extend(dataTable_config, extraSetting);
@@ -218,19 +254,7 @@
                         "dom": 'Bfrtip',
                         "buttons": [
                             'pageLength',
-                            {
-                                "text": '新增需求',
-                                "attr": {
-                                    "data-toggle": "modal",
-                                    "data-target": "#myModal2"
-                                },
-                                "action": function (e, dt, node, config) {
-                                    $("#model-table input").val("");
-                                    $("#model-table #id").val(0);
-                                    $("#model-table2 #requisitionReason\\.id  option[value='2']").prop('selected', true);
-                                    $("#model-table2 #floor\\.id  option[value='9']").prop('selected', true);
-                                }
-                            },
+                            addBtn,
                             {
                                 "text": '編輯',
                                 "attr": {
@@ -268,25 +292,7 @@
                                     $("#model-table #returnDate").val(data.returnDate);
                                 }
                             },
-                            {
-                                "text": '開領料單',
-                                "attr": {
-                                },
-                                "action": function (e, dt, node, config) {
-                                    var cnt = table.rows('.selected').count();
-                                    if (cnt < 1)
-                                        return alert("Please select a row at least.");
-
-                                    if (!confirm(cnt + " rows selected. OK?"))
-                                        return;
-
-                                    var datas = table.rows('.selected').data().toArray();
-                                    eFlow({
-                                        "datas": JSON.stringify(datas),
-                                        "commitJobNo": "<c:out value="${user.jobnumber}" />"
-                                    });
-                                }
-                            },
+                            insertWhBtn,
                             {
                                 "text": '轉來料缺',
                                 "attr": {
@@ -725,7 +731,6 @@
                         dataType: "json",
                         data: data,
                         success: function (response) {
-                            console.log("eFlow :=" + response);
 //                            location.reload(true);
 //                            //enduser use IE not support ws
                             refreshTable();
@@ -790,15 +795,15 @@
 
                 table.on('length.dt', function (e, settings, len) {
                     // console.log('Length changed to ' + len);
-                    $('.buttons-excel').attr("hidden", false);
                     if (isWebSocketClose()) {
                         connectToServer();
                     }
                     if (len === -1) {
-                        disconnectToServer();
                         if ($("#datepicker_from").val() === "" || $("#datepicker_to").val() === "") {
-                            alert("Please reload and input date interval first.");
-                            $('.buttons-excel').attr("hidden", true);
+                            alert("Please refresh and input date interval first.");
+                            table.page.len(25).draw();
+                        } else {
+                            disconnectToServer();
                         }
                     }
                 });
