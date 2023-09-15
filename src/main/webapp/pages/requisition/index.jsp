@@ -6,6 +6,7 @@
 <sec:authorize access="isAuthenticated()"  var="isLogin" />
 <sec:authorize access="hasRole('USER')"  var="isUser" />
 <sec:authorize access="hasRole('OPER')"  var="isOper" />
+<sec:authorize access="hasRole('OPER_WH')"  var="isOperWh" />
 <sec:authorize access="hasRole('ADMIN')"  var="isAdmin" />
 
 <html>
@@ -69,8 +70,10 @@
             $(function () {
                 initDropDownOptions();
                 var isEditor = ${isOper || isAdmin};
-                var isRepair = "<c:out value="${user.unit.id}" />" === "9";
-                console.log(isEditor);
+                var isInsertWh = ${isOperWh};
+                var userUnitId = <c:out value="${user.unit.id}" />;
+                var userFloorId = <c:out value="${user.floor.id}" />;
+//                console.log(isEditor);
 
                 var dataTable_config = {
                     "sPaginationType": "full_numbers",
@@ -119,7 +122,7 @@
                         },
                         {
                             "targets": [15, 16],
-                            "visible": isEditor || isRepair,
+                            "visible": isEditor || isInsertWh,
                             "searchable": false
                         },
                         {
@@ -178,7 +181,7 @@
                         $("#model-table input").val("");
                         $("#model-table #id").val(0);
                         $("#model-table2 #requisitionReason\\.id  option[value='2']").prop('selected', true);
-                        $("#model-table2 #floor\\.id  option[value='9']").prop('selected', true);
+                        $("#model-table2 #floor\\.id  option[value='" + userFloorId + "']").prop('selected', true);
                     }
                 };
 
@@ -193,10 +196,10 @@
                             return;
 
                         var datas = table.rows('.selected').data().toArray();
-                        if (isRepair) {
-                            datas = datas.filter((item) => item.user.unit.id === 9);
+                        if (isInsertWh && !isEditor) {
+                            datas = datas.filter((item) => item.user.unit.id === userUnitId);
                             if (datas.length < 1)
-                                return  alert("No repair team item.");
+                                return  alert("No same unit item.");
                         }
                         eFlow({
                             "datas": JSON.stringify(datas),
@@ -205,7 +208,7 @@
                     }
                 };
 
-                if (${isUser} && isRepair) {
+                if (${isUser} && isInsertWh) {
                     var extraSettingRepair = {
                         "dom": 'Bfrtip',
                         "buttons": [
@@ -317,7 +320,7 @@
                                     $("#model-table #itemses\\[0\\]\\.label3").val(data.materialNumber);
                                     $("#model-table #number").val(data.amount);
                                     $("#model-table #comment").val("申請人：" + data.user.username + "。" + data.remark);
-                                    $("#model-table #email").val(data.user.email).attr("disabled",true);
+                                    $("#model-table #email").val(data.user.email).attr("disabled", true);
                                 }
                             },
                             {
@@ -648,7 +651,7 @@
                                     var options = d[i];
                                     sel.append("<option value='" + options.id + "'>" + options.name + "</option>");
                                 }
-								
+
                                 if (sel.is($("#model-table2 #requisitionReason\\.id")))
                                     adjustRequisitionReason();
                             },
@@ -658,7 +661,7 @@
                         });
                     });
                 }
-				
+
                 function adjustRequisitionReason() {
                     const selectElement = $("#model-table2 #requisitionReason\\.id");
                     const secondOption = selectElement.find("option:eq(1)");
