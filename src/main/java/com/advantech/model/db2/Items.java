@@ -28,6 +28,7 @@ public class Items implements java.io.Serializable {
     private String label1;
     private String label2;
     private String label3;
+    private String label4;
 
     public Items() {
     }
@@ -85,6 +86,15 @@ public class Items implements java.io.Serializable {
 
     public void setLabel3(String label3) {
         this.label3 = label3;
+    }
+
+    @Column(name = "label_3", nullable = false, length = 20)
+    public String getLabel4() {
+        return label4;
+    }
+
+    public void setLabel4(String label4) {
+        this.label4 = label4;
     }
 
 }

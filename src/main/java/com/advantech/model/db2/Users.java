@@ -31,6 +31,7 @@ public class Users implements java.io.Serializable {
     private String name;
     private String mail;
     private Set<Orders> orderses = new HashSet<Orders>(0);
+    private Set<Replies> replieses = new HashSet<Replies>(0);
 
     public Users() {
     }
@@ -116,4 +117,12 @@ public class Users implements java.io.Serializable {
         this.orderses = orderses;
     }
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orders")
+    public Set<Replies> getReplieses() {
+        return this.replieses;
+    }
+
+    public void setReplieses(Set<Replies> replieses) {
+        this.replieses = replieses;
+    }
 }
