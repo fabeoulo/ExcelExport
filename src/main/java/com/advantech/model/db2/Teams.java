@@ -31,6 +31,7 @@ public class Teams implements java.io.Serializable {
     private String plant;
     private Set<Orders> orderses = new HashSet<Orders>(0);
     private Set<Users> userses = new HashSet<Users>(0);
+    private Set<Replies> replieses = new HashSet<Replies>(0);
 
     public Teams() {
     }
@@ -112,4 +113,12 @@ public class Teams implements java.io.Serializable {
         this.userses = userses;
     }
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orders")
+    public Set<Replies> getReplieses() {
+        return this.replieses;
+    }
+
+    public void setReplieses(Set<Replies> replieses) {
+        this.replieses = replieses;
+    }
 }

@@ -42,7 +42,10 @@ public class Orders implements java.io.Serializable {
     private Date timeOpen;
     private Date timeClose;
     private Date respectDate;
+    private Date estimateDate;
+    private Integer requisionId;
     private Set<Items> itemses = new HashSet<Items>(0);
+    private Set<Replies> replieses = new HashSet<Replies>(0);
 
     public Orders() {
     }
@@ -179,6 +182,27 @@ public class Orders implements java.io.Serializable {
         this.respectDate = respectDate;
     }
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", timezone = "GMT+8")
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "estimate_date", length = 19)
+    public Date getEstimateDate() {
+        return this.estimateDate;
+    }
+
+    public void setEstimateDate(Date estimateDate) {
+        this.estimateDate = estimateDate;
+    }
+
+    @Column(name = "requision_id", nullable = true)
+    public Integer getRequisionId() {
+        return this.requisionId;
+    }
+
+    public void setRequisionId(Integer requisionId) {
+        this.requisionId = requisionId;
+    }
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "orders")
     public Set<Items> getItemses() {
         return this.itemses;
@@ -186,6 +210,15 @@ public class Orders implements java.io.Serializable {
 
     public void setItemses(Set<Items> itemses) {
         this.itemses = itemses;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orders")
+    public Set<Replies> getReplieses() {
+        return this.replieses;
+    }
+
+    public void setReplieses(Set<Replies> replieses) {
+        this.replieses = replieses;
     }
 
 }
