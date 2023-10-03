@@ -17,10 +17,12 @@ import com.advantech.sap.SapQueryPort;
 import com.advantech.webservice.Factory;
 import com.advantech.webservice.port.QryWipAttQueryPort;
 import static com.google.common.base.Preconditions.checkState;
+import com.google.common.collect.Lists;
 import com.sap.conn.jco.JCoFunction;
 import com.sap.conn.jco.JCoTable;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,8 +53,22 @@ public class OrdersService {
         return repo.findAll();
     }
 
+    public List<Orders> findAllLackWithUserItem(Integer teamsId) {
+        return repo.findAllLackWithUserItem(teamsId);
+    }
+
+    public List<Orders> findAllOpenWithoutReply() {
+        return repo.findAllOpenWithoutReply();
+    }
+	
     public Optional<Orders> findById(Integer id) {
         return repo.findById(id);
+    }
+
+    public void saveAll(List<Orders> l) {
+        List<Orders> result = repo.saveAll(l);
+        List<Integer> ids = result.stream().map(Orders::getId).collect(Collectors.toList());
+        repo.updateTimeStampToZeroByIdIn(ids);
     }
 
     public <S extends Orders> S save(S s, Items i) throws Exception {
@@ -86,7 +102,7 @@ public class OrdersService {
         i.setOrders(s);
         itemRepo.save(i);
 
-        repo.updateTimeStampToZero(s.getId());
+        repo.updateTimeStampToZeroByIdIn(Lists.newArrayList(s.getId()));
         return null;
     }
 

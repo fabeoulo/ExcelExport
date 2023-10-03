@@ -479,7 +479,7 @@
                             alert("Po or MaterialNumber can't be empty.");
                             return false;
                         }
-                        if (respectDate == "" || respectDate == "") {
+                        if (respectDate == "") {
                             alert("RespectDate can't be empty.");
                             return false;
                         }

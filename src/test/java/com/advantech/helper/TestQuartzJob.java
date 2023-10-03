@@ -9,6 +9,7 @@ import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendWhReports;
 import com.advantech.job.SyncData;
+import com.advantech.job.SyncLackMrp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,16 @@ public class TestQuartzJob {
     
     @Autowired
     private SendOvertimeReport sendOvertimeReport;
-    
+	
+    @Autowired
+    private SendLackWithStock sendLackWithStock;
+
+    @Autowired
+    private SendRequiredToPMC sendRequiredToPMC;
+
+    @Autowired
+    private SyncLackMrp syncLackMrp;
+	
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
@@ -62,5 +72,19 @@ public class TestQuartzJob {
     public void testSendSendOvertimeReport() {
         sendOvertimeReport.execute();
     }
-   
+	
+//    @Test
+    public void testSendLackWithStock() {
+        sendLackWithStock.execute();
+    }
+
+//    @Test
+    public void testSendRequiredToPMC() {
+        sendRequiredToPMC.execute();
+    }
+
+    @Test
+    public void testsyncLackMrp() throws Exception {
+        syncLackMrp.execute();
+    }
 }
