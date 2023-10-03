@@ -60,15 +60,17 @@ public class OrdersService {
     public List<Orders> findAllOpenWithoutReply() {
         return repo.findAllOpenWithoutReply();
     }
-	
+
     public Optional<Orders> findById(Integer id) {
         return repo.findById(id);
     }
 
     public void saveAll(List<Orders> l) {
-        List<Orders> result = repo.saveAll(l);
-        List<Integer> ids = result.stream().map(Orders::getId).collect(Collectors.toList());
-        repo.updateTimeStampToZeroByIdIn(ids);
+        if (!l.isEmpty()) {
+            List<Orders> result = repo.saveAll(l);
+            List<Integer> ids = result.stream().map(Orders::getId).collect(Collectors.toList());
+            repo.updateTimeStampToZeroByIdIn(ids);
+        }
     }
 
     public <S extends Orders> S save(S s, Items i) throws Exception {

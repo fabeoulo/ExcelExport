@@ -7,6 +7,7 @@ package com.advantech.helper;
 
 import com.advantech.model.db1.ModelMaterialDetails;
 import com.advantech.model.db1.Requisition;
+import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.model.db2.Items;
@@ -28,20 +29,27 @@ import com.advantech.service.db2.OrdersService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.Factory;
 import static com.google.common.base.Preconditions.checkArgument;
-import com.sun.org.apache.bcel.internal.generic.DDIV;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -98,9 +106,6 @@ public class TestService {
 //        Factory f = Factory.getEnum("PD03");
 //        HibernateObjectPrinter.print(f);
     }
-
-//    @Autowired
-//    private RequisitionStateChangeTrigger trigger;
 
     @Test
     @Transactional
@@ -198,8 +203,8 @@ public class TestService {
     public void testToPMC() {
 //        setDatetime(sD, eD);
 
-        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
-        return;
+//        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
+//        return;
     }
 
     private void setDate() {
@@ -252,15 +257,15 @@ public class TestService {
     public void testTrigger() {
 //        System.out.println("Requisition.isPresent= " + rservice.findById(88).isPresent());
 
-        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
-        final int[] checkStateList = {2, 5};
-
-        trigger.checkRepair(rl);
-        List<Requisition> checkedList = rl.stream().filter(e -> {
-            int userId = e.getUser().getId();
-            int rsId = e.getRequisitionState().getId();
-            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
-        }).collect(Collectors.toList());
+//        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
+//        final int[] checkStateList = {2, 5};
+//
+//        trigger.checkRepair(rl);
+//        List<Requisition> checkedList = rl.stream().filter(e -> {
+//            int userId = e.getUser().getId();
+//            int rsId = e.getRequisitionState().getId();
+//            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
+//        }).collect(Collectors.toList());
     }
 
 //    @Test

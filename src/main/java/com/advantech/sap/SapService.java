@@ -97,4 +97,33 @@ public class SapService {
     private String removeLeadingZeros(String str) {
         return str.replaceAll("^0+", "");
     }
+
+    public Map<String, BigDecimal> getStockMapWithGoodLgort(List<Requisition> l) throws Exception {
+        port.setGoodLgort();
+        return getStockMap(l);
+    }
+
+    public Map<String, String> getMrpCodeMap(List<Requisition> rl) throws Exception {
+        List<SapMrpTbl> input = rl.stream()
+                .map(l -> new SapMrpTbl(l.getMaterialNumber(), l.getWerk()))
+                .collect(Collectors.toList());
+        return getMrpCodeByTblin(input);
+    }
+
+    public Map<String, String> getMrpCodeByTblin(List<SapMrpTbl> input) throws Exception {
+
+        JCoFunction function = port.getMrpCode(input);
+        JCoTable output = function.getTableParameterList().getTable("TBLOUT");
+
+        Map<String, String> MrpMap = new HashMap<>();
+        for (int i = 0; i < output.getNumRows(); i++) {
+            output.setRow(i);
+            String mat = removeLeadingZeros(output.getString("MATNR"));
+            String key = mat + "," + output.getString("WERKS");
+            MrpMap.merge(key, output.getString("DISPO"), (oldValue, newValue) -> {
+                return oldValue;
+            });
+        }
+        return MrpMap;
+    }
 }

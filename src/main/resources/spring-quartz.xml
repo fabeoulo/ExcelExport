@@ -77,7 +77,7 @@
     </bean>
 
     <!--job7 setting-->
-    <bean name="SendLackWithStock-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+<!--    <bean name="SendLackWithStock-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="sendLackWithStock" />
         <property name="targetMethod" value="execute"/>  
         <property name="concurrent" value="false"/>
@@ -86,10 +86,10 @@
     <bean id="SendLackWithStock-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="SendLackWithStock-Job" />
         <property name="cronExpression" value="0 0 9,15 ? * MON-FRI *" />
-    </bean>
+    </bean>-->
     
     <!--job8 setting-->
-    <bean name="SendRequiredToPMC-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+<!--    <bean name="SendRequiredToPMC-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="sendRequiredToPMC" />
         <property name="targetMethod" value="execute"/>  
         <property name="concurrent" value="false"/>
@@ -98,7 +98,7 @@
     <bean id="SendRequiredToPMC-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="SendRequiredToPMC-Job" />
         <property name="cronExpression" value="0 0 12,17 ? * MON-FRI *" />
-    </bean>
+    </bean>-->
     
     <!--job9 setting-->
     <bean name="SyncLackMrp-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
