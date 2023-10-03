@@ -18,7 +18,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "items",
-         catalog = "lacking"
+        catalog = "lacking"
 )
 @JsonIdentityInfo(generator = JSOGGenerator.class)
 public class Items implements java.io.Serializable {
@@ -28,7 +28,9 @@ public class Items implements java.io.Serializable {
     private String label1;
     private String label2;
     private String label3;
-    private String label4;
+    private String label4 = "";
+    private Boolean mrpSync = false;
+    private String mrpCode = "";
 
     public Items() {
     }
@@ -88,7 +90,7 @@ public class Items implements java.io.Serializable {
         this.label3 = label3;
     }
 
-    @Column(name = "label_3", nullable = false, length = 20)
+    @Column(name = "label_4", length = 20, nullable = false)
     public String getLabel4() {
         return label4;
     }
@@ -97,4 +99,21 @@ public class Items implements java.io.Serializable {
         this.label4 = label4;
     }
 
+    @Column(name = "mrp_sync", nullable = false)
+    public Boolean getMrpSync() {
+        return mrpSync;
+    }
+
+    public void setMrpSync(Boolean mrpSync) {
+        this.mrpSync = mrpSync;
+    }
+
+    @Column(name = "mrp_code", length = 3, nullable = false)
+    public String getMrpCode() {
+        return mrpCode;
+    }
+
+    public void setMrpCode(String mrpCode) {
+        this.mrpCode = mrpCode;
+    }
 }

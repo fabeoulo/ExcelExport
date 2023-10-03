@@ -13,9 +13,11 @@ import com.advantech.job.SendWhReports;
 import com.advantech.job.SendWhReportsLinkou;
 import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SyncData;
+import com.advantech.job.SyncLackMrp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -39,6 +41,7 @@ public class TestQuartzJob {
     private SyncData syncJob;
 
 //    @Autowired
+//    @Qualifier("sendWhReports")
 //    private SendWhReports whReportJob;
     @Autowired
     private SendWhReportsDonghu sendDonghu;
@@ -54,6 +57,9 @@ public class TestQuartzJob {
 
     @Autowired
     private SendRequiredToPMC sendRequiredToPMC;
+
+    @Autowired
+    private SyncLackMrp syncLackMrp;
 
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
@@ -93,8 +99,13 @@ public class TestQuartzJob {
         sendLackWithStock.execute();
     }
 
-    @Test
+//    @Test
     public void testSendRequiredToPMC() {
         sendRequiredToPMC.execute();
+    }
+
+    @Test
+    public void testsyncLackMrp() throws Exception {
+        syncLackMrp.execute();
     }
 }

@@ -36,6 +36,8 @@ public class Orders implements java.io.Serializable {
     private Teams teams;
     private Users users;
     private int number;
+    private OrderResponse orderResponse;
+    private String ownerId;
     private String comment;
     private Date timeOpen;
     private Date timeClose;
@@ -116,6 +118,25 @@ public class Orders implements java.io.Serializable {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "response_id")
+    public OrderResponse getOrderResponse() {
+        return orderResponse;
+    }
+
+    public void setOrderResponse(OrderResponse orderResponse) {
+        this.orderResponse = orderResponse;
+    }
+
+    @Column(name = "owner_id", length = 10)
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
     }
 
     @Column(name = "comment", length = 65535)

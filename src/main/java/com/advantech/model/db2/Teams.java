@@ -28,6 +28,7 @@ public class Teams implements java.io.Serializable {
     private String name;
     private Integer permission;
     private String nickname;
+    private String plant;
     private Set<Orders> orderses = new HashSet<Orders>(0);
     private Set<Users> userses = new HashSet<Users>(0);
     private Set<Replies> replieses = new HashSet<Replies>(0);
@@ -83,6 +84,15 @@ public class Teams implements java.io.Serializable {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    @Column(name = "plant", length = 4)
+    public String getPlant() {
+        return plant;
+    }
+
+    public void setPlant(String plant) {
+        this.plant = plant;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "teams")

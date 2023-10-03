@@ -7,6 +7,8 @@ package com.advantech.helper;
 
 import com.advantech.model.db1.Requisition;
 import com.advantech.sap.SapQueryPort;
+import com.advantech.sap.SapService;
+import com.advantech.sap.SapMrpTbl;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.webservice.Factory;
 import com.google.common.base.CharMatcher;
@@ -19,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +43,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class TestSap {
 
     @Autowired
+    private RequisitionService rservice;
+
+    @Autowired
     private SapQueryPort port;
+
+    @Autowired
+    private SapService sapService;
 
     @Test
     public void testWarehouse() throws JCoException, URISyntaxException {
@@ -77,9 +86,6 @@ public class TestSap {
 
     }
 
-    @Autowired
-    private RequisitionService rservice;
-
     @Test
     @Transactional
     @Rollback(true)
@@ -106,13 +112,26 @@ public class TestSap {
         return str.replaceAll("^0+", "");
     }
 
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testMrpCodeService() throws Exception {
+        List<Integer> listInt = Arrays.asList(66125, 46232);
+        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
+        Map<String, String> MrpMap = sapService.getMrpCodeMap(rl);
+        HibernateObjectPrinter.print(MrpMap);
+    }
+
     @Test
     @Transactional
     @Rollback(true)
     public void testMrpCode() throws JCoException, URISyntaxException {
         List<Integer> listInt = Arrays.asList(66125, 46232);
         List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
-        JCoFunction function = port.getMrpCode(rl);
+        List<SapMrpTbl> input = rl.stream()
+                .map(l -> new SapMrpTbl(l.getMaterialNumber(), l.getWerk()))
+                .collect(Collectors.toList());
+        JCoFunction function = port.getMrpCode(input);
         JCoTable output = function.getTableParameterList().getTable("TBLOUT");
 
         Map<String, String> MrpMap = new HashMap<>();

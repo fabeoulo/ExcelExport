@@ -100,6 +100,18 @@
         <property name="cronExpression" value="0 0 12,17 ? * MON-FRI *" />
     </bean>
     
+    <!--job9 setting-->
+    <bean name="SyncLackMrp-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="syncLackMrp" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="SyncLackMrp-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SyncLackMrp-Job" />
+        <property name="cronExpression" value="0 0 22 ? * MON-FRI *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -112,6 +124,7 @@
                 <ref bean="SendWhReportsM8-Trig"/>
                 <ref bean="SendLackWithStock-Trig"/>
                 <ref bean="SendRequiredToPMC-Trig"/>
+                <!--<ref bean="SyncLackMrp-Trig"/>-->
             </list>
         </property>
         <property name="schedulerName">

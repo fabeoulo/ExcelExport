@@ -28,8 +28,16 @@ public class ItemsService {
         return repo.findAll();
     }
 
+    public List<Items> findAllWithPlant(){
+        return  repo.findAllWithPlant();
+    }
+    
     public Optional<Items> findById(Integer id) {
         return repo.findById(id);
+    }
+
+    public <S extends Items> List<S> saveAll(Iterable<S> entities) {
+        return repo.saveAll(entities);
     }
 
 }

@@ -6,7 +6,9 @@
 package com.advantech.repo.db2;
 
 import com.advantech.model.db2.Items;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -15,4 +17,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ItemsRepository extends JpaRepository<Items, Integer> {
+        
+    @Query("SELECT i FROM Items i JOIN FETCH i.orders o JOIN FETCH o.teams t "
+            + " WHERE t.plant IS NOT NULL AND i.mrpSync IS FALSE ORDER BY i.id")
+    public List<Items> findAllWithPlant();
 }

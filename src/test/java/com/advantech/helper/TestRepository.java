@@ -42,16 +42,19 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
 import com.advantech.model.db1.Requisition_;
+import com.advantech.model.db2.Items;
 import com.advantech.model.db2.OrderTypes;
 import com.advantech.model.db2.Orders;
 import com.advantech.model.db2.Teams;
 import com.advantech.model.db2.Users;
+import com.advantech.repo.db2.ItemsRepository;
 import com.advantech.repo.db2.OrderTypesRepository;
 import com.advantech.repo.db2.OrdersRepository;
 import com.advantech.repo.db2.TeamsRepository;
 import com.advantech.repo.db2.UsersRepository;
 import com.advantech.service.db1.RequisitionService;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Arrays;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -306,8 +309,8 @@ public class TestRepository {
             return cb.and(idEntryPath.in(listInt));
         });
         HibernateObjectPrinter.print(rl);
-        
-        String[] sa = rl.stream().map(l -> l.getUser().getUsername()+"-"+l.getRequisitionState().getName()).toArray(size -> new String[size]);
+
+        String[] sa = rl.stream().map(l -> l.getUser().getUsername() + "-" + l.getRequisitionState().getName()).toArray(size -> new String[size]);
         String ss = String.join(",", sa);
         HibernateObjectPrinter.print(ss);
     }
@@ -411,9 +414,9 @@ public class TestRepository {
         o.setRequisionId(12345678);
 
         ordersRepo.save(o);
-//        Orders o = ordersRepo.getOne(10732);
 
-        ordersRepo.updateTimeStampToZero(o.getId());
+        List<Integer> li = Lists.newArrayList(o.getId());
+        ordersRepo.updateTimeStampToZeroByIdIn(li);
 
         System.out.println("testOrder complete");
     }

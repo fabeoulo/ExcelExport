@@ -14,6 +14,7 @@ import com.advantech.repo.db2.OrdersRepository;
 import com.advantech.repo.db2.UsersRepository;
 import com.advantech.sap.SapQueryPort;
 import static com.google.common.base.Preconditions.checkState;
+import com.google.common.collect.Lists;
 import com.sap.conn.jco.JCoFunction;
 import com.sap.conn.jco.JCoTable;
 import java.util.ArrayList;
@@ -54,8 +55,20 @@ public class OrdersService {
         return repo.findAllLackWithUserItem(teamsId);
     }
 
+    public List<Orders> findAllOpenWithoutReply() {
+        return repo.findAllOpenWithoutReply();
+    }
+
     public Optional<Orders> findById(Integer id) {
         return repo.findById(id);
+    }
+
+    public void saveAll(List<Orders> l) {
+        if (!l.isEmpty()) {
+            List<Orders> result = repo.saveAll(l);
+            List<Integer> ids = result.stream().map(Orders::getId).collect(Collectors.toList());
+            repo.updateTimeStampToZeroByIdIn(ids);
+        }
     }
 
     public <S extends Orders> S save(S s, Items i) throws Exception {
@@ -89,7 +102,7 @@ public class OrdersService {
         i.setOrders(s);
         itemRepo.save(i);
 
-        repo.updateTimeStampToZero(s.getId());
+        repo.updateTimeStampToZeroByIdIn(Lists.newArrayList(s.getId()));
         return null;
     }
 

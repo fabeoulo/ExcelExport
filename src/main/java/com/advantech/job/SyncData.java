@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 /**
  *
  * @author Wei.Cheng Sync back excel's data from "MFG-Server (MFG-OAPC-019B)"
- * Every day ※Only sync current years data
+ * Every day ※Only sync current years data ※before2021
  */
 @Component
 public class SyncData {

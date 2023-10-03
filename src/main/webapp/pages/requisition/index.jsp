@@ -474,7 +474,6 @@
                         var orderType = $("#myModal3 #model-table #orderTypes\\.id").val();
                         var respectDate = $("#myModal3 #model-table #respectDate").val();
                         var comment = $("#myModal3 #model-table #comment").val();
-//                        var email = $("#myModal3 #model-table #email").val();
 
                         if (isNaN(number) || number == "") {
                             alert("Amount please insert a number.");
@@ -484,7 +483,7 @@
                             alert("Po or MaterialNumber can't be empty.");
                             return false;
                         }
-                        if (respectDate == "" || respectDate == "") {
+                        if (respectDate == "") {
                             alert("RespectDate can't be empty.");
                             return false;
                         }
@@ -495,8 +494,7 @@
                             "number": number,
                             "orderTypes.id": orderType,
                             "respectDate": respectDate,
-                            "comment": comment,
-//                            "itemEmail": email
+                            "comment": comment
                         };
 
                         saveToOrders(data);

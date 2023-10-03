@@ -10,23 +10,36 @@ import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.model.db2.Items;
+import com.advantech.model.db2.MaterialMrp;
+import com.advantech.model.db2.OrderResponse;
+import com.advantech.model.db2.OrderResponseOwners;
 import com.advantech.model.db2.Orders;
 import com.advantech.sap.SapService;
+import com.advantech.sap.SapMrpTbl;
 import com.advantech.service.db1.ExceptionService;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
+import com.advantech.service.db2.ItemsService;
+import com.advantech.service.db2.MaterialMrpService;
+import com.advantech.service.db2.OrderResponseOwnersService;
+import com.advantech.service.db2.OrderResponseService;
 import com.advantech.service.db2.OrdersService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.Factory;
 import static com.google.common.base.Preconditions.checkArgument;
+import com.sun.org.apache.bcel.internal.generic.DDIV;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -66,7 +79,30 @@ public class TestService {
     @Autowired
     private RequisitionService rservice;
 
-    @Test
+    @Autowired
+    private SapService sapService;
+
+    @Autowired
+    private OrdersService ordersService;
+
+    @Autowired
+    private ItemsService itemsService;
+
+    @Autowired
+    private OrderResponseOwnersService orderResponseOwnersService;
+
+    @Autowired
+    private OrderResponseService orderResponseService;
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testFindAll() throws Exception {
+        List<OrderResponseOwners> lro = orderResponseOwnersService.findAll();
+        List<OrderResponse> lr = orderResponseService.findAll();
+    }
+
+//    @Test
     public void test1() {
         DateTimeFormatter fmtD = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
 
@@ -92,11 +128,99 @@ public class TestService {
 //        HibernateObjectPrinter.print(f);
     }
 
-    private Date sD, eD;
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void testMatchMrp() throws Exception {
+        List<Orders> orders = ordersService.findAllOpenWithoutReply();
+        List<String> plants = orders.stream().map(o -> o.getTeams().getPlant()).collect(Collectors.toList());
+        List<String> materials = orders.stream()
+                .map(o -> {
+                    Items i = o.getItemses().stream().findFirst().get();
+                    return i.getLabel3();
+                }).collect(Collectors.toList());
+
+        Map<String, String> map = materialMrpService.getMrpMap(plants, materials);
+        List<Orders> updateL = orders.stream()
+                .filter(o -> {
+                    Items i = o.getItemses().stream().findFirst().get();
+                    String key = o.getTeams().getPlant() + i.getLabel3();
+                    if (map.containsKey(key)) {
+                        o.setOwnerId(map.get(key));
+                        return true;
+                    }
+                    return false;
+                }).collect(Collectors.toList());
+
+        HibernateObjectPrinter.print(updateL);
+        ordersService.saveAll(updateL);
+    }
+
+    @Autowired
+    private MaterialMrpService materialMrpService;
 
     @Test
     @Transactional
-    @Rollback(true)
+    @Rollback(false)
+    public void testMaterialMrpService() throws Exception {
+        List<Items> itemOrders = itemsService.findAllWithPlant();
+        List<Items> subL = itemOrders.subList(0, 1000);
+
+        List<SapMrpTbl> tblin = subL.stream().map(i -> {
+            return new SapMrpTbl(i.getLabel3(), i.getOrders().getTeams().getPlant());
+        }).collect(Collectors.toList());
+
+        Map<String, String> mrpMap = sapService.getMrpCodeByTblin(tblin);
+        List<MaterialMrp> newMms = new ArrayList<>();
+        mrpMap.forEach((k, v) -> {
+            if (v != null && !v.isEmpty()) {
+                String[] keys = k.split(",");
+                MaterialMrp mm = new MaterialMrp(keys[1], keys[0], v, new DateTime().toDate());
+                newMms.add(mm);
+            }
+        });
+
+        List<MaterialMrp> dbMms = materialMrpService.findAll();
+        List<MaterialMrp> mergeList = new ArrayList<>();
+        for (MaterialMrp newMm : newMms) {
+            MaterialMrp mm = findMaterialInDb(dbMms, newMm);
+            if (mm == null) {
+                mergeList.add(newMm);
+            } else if (!mm.getMrpCode().equals(newMm.getMrpCode())) {
+                mm.setMrpCode(newMm.getMrpCode());
+                mm.setUpdateTime(newMm.getUpdateTime());
+                mergeList.add(mm);
+            }
+        }
+        materialMrpService.saveAll(mergeList);
+
+        List<Items> syncItems = subL.stream()
+                .map(i -> {
+                    String k = i.getLabel3() + "," + i.getOrders().getTeams().getPlant();
+                    String code = mrpMap.getOrDefault(k, "");
+                    i.setMrpCode(code);
+                    i.setMrpSync(true);
+                    return i;
+                })
+                .collect(Collectors.toList());
+        itemsService.saveAll(syncItems);
+    }
+
+    private MaterialMrp findMaterialInDb(List<MaterialMrp> list, MaterialMrp material) {
+        return list.stream()
+                .filter(
+                        m -> m.getPlant().equals(material.getPlant())
+                        && m.getMatName().equals(material.getMatName())
+                )
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Date sD, eD;
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testToPMC() {
 //        setDatetime(sD, eD);
 
@@ -166,14 +290,9 @@ public class TestService {
         }).collect(Collectors.toList());
     }
 
-    @Autowired
-    private SapService sapService;
-    @Autowired
-    private OrdersService ordersService;
-
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testLackStock() throws Exception {
         Integer teamId = 2;// 1 for test
         List<Orders> lackOrders = ordersService.findAllLackWithUserItem(teamId);//order by id
@@ -220,9 +339,9 @@ public class TestService {
                 : lackReq.stream().filter(r -> listInt.contains(r.getId())).collect(Collectors.toList());
     }
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void test() {
 //        System.out.println("Requisition.isPresent= " + rservice.findById(62288).isPresent());
 
@@ -259,9 +378,9 @@ public class TestService {
     @Autowired
     private UserNotificationService notificationService;
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testUserNotificationService() {
         UserNotification un = notificationService.findByName("requisition_state_change_target");
         List<User> ls = userService.findByUserNotifications(un);

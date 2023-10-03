@@ -4,15 +4,22 @@
  */
 package com.advantech.model.db2;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.voodoodyne.jackson.jsog.JSOGGenerator;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  *
@@ -44,6 +51,8 @@ public class Replies implements java.io.Serializable {
         this.id = id;
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
     public Orders getOrders() {
         return orders;
     }
@@ -52,6 +61,8 @@ public class Replies implements java.io.Serializable {
         this.orders = orders;
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = false)
     public Teams getTeams() {
         return teams;
     }
@@ -60,6 +71,8 @@ public class Replies implements java.io.Serializable {
         this.teams = teams;
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     public Users getUsers() {
         return users;
     }
@@ -68,6 +81,7 @@ public class Replies implements java.io.Serializable {
         this.users = users;
     }
 
+    @Column(name = "comment", length = 65535)
     public String getComment() {
         return comment;
     }
@@ -76,6 +90,8 @@ public class Replies implements java.io.Serializable {
         this.comment = comment;
     }
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "time", nullable = true, length = 19)
     public Date getTimeCreate() {
         return timeCreate;
     }
@@ -84,6 +100,10 @@ public class Replies implements java.io.Serializable {
         this.timeCreate = timeCreate;
     }
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", timezone = "GMT+8")
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "expect_date", nullable = true, length = 19)
     public Date getExpectDate() {
         return expectDate;
     }
@@ -91,7 +111,4 @@ public class Replies implements java.io.Serializable {
     public void setExpectDate(Date expectDate) {
         this.expectDate = expectDate;
     }
-    
-    
-    
 }
