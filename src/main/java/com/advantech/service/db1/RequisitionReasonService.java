@@ -8,6 +8,7 @@ package com.advantech.service.db1;
 import com.advantech.model.db1.RequisitionReason;
 import com.advantech.repo.db1.RequisitionReasonRepository;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,10 @@ public class RequisitionReasonService {
         return repo.findAll();
     }
 
+    public Optional<RequisitionReason> findById(Integer id) {
+        return repo.findById(id);
+    }
+    
     public RequisitionReason getOne(Integer id) {
         return repo.getOne(id);
     }

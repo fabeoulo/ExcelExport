@@ -64,6 +64,19 @@ public class Requisition implements Serializable {
 
     private int lackingFlag = 0;
 
+    public Requisition() {
+    }
+
+    public Requisition(String po, String materialNumber, int amount, RequisitionReason requisitionReason, User user, String remark, Floor floor) {
+        this.po = po;
+        this.materialNumber = materialNumber;
+        this.amount = amount;
+        this.requisitionReason = requisitionReason;
+        this.user = user;
+        this.remark = remark;
+        this.floor = floor;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", unique = true, nullable = false)

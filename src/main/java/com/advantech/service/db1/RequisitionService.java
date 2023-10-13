@@ -170,6 +170,10 @@ public class RequisitionService {
 
     public <S extends Requisition> int batchInsert(List<S> l) {
         User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        return batchInsert(l, user);
+    }
+
+    public <S extends Requisition> int batchInsert(List<S> l, User user) {
 
         RequisitionState defaultState = stateRepo.getOne(4);
         RequisitionType defaultType = typeRepo.getOne(1);

@@ -117,7 +117,7 @@
         <property name="triggers">
             <list>
                 <!--<ref bean="SendReport-Trig"/>-->
-<!--                <ref bean="SyncData-Trig"/>
+                <!--                <ref bean="SyncData-Trig"/>
                 <ref bean="SyncDataBeforeSendMail-Trig"/>-->
                 <ref bean="SendWhReports-Trig"/>
                 <!--<ref bean="SendOvertimeReport-Trig"/>-->
@@ -134,6 +134,8 @@
         <property name="configLocation">
             <value>classpath:quartz.properties</value>
         </property>
+        
+        <property name="waitForJobsToCompleteOnShutdown" value="true" />
     </bean>
     
 </beans>
