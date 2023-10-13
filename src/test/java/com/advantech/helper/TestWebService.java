@@ -58,7 +58,7 @@ public class TestWebService {
         String po = "THM004411ZA";
 
         HibernateObjectPrinter.print(Factory.TWM3.toString());
-        
+
         List l = modelNameQryPort.query(po, Factory.TWM3);
 
         HibernateObjectPrinter.print(l);
@@ -81,11 +81,13 @@ public class TestWebService {
         aD.setReason("testtest");
         aD.setJobnumber("sysop");
         aD.setUserName("7F sysop");
-        whq.setRequitions(Lists.newArrayList( aD));
+        whq.setRequitions(Lists.newArrayList(aD));
 
         String jsonString = getJsonString(whq);
 
         HibernateObjectPrinter.print(jsonString);
+        WareHourseInsert rever = new ObjectMapper().readValue(jsonString, WareHourseInsert.class);
+        HibernateObjectPrinter.print(rever);
         wh.setSparam(jsonString);
 
         Factory f = Factory.M3WH;
