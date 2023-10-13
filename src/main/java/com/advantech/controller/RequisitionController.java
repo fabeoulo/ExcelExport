@@ -213,15 +213,15 @@ public class RequisitionController {
 
     }
 
-    private void checkModelMaterial(List<Requisition> requisitions) throws Exception {
+    public void checkModelMaterial(List<Requisition> requisitions) throws Exception {
         for (Requisition r : requisitions) {
             //Fail when sap info not retrieve from retrieveSapInfos() function
             checkArgument(r.getModelName() != null && !"".equals(r.getModelName()),
-                    "Can't find material info " + r.getMaterialNumber() + " in po " + r.getPo());
+                    "Can't find material info '" + r.getMaterialNumber() + "' in po: " + r.getPo());
         }
     }
 
-    private List<Requisition> retrieveSapInfos(List<Requisition> requisitions) throws JCoException, URISyntaxException {
+    public List<Requisition> retrieveSapInfos(List<Requisition> requisitions) throws JCoException, URISyntaxException {
         if (!requisitions.isEmpty()) {
             String po = requisitions.get(0).getPo();
 

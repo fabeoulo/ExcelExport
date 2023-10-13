@@ -140,11 +140,7 @@
     />
  
     <jpa:repositories base-package="com.advantech.repo.db2" entity-manager-factory-ref="entityManagerFactory2" transaction-manager-ref="transactionManager2" />
-    
-    <bean id="webApiClient" class="com.advantech.api.WebApiClient">
-        <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
-    </bean>
-    
+        
     <context:annotation-config/>
  
     <!--對base-package下及其子資料夾偵測並自動裝配Bean--> 
@@ -262,7 +258,7 @@
     
     <!--Inject webservice-->
     <util:map id="resourceMap" key-type="com.advantech.webservice.Factory" 
-                      value-type="org.springframework.ws.client.core.WebServiceTemplate">
+              value-type="org.springframework.ws.client.core.WebServiceTemplate">
         <!-- Map between String key and List -->
         <entry key="TWM3" value-ref="webServiceTemplate" />
         <entry key="TWM6" value-ref="webServiceTemplate1" />
@@ -273,6 +269,10 @@
     <!--regist for WsClient.class use, -->
     <bean id="objectFactory" class="org.tempuri.ObjectFactory" />
 
+    <bean id="webApiClient" class="com.advantech.api.WebApiClient">
+        <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
+    </bean>
+        
     <import resource="classpath:spring-security.xml"/>
     <import resource="classpath:spring-quartz.xml"/>
     <import resource="classpath:spring-websocket.xml"/>
