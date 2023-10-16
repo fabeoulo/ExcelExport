@@ -6,7 +6,9 @@
 package com.advantech.repo.db1;
 
 import com.advantech.model.db1.UserNotification;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -18,4 +20,6 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
 
     UserNotification findByName(String name);
 
+    @Query("SELECT u FROM UserNotification AS u JOIN FETCH u.users WHERE u.id = ?1")
+    Optional<UserNotification> findByIdWithUser(Integer id);
 }

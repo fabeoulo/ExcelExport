@@ -27,6 +27,7 @@ import com.advantech.service.db2.OrderResponseService;
 import com.advantech.service.db2.OrdersService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.Factory;
+import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.sun.org.apache.bcel.internal.generic.DDIV;
 import java.math.BigDecimal;
@@ -39,6 +40,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -159,9 +161,9 @@ public class TestService {
     @Autowired
     private MaterialMrpService materialMrpService;
 
-    @Test
-    @Transactional
-    @Rollback(false)
+//    @Test
+//    @Transactional
+//    @Rollback(false)
     public void testMaterialMrpService() throws Exception {
         List<Items> itemOrders = itemsService.findAllWithPlant();
         List<Items> subL = itemOrders.subList(0, 1000);
@@ -378,15 +380,17 @@ public class TestService {
     @Autowired
     private UserNotificationService notificationService;
 
-//    @Test
-//    @Transactional
-//    @Rollback(true)
+    @Test
+    @Transactional
+    @Rollback(true)
     public void testUserNotificationService() {
-        UserNotification un = notificationService.findByName("requisition_state_change_target");
-        List<User> ls = userService.findByUserNotifications(un);
-        List<Integer> li = ls.stream().map(User::getId).collect(Collectors.toList());
+        Optional<UserNotification> oUn = notificationService.findByIdWithUser(13);
+        Preconditions.checkState(oUn.isPresent(), "User notification not found.");
+//        UserNotification un = oUn.get();
+        Set<User> ls2 = oUn.get().getUsers();
+        List<Integer> li = ls2.stream().map(User::getId).collect(Collectors.toList());
 
-        HibernateObjectPrinter.print(ls);
+        HibernateObjectPrinter.print(li);
     }
 
 //    @Test

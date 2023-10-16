@@ -105,7 +105,7 @@ public class TestQuartzJob {
     }
 
     @Test
-    public void testsyncLackMrp() throws Exception {
+    public void testSyncLackMrp() throws Exception {
         syncLackMrp.execute();
     }
 }

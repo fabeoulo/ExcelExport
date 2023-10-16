@@ -122,9 +122,9 @@ public class TestSap {
         HibernateObjectPrinter.print(MrpMap);
     }
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testMrpCode() throws JCoException, URISyntaxException {
         List<Integer> listInt = Arrays.asList(66125, 46232);
         List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);

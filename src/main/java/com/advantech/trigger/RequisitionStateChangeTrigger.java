@@ -12,12 +12,15 @@ import com.advantech.model.db1.UserNotification;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
-import static com.google.common.collect.Lists.newArrayList;
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.mail.MessagingException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.joda.time.DateTime;
@@ -50,7 +53,8 @@ public class RequisitionStateChangeTrigger {
     @Autowired
     private RequisitionService rservice;
 
-    private int[] repairUserList;//= {742, 753, 895, 1024, 1025, 36};
+    private Set<User> repairUsers;
+    private int[] repairUserIds;//= {742, 753, 895, 1024, 1025, 36};
     private final int[] StateChangeList = {2, 5};
     DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
 
@@ -60,7 +64,7 @@ public class RequisitionStateChangeTrigger {
                 .filter(e -> {
                     int userId = e.getUser().getId();
                     int rsId = e.getRequisitionState().getId();
-                    return Arrays.stream(repairUserList).anyMatch(i -> i == userId)
+                    return Arrays.stream(repairUserIds).anyMatch(i -> i == userId)
                             && Arrays.stream(StateChangeList).anyMatch(i -> i == rsId);
                 }).collect(Collectors.toList());
 
@@ -71,15 +75,16 @@ public class RequisitionStateChangeTrigger {
     }
 
     private void setRepairUserList() {
-        UserNotification notifi = notificationService.findById(13).get();
-        List<User> l = userService.findByUserNotifications(notifi);
-        repairUserList = l.stream().mapToInt(u -> u.getId()).toArray();
+        Optional<UserNotification> oUn = notificationService.findByIdWithUser(13);
+        Preconditions.checkState(oUn.isPresent(), "User notification not found.");
+        repairUsers = oUn.get().getUsers();
+        repairUserIds = repairUsers.stream().mapToInt(u -> u.getId()).toArray();
     }
 
     private void sendRepairMail(List<Requisition> rl) {
         try {
-            String[] mailTarget = findEMailByNotifyId(13);
-            String[] mailCcTarget = findEMailByNotifyId(16);
+            String[] mailTarget = findEmailInRepair(rl);
+            String[] mailCcTarget = findEmailByNotifyId(16);
 
             if (mailTarget.length == 0) {
                 logger.info("Trigger sendReport can't find mail target.");
@@ -93,7 +98,6 @@ public class RequisitionStateChangeTrigger {
             String mailTitle = "維修用料已申請通知-" + getFirstPoByGroupUser(rlWithLazy);
 
             manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
-
         } catch (SAXException | InvalidFormatException | IOException | MessagingException ex) {
             logger.error("Send mail fail.", ex);
         }
@@ -163,10 +167,17 @@ public class RequisitionStateChangeTrigger {
         return sb.toString();
     }
 
-    private String[] findEMailByNotifyId(Integer id) {
-        UserNotification notifi = notificationService.findById(id).get();
-        List<User> l = userService.findByUserNotifications(notifi);
-        return l.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
+    private String[] findEmailInRepair(List<Requisition> rl) {
+        List<Integer> userIds = rl.stream().map(r -> r.getUser().getId()).collect(Collectors.toList());
+        Stream<User> users = repairUsers.stream().filter(u -> userIds.contains(u.getId()));
+        return users.map(u -> u.getEmail()).toArray(size -> new String[size]);
+    }
+
+    private String[] findEmailByNotifyId(Integer id) {
+        Optional<UserNotification> oUn = notificationService.findByIdWithUser(id);
+        Preconditions.checkState(oUn.isPresent(), "User notification not found.");
+        Set<User> ls2 = oUn.get().getUsers();
+        return ls2.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
     }
 
     private String getFirstPoByGroupUser(List<Requisition> rl) {
