@@ -444,10 +444,11 @@
                         const floor = $("#model-table2 #floor\\.id").val();
 
                         const myArray = tb.map(function () {
+                            var amount = $(this).find("input").eq(1).val();
                             const o = {
                                 po: po,
                                 materialNumber: $(this).find("input").eq(0).val(),
-                                amount: $(this).find("input").eq(1).val(),
+                                amount: amount === "" ? 0 : amount,
                                 remark: $(this).find("#remark").val(),
                                 "requisitionReason.id": $(this).find("#requisitionReason\\.id").val(),
                                 "floor.id": floor
