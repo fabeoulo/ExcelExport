@@ -39,7 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userService.findByJobnumber(jobnumber);
         if (user == null) {
             WebApiUser atmcUser = wc.getUserInAtmc(jobnumber);
-            if (atmcUser != null && atmcUser.Active == 1) {
+            if (atmcUser != null) {
                 userService.saveUserWithNameByProc(atmcUser.Emplr_Id, atmcUser.Email_Addr, atmcUser.Local_Name);
                 user = userService.findByJobnumber(jobnumber);
             } else {

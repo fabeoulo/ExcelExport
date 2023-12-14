@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
  * @author Justin.Yeh
  */
 @WebListener
-public class MysqlContextClosedHandler implements ServletContextListener {
+public class DriverContextListener implements ServletContextListener {
 
-    private final Logger log = LoggerFactory.getLogger(MysqlContextClosedHandler.class);
+    private final Logger log = LoggerFactory.getLogger(DriverContextListener.class);
     
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
@@ -42,15 +42,15 @@ public class MysqlContextClosedHandler implements ServletContextListener {
             if (driver.getClass().getClassLoader() == cl) {
                 // This driver was registered by the webapp's ClassLoader, so deregister it:
                 try {
-                    log.info("Deregistering JDBC driver {}", driver);
                     DriverManager.deregisterDriver(driver);
+                    event.getServletContext().log("Deregistering JDBC driver " + driver);
                 } catch (SQLException ex) {
-                    log.error("Error deregistering JDBC driver {}", driver, ex);
+                    event.getServletContext().log("Driver deregistration failure.", ex);
 //                    event.getServletContext().log("Driver deregistration failure.", ex);
                 }
             } else {
                 // driver was not registered by the webapp's ClassLoader and may be in use elsewhere
-                log.trace("Not deregistering JDBC driver {} as it does not belong to this webapp's ClassLoader", driver);
+                event.getServletContext().log("Not deregistering JDBC driver " + driver + " as it does not belong to this webapp's ClassLoader");
             }
         }
 
@@ -58,8 +58,10 @@ public class MysqlContextClosedHandler implements ServletContextListener {
         try {
 //                    log.info("Deregistering JDBC driver ");
             AbandonedConnectionCleanupThread.checkedShutdown();
+            event.getServletContext().log("Abandoned Connection Cleanup checkedShutdown.");
         } catch (Exception e) {
             // again failure, not much you can do
+            event.getServletContext().log("Abandoned Connection Cleanup failure.", e);
         }
     }
 
