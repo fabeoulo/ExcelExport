@@ -160,7 +160,7 @@
             com.advantech.trigger
     " />            
 
-    <bean id="webApiClient" class="com.advantech.api.WebApiClient">
+    <bean id="employeeApiClient" class="com.advantech.webapi.EmployeeApiClient">
         <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
     </bean>
     

@@ -6,7 +6,6 @@
 package com.advantech.service.db1;
 
 import com.advantech.model.db1.User;
-import com.advantech.security.State;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,31 +15,29 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import com.advantech.api.WebApiClient;
-import com.advantech.api.WebApiUser;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.advantech.webapi.EmployeeApiClient;
+import com.advantech.webapi.model.Employee;
 
 /**
  *
  * @author Wei.Cheng
  */
-@Service("customUserDetailsService")
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
     private UserService userService;
 
     @Autowired
-    @Qualifier("webApiClient")
-    private WebApiClient wc;
+    private EmployeeApiClient wc;
 
     @Override
     public UserDetails loadUserByUsername(String jobnumber) throws UsernameNotFoundException {
         User user = userService.findByJobnumber(jobnumber);
         if (user == null) {
-            WebApiUser atmcUser = wc.getUserInAtmc(jobnumber);
+            Employee atmcUser = wc.getUserInAtmc(jobnumber);
             if (atmcUser != null) {
-                userService.saveUserWithNameByProc(atmcUser.Emplr_Id, atmcUser.Email_Addr, atmcUser.Local_Name);
+                userService.saveUserWithNameByProc(atmcUser.getEmplr_Id(), atmcUser.getEmail_Addr(), atmcUser.getLocal_Name());
                 user = userService.findByJobnumber(jobnumber);
             } else {
                 System.out.println("User not found");
