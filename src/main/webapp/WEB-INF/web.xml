@@ -11,6 +11,10 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
     
+    <listener>
+        <listener-class>com.advantech.listener.QuartzContextListener</listener-class>
+    </listener>
+    
     <context-param>
         <param-name>pageTitle</param-name>
         <param-value>ExcelExport</param-value>

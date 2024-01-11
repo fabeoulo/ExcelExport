@@ -2,36 +2,37 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.advantech.helper;
+package com.advantech.listener;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import java.lang.reflect.Field;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.Timer;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import reactor.netty.http.HttpResources;
 
 /**
- * See https://stackoverflow.com/questions/3320400/to-prevent-a-memory-leak-the-jdbc-driver-has-been-forcibly-unregistered
+ * See
+ * https://stackoverflow.com/questions/3320400/to-prevent-a-memory-leak-the-jdbc-driver-has-been-forcibly-unregistered
  * https://www.panziye.com/java/4844.html
+ *
  * @author Justin.Yeh
  */
 @WebListener
 public class DriverContextListener implements ServletContextListener {
 
-    private final Logger log = LoggerFactory.getLogger(DriverContextListener.class);
-    
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         // nothing to do
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent event) {        
+    public void contextDestroyed(ServletContextEvent event) {
         // Now deregister JDBC drivers in this context's ClassLoader:
         // Get the webapp's ClassLoader
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -56,13 +57,15 @@ public class DriverContextListener implements ServletContextListener {
 
         // MySQL driver leaves around a thread. This static method cleans it up.
         try {
-//                    log.info("Deregistering JDBC driver ");
             AbandonedConnectionCleanupThread.checkedShutdown();
             event.getServletContext().log("Abandoned Connection Cleanup checkedShutdown.");
         } catch (Exception e) {
             // again failure, not much you can do
             event.getServletContext().log("Abandoned Connection Cleanup failure.", e);
         }
+
+        //fix memory leak : thread named [reactor-http-nio-*] and [webflux-http-nio-*]
+        HttpResources.disposeLoopsAndConnectionsLater().block();
     }
 
 }

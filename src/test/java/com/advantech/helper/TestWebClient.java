@@ -4,8 +4,8 @@
  */
 package com.advantech.helper;
 
-import com.advantech.api.WebApiUser;
-import com.advantech.api.WebApiClient;
+import com.advantech.webapi.model.Employee;
+import com.advantech.webapi.EmployeeApiClient;
 import com.advantech.model.db1.User;
 import com.advantech.repo.db1.UserRepository;
 import com.advantech.service.db1.UserService;
@@ -42,8 +42,7 @@ public class TestWebClient {
     }
 
     @Autowired
-    @Qualifier("webApiClient")
-    private WebApiClient wc;
+    private EmployeeApiClient wc;
 
     @Test
     public void testGetUserInAtmc2() {
@@ -51,11 +50,11 @@ public class TestWebClient {
         System.out.println("wc.baseUrl= " + wc.getBaseUrl());
         System.out.println(" wc.isUserInAtmc= " + wc.getUserInAtmc(jobNo));
 
-        WebApiUser atmcUser = GetUserInAtmc(jobNo);
+        Employee atmcUser = GetUserInAtmc(jobNo);
         if (atmcUser != null) {
-            System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.Emplr_Id);
-            HibernateObjectPrinter.print(" atmcUser.getLocal_Name()= " + atmcUser.Local_Name);
-            System.out.println(" atmcUser.getEmail_Addr= " + atmcUser.Email_Addr);
+            System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.getEmplr_Id());
+            HibernateObjectPrinter.print(" atmcUser.getLocal_Name()= " + atmcUser.getLocal_Name());
+            System.out.println(" atmcUser.getEmail_Addr= " + atmcUser.getEmail_Addr());
         }
     }
 
@@ -69,17 +68,17 @@ public class TestWebClient {
         List<User> userL = userService.findAll();
         for (User u : userL) {
             if (u.getJobnumber().equals(u.getUsername())) {
-                WebApiUser atmcUser = GetUserInAtmc(u.getJobnumber());
-                if (atmcUser != null && atmcUser.Active == 1) {
-                    u.setUsername(atmcUser.Local_Name);
-                    u.setEmail(atmcUser.Email_Addr);
+                Employee atmcUser = GetUserInAtmc(u.getJobnumber());
+                if (atmcUser != null && atmcUser.getActive() == 1) {
+                    u.setUsername(atmcUser.getLocal_Name());
+                    u.setEmail(atmcUser.getEmail_Addr());
                     userService.save(u);
                 }
             }
         }
     }
 
-    private WebApiUser GetUserInAtmc(String jobNo) {
+    private Employee GetUserInAtmc(String jobNo) {
         return wc.getUserInAtmc(jobNo);
     }
 
@@ -98,18 +97,18 @@ public class TestWebClient {
 //                .retrieve()
 //                .bodyToMono(Object[].class);
 //        Object[] atmcEMP;
-//        List<WebApiUser> urlist = new ArrayList<>();
+//        List<Employee> urlist = new ArrayList<>();
 //        try {
 //            atmcEMP = body.block();
 //            ObjectMapper mapper = new ObjectMapper();
-//            urlist = mapper.convertValue(atmcEMP, new TypeReference<List<WebApiUser>>() {
+//            urlist = mapper.convertValue(atmcEMP, new TypeReference<List<Employee>>() {
 //            });
 //        } catch (Exception e) {
 //            System.out.println("Object[]  e: " + e);
 ////            return false;
 //        }
 //        if (urlist != null) {
-//            for (WebApiUser atmcUser : urlist) {
+//            for (Employee atmcUser : urlist) {
 //                System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.Emplr_Id);
 //                System.out.println(" atmcUser.getLocal_Name()= " + atmcUser.Local_Name);
 //                System.out.println(" atmcUser.dep2= " + atmcUser.Dep2);
