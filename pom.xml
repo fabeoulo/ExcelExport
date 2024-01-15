@@ -4,7 +4,7 @@
 
     <groupId>com.advantech</groupId>
     <artifactId>ExcelReport</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
     <packaging>war</packaging>
 
     <pluginRepositories>
@@ -654,5 +654,4 @@
         <finalName>${project.artifactId}##${project.version}</finalName>
         
     </build>
-
 </project>

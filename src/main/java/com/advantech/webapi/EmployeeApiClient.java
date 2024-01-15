@@ -36,7 +36,7 @@ public class EmployeeApiClient extends BaseApiClient {
                 .retrieve() // throw WebClientResponseException
                 .bodyToMono(Object[].class);
         try {
-            Object[] bodyObject = body.block(REQUEST_TIMEOUT);
+            Object[] bodyObject = body.block();
             List<Employee> users = objectToUser(bodyObject);
             return users.isEmpty() ? null : users.get(0);
         } catch (Exception e) { //WebClientException

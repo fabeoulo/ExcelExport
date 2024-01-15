@@ -276,6 +276,7 @@
     
     <!--regist for WsClient.class use, -->
     <bean id="objectFactory" class="org.tempuri.ObjectFactory" />
+    <bean id="reactorResourceFactory" class="org.springframework.http.client.reactive.ReactorResourceFactory" />
 
     <import resource="classpath:spring-security.xml"/>
     <import resource="classpath:spring-quartz.xml"/>

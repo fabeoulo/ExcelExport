@@ -4,9 +4,11 @@
  */
 package com.advantech.api.controller;
 
+import java.util.function.Predicate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.RequestHandler;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -21,13 +23,16 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
-public class SwaggerConfig  {
+public class SwaggerConfig {
 
     @Bean
     public Docket api() {
+//        Predicate<RequestHandler> selector = RequestHandlerSelectors.basePackage("com.advantech.api.controller")
+//                .or(RequestHandlerSelectors.basePackage("com.advantech.api.auth"));
+
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.advantech.api.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.advantech.api"))
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
