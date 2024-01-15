@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.*;
+import io.swagger.annotations.ApiParam;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,6 +117,7 @@ public class RequisitionApiController {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JSON data" + ex.getMessage());
 //        }
 //    }
+
     @ResponseBody
     @RequestMapping(value = "/getDtoTemplate", method = RequestMethod.GET)
     public AddRequisitionDto getDtoTemplate() {
@@ -123,12 +125,14 @@ public class RequisitionApiController {
     }
 
     @ResponseBody
-    @PostMapping("/createRequisition")
-    public String addRequisition(@RequestBody String datas) throws Exception {
+    @RequestMapping(value = "/createRequisition", method = RequestMethod.POST, produces = "application/json")
+    public String addRequisition(
+            @ApiParam(required = true, value = "String of AddRequisitionDto model.")
+            @RequestBody String datas) throws Exception {
         AddRequisitionDto dto = new AddRequisitionDto();
         try {
             dto = objectMapper.readValue(datas, AddRequisitionDto.class);
-        } catch (JsonProcessingException  e) {
+        } catch (JsonProcessingException e) {
             msg = e.getMessage();
             logger.error(msg);
             throw new Exception(msg);

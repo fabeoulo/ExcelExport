@@ -2,12 +2,9 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
              xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xmlns:websocket="http://www.springframework.org/schema/websocket"
              xsi:schemaLocation="
                 http://www.springframework.org/schema/beans 
                 http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
-                http://www.springframework.org/schema/websocket
-                http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
                 http://www.springframework.org/schema/security 
                 http://www.springframework.org/schema/security/spring-security-4.2.xsd">
     
@@ -22,6 +19,20 @@
         class="com.advantech.security.RefererRedirectionAuthenticationSuccessHandler"
         name="refererHandler"/>
       
+<!--    <beans:bean id="httpSessionCsrfTokenRepository"
+                class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository">
+        <beans:property name="headerName" value="X-CSRF-TOKEN" />
+    </beans:bean> -->
+    
+    <http pattern="/ApiAuth/**" create-session="stateless">   
+        <intercept-url pattern="/**" access="authenticated" />
+        <intercept-url pattern="/**" access="hasAnyRole('ADMIN')" />
+        <http-basic />
+        
+        <csrf disabled="true"/>
+        <!--<csrf token-repository-ref="httpSessionCsrfTokenRepository"/>-->
+    </http>
+    
     <http auto-config="true">
         <!--
             If frame option is set to default(deny all), 
@@ -43,8 +54,6 @@
         <intercept-url pattern="/pages/requisition/**" access="isAuthenticated()" />
         <intercept-url pattern="/pages/report/**" access="hasAnyRole('OPER_IE', 'ADMIN')" />
         <intercept-url pattern="/pages/fqcKanBan/**" access="hasAnyRole('OPER_FQC', 'ADMIN')" />
-        <intercept-url pattern="/swagger-ui/**" access="isAuthenticated()" />
-        <intercept-url pattern="/api/**" access="isAuthenticated()" />
         
         <!--Controller security role setting-->
         
@@ -64,7 +73,7 @@
         />
         
     </http>
-    
+        
     <authentication-manager >
         <authentication-provider user-service-ref="customUserDetailsService">
             <password-encoder ref="customPasswordEncoder" />

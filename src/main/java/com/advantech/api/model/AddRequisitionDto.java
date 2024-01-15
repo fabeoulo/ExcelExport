@@ -6,6 +6,7 @@ package com.advantech.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
 /**
@@ -15,6 +16,7 @@ import java.util.List;
 public class AddRequisitionDto {
 
     @JsonProperty("jobNo")
+    @ApiModelProperty(example = "000000000")
     private String jobnumber = "";
     private String po = "";
     private int floorId;
@@ -56,10 +58,17 @@ public class AddRequisitionDto {
     public static class RequisitionDto {
 
         @JsonProperty("materialNo")
+        @ApiModelProperty(position = 0)
         private String materialNumber = "";
+
+        @ApiModelProperty(position = 1)
         private int amount;
+
+        @ApiModelProperty(position = 3, example = "Emptyable")
         private String remark = "";
+
         @JsonProperty("reasonId")
+        @ApiModelProperty(position = 2)
         private int requisitionReasonId;
 
         public String getMaterialNumber() {

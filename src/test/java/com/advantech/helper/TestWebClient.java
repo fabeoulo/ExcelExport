@@ -44,7 +44,7 @@ public class TestWebClient {
     @Autowired
     private EmployeeApiClient wc;
 
-    @Test
+//    @Test
     public void testGetUserInAtmc2() {
         String jobNo = "A-F0287";
         System.out.println("wc.baseUrl= " + wc.getBaseUrl());

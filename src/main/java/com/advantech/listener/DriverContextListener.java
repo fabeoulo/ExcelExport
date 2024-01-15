@@ -5,16 +5,14 @@
 package com.advantech.listener;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import java.lang.reflect.Field;
+import io.netty.util.internal.InternalThreadLocalMap;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
-import java.util.Timer;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import reactor.netty.http.HttpResources;
 
 /**
  * See
@@ -64,8 +62,8 @@ public class DriverContextListener implements ServletContextListener {
             event.getServletContext().log("Abandoned Connection Cleanup failure.", e);
         }
 
-        //fix memory leak : thread named [reactor-http-nio-*] and [webflux-http-nio-*]
-        HttpResources.disposeLoopsAndConnectionsLater().block();
+        // fix memory leak
+        InternalThreadLocalMap.destroy();
     }
 
 }

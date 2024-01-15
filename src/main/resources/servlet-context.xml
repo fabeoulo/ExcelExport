@@ -80,7 +80,7 @@
                 <prop key="hibernate.dialect">com.advantech.helper.SqlServerDialectWithNvarchar</prop>
                 <!--                <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.format_sql">true</prop>-->
-                <!--<prop key="hibernate.hbm2ddl.auto">update</prop>-->
+                <!--<prop key="hibernate.hbm2ddl.auto">none</prop>-->
             </props> 
         </property> 
     </bean>
@@ -123,7 +123,7 @@
                 <prop key="hibernate.id.new_generator_mappings" >false</prop>
                 <!--                <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.format_sql">true</prop>-->
-                <!--<prop key="hibernate.hbm2ddl.auto">update</prop>-->
+                <!--<prop key="hibernate.hbm2ddl.auto">none</prop>-->
             </props> 
         </property> 
     </bean>
@@ -268,6 +268,11 @@
        
     <!--regist for WsClient.class use, -->
     <bean id="objectFactory" class="org.tempuri.ObjectFactory" />
+    <!--
+    spring manage ReactorResourceFactory auto calling destroy method.
+    fix memory leak : thread named [reactor-http-nio-*] and [webflux-http-nio-*]
+    -->
+    <bean id="reactorResourceFactory" class="org.springframework.http.client.reactive.ReactorResourceFactory" />
 
     <bean id="employeeApiClient" class="com.advantech.webapi.EmployeeApiClient">
         <property name="baseUrl" value="http://172.22.250.120:7878/v1/Employee/"></property>
