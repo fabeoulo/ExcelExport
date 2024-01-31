@@ -283,7 +283,6 @@ public class TestService {
 
         final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
         final int[] checkStateList = {2, 5};
-
         trigger.checkRepair(rl);
         List<Requisition> checkedList = rl.stream().filter(e -> {
             int userId = e.getUser().getId();
@@ -380,16 +379,17 @@ public class TestService {
     @Autowired
     private UserNotificationService notificationService;
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testUserNotificationService() {
-        Optional<UserNotification> oUn = notificationService.findByIdWithUser(13);
+        Optional<UserNotification> oUn = notificationService.findByNameWithUser("repair_state_change_target");
+//        Optional<UserNotification> oUn = notificationService.findByIdWithUser(13);
         Preconditions.checkState(oUn.isPresent(), "User notification not found.");
 //        UserNotification un = oUn.get();
         Set<User> ls2 = oUn.get().getUsers();
         List<Integer> li = ls2.stream().map(User::getId).collect(Collectors.toList());
-
+		
         HibernateObjectPrinter.print(li);
     }
 
@@ -397,6 +397,6 @@ public class TestService {
 //    @Transactional
 //    @Rollback(false)
     public void testSaveUserWithName() {
-        userService.saveUserWithNameByProc("A-10769", "Asryder.Wang@advantech.com.tw", "王彥喆");
+        userService.saveUserWithNameByProc("A-9095", "Asryder.Wang@advantech.com.tw", "王彥喆");
     }
 }

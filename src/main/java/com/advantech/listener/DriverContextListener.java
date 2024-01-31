@@ -60,7 +60,7 @@ public class DriverContextListener implements ServletContextListener {
             event.getServletContext().log("Abandoned Connection Cleanup failure.", e);
         }
 
-        // fix memory leak
+        // fix memory leak :value of type [io.netty.util.internal.InternalThreadLocalMap]
         InternalThreadLocalMap.destroy();
     }
 

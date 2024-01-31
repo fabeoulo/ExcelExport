@@ -11,10 +11,10 @@ import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
-import com.advantech.service.db1.UserService;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,16 +45,13 @@ public class RequisitionStateChangeTrigger {
     private MailManager manager;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private UserNotificationService notificationService;
 
     @Autowired
     private RequisitionService rservice;
 
-    private Set<User> repairUsers;
-    private int[] repairUserIds;//= {742, 753, 895, 1024, 1025, 36};
+    private Set<User> repairUsers = new HashSet<>();
+    private int[] repairUserIds = {};
     private final int[] StateChangeList = {2, 5};
     DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
 
@@ -75,24 +72,27 @@ public class RequisitionStateChangeTrigger {
     }
 
     private void setRepairUserList() {
-        Optional<UserNotification> oUn = notificationService.findByIdWithUser(13);
-        Preconditions.checkState(oUn.isPresent(), "User notification not found.");
-        repairUsers = oUn.get().getUsers();
-        repairUserIds = repairUsers.stream().mapToInt(u -> u.getId()).toArray();
+        Optional<UserNotification> oUn = notificationService.findByNameWithUser("repair_state_change_target");
+        if (oUn.isPresent()) {
+            repairUsers = oUn.get().getUsers();
+            repairUserIds = repairUsers.stream().mapToInt(u -> u.getId()).toArray();
+        } else {
+            logger.info("Repair notification not found.");
+        }
     }
 
     private void sendRepairMail(List<Requisition> rl) {
         try {
             String[] mailTarget = findEmailInRepair(rl);
-            String[] mailCcTarget = findEmailByNotifyId(16);
+            String[] mailCcTarget = findEmailByNotify("repair_state_change_target_cc");
 
             if (mailTarget.length == 0) {
                 logger.info("Trigger sendReport can't find mail target.");
                 return;
             }
 
-            List<Integer> li = rl.stream().map(t -> t.getId()).collect(Collectors.toList());
-            List<Requisition> rlWithLazy = rservice.findAllByIdWithUserAndState(li);
+            List<Integer> rIds = rl.stream().map(t -> t.getId()).collect(Collectors.toList());
+            List<Requisition> rlWithLazy = rservice.findAllByIdWithUserAndState(rIds);
 
             String mailBody = generateMailBody(rlWithLazy);
             String mailTitle = "維修用料已申請通知-" + getFirstPoByGroupUser(rlWithLazy);
@@ -173,11 +173,17 @@ public class RequisitionStateChangeTrigger {
         return users.map(u -> u.getEmail()).toArray(size -> new String[size]);
     }
 
-    private String[] findEmailByNotifyId(Integer id) {
-        Optional<UserNotification> oUn = notificationService.findByIdWithUser(id);
-        Preconditions.checkState(oUn.isPresent(), "User notification not found.");
-        Set<User> ls2 = oUn.get().getUsers();
-        return ls2.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
+    private String[] findEmailByNotify(String name) {
+        String[] emails = {};
+        Optional<UserNotification> oUn = notificationService.findByNameWithUser(name);
+        if (oUn.isPresent()) {
+            Set<User> users = oUn.get().getUsers();
+            emails = users.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
+        } else {
+            logger.info("Repair CC notification not found.");
+        }
+        
+        return emails;
     }
 
     private String getFirstPoByGroupUser(List<Requisition> rl) {

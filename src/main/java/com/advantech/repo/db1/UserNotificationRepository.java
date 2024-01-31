@@ -18,8 +18,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserNotificationRepository extends JpaRepository<UserNotification, Integer> {
 
-    UserNotification findByName(String name);
+    public UserNotification findByName(String name);
 
     @Query("SELECT u FROM UserNotification AS u JOIN FETCH u.users WHERE u.id = ?1")
-    Optional<UserNotification> findByIdWithUser(Integer id);
+    public Optional<UserNotification> findByIdWithUser(Integer id);
+
+    @Query("SELECT u FROM UserNotification AS u JOIN FETCH u.users WHERE u.name = ?1")
+    public Optional<UserNotification> findByNameWithUser(String name);
 }

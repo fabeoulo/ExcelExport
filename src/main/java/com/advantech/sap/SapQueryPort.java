@@ -28,7 +28,7 @@ public class SapQueryPort {
     @Autowired
     private SAPConn1 sapConn;
 
-    String[] lgort = {"0015", "0008", "0012", "0055", "0058", "CUST", "0018"}; // add 0018 2023/08/14
+    private String[] lgort = {"0015", "0008", "0012", "0055", "0058", "CUST", "0018"}; // add 0018 2023/08/14
 
     public JCoFunction getMaterialInfo(String po, Factory factory) throws JCoException, URISyntaxException {
         JCoFunction function;

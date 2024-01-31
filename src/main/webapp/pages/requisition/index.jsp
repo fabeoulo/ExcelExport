@@ -6,8 +6,8 @@
 <sec:authorize access="isAuthenticated()"  var="isLogin" />
 <sec:authorize access="hasRole('USER')"  var="isUser" />
 <sec:authorize access="hasRole('OPER')"  var="isOper" />
-<sec:authorize access="hasRole('OPER_WH')"  var="isOperWh" />
 <sec:authorize access="hasRole('ADMIN')"  var="isAdmin" />
+<sec:authorize access="hasRole('OPER_WH')"  var="isOperWh" />
 
 <html>
     <head>
@@ -73,7 +73,12 @@
                 var isInsertWh = ${isOperWh};
                 var userUnitId = <c:out value="${user.unit.id}" />;
                 var userFloorId = <c:out value="${user.floor.id}" />;
-//                console.log(isEditor);
+
+                var lengthList = [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]];
+                if (isEditor) {
+                    lengthList[0].push(-1);
+                    lengthList[1].push('all');
+                }
 
                 var dataTable_config = {
                     "sPaginationType": "full_numbers",
@@ -162,7 +167,7 @@
                     "bAutoWidth": false,
                     "displayLength": 10,
                     "lengthChange": true,
-                    "lengthMenu": isEditor ? [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, 'all']] : [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]],
+                    "lengthMenu": lengthList,
                     "filter": true,
                     "info": true,
                     "paginate": true,
@@ -175,7 +180,8 @@
                     "text": '新增需求',
                     "attr": {
                         "data-toggle": "modal",
-                        "data-target": "#myModal2"
+                        "data-target": "#myModal2",
+                        "class": "dt-button crudBtn"
                     },
                     "action": function (e, dt, node, config) {
                         $("#model-table input").val("");
@@ -187,6 +193,9 @@
 
                 var insertWhBtn = {
                     "text": '開單領料',
+                    "attr": {
+                        "class": "dt-button crudBtn"
+                    },
                     "action": function (e, dt, node, config) {
                         var cnt = table.rows('.selected').count();
                         if (cnt < 1)
@@ -199,8 +208,13 @@
                         if (isInsertWh && !isEditor) {
                             datas = datas.filter((item) => item.user.unit.id === userUnitId);
                             if (datas.length < 1)
-                                return  alert("No same unit item.");
+                                return  alert("Not same team item.");
                         }
+                        datas = datas.filter((item) => item.requisitionState.id === 4);
+                        if (datas.length < 1) {
+                            return  alert("待領料數量0.");
+                        }
+                        
                         eFlow({
                             "datas": JSON.stringify(datas),
                             "commitJobNo": "<c:out value="${user.jobnumber}" />"
@@ -208,37 +222,28 @@
                     }
                 };
 
-                if (${isUser} && isInsertWh) {
-                    var extraSettingRepair = {
-                        "dom": 'Bfrtip',
-                        "buttons": [
-                            'pageLength',
-                            addBtn,
-                            insertWhBtn
-                        ]
-                    };
-                    $.extend(dataTable_config, extraSettingRepair);
-                } else if (${isUser && !isOper}) {
-                    var extraSetting = {
-                        "dom": 'Bfrtip',
-                        "buttons": [
-                            'pageLength',
-//                            {
-//                                "text": '需求申請',
-//                                "attr": {
-//                                    "data-toggle": "modal",
-//                                    "data-target": "#myModal"
-//                                },
-//                                "action": function (e, dt, node, config) {
-//                                    $("#model-table input").val("");
-//                                    $("#model-table #id").val(0);
-//                                }
-//                            },
-                            addBtn
-                        ]
-                    };
-                    $.extend(dataTable_config, extraSetting);
-                } else if (${isOper}) {
+                if (!isEditor) {
+                    if (isInsertWh) {
+                        var extraSettingRepair = {
+                            "dom": 'Bfrtip',
+                            "buttons": [
+                                'pageLength',
+                                addBtn,
+                                insertWhBtn
+                            ]
+                        };
+                        $.extend(dataTable_config, extraSettingRepair);
+                    } else if (${isUser}) {
+                        var extraSetting = {
+                            "dom": 'Bfrtip',
+                            "buttons": [
+                                'pageLength',
+                                addBtn
+                            ]
+                        };
+                        $.extend(dataTable_config, extraSetting);
+                    }
+                } else if (isEditor) {
                     var successHandler = function (response) {
                         console.log("updated");
                         refreshTable();
@@ -261,6 +266,7 @@
                             {
                                 "text": '編輯',
                                 "attr": {
+                                    "class": "dt-button crudBtn"
                                 },
                                 "action": function (e, dt, node, config) {
 //                                    if (isEditor) {
@@ -299,6 +305,7 @@
                             {
                                 "text": '轉來料缺',
                                 "attr": {
+                                    "class": "dt-button crudBtn"
                                 },
                                 "action": function (e, dt, node, config) {
 //                                    if (isEditor) {
@@ -547,7 +554,7 @@
                         success: function (response) {
                             $('#myModal').modal('toggle');
                             refreshTable();
-                            ws.send("ADD");
+                            ws.send("UPDATE");
                             $.notify('資料已更新', {placement: {
                                     from: "bottom",
                                     align: "right"
@@ -595,7 +602,7 @@
                         success: function (response) {
                             $('#myModal3').modal('toggle');
                             refreshTable();
-                            ws.send("ADD");
+                            ws.send("UPDATE");
                             $.notify('資料已更新', {placement: {
                                     from: "bottom",
                                     align: "right"
@@ -727,7 +734,7 @@
 
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
-                            $("#dialog-msg3").html(xhr.responseText);
+                            target.html(xhr.responseText);
                         }
                     });
                 }
@@ -739,7 +746,6 @@
                         dataType: "json",
                         data: data,
                         success: function (response) {
-//                            location.reload(true);
 //                            //enduser use IE not support ws
                             refreshTable();
                             ws.send("UPDATE");
@@ -751,7 +757,7 @@
                             return alert(response);
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
-                            $("#dialog-msg3").html(xhr.responseText);
+                            alert(xhr.responseText);
                         }
                     });
                 }
@@ -795,7 +801,16 @@
 
                 }
                 function disconnectToServer() {
-                    ws.close();
+                    if (isWebSocketOpen()) {
+                        ws.close();
+                        table.buttons('.crudBtn').disable();
+                    }
+                }
+                function wsOpen() {
+                    if (isWebSocketClose()) {
+                        connectToServer();
+                        table.buttons('.crudBtn').enable();
+                    }
                 }
 
                 if (ws != null) {
@@ -803,21 +818,33 @@
 
                 table.on('length.dt', function (e, settings, len) {
                     // console.log('Length changed to ' + len);
-                    if (isWebSocketClose()) {
-                        connectToServer();
-                    }
+                    checkPageLenAll(len);
+                });
+
+                table.on('preDraw.dt', function (e, settings) {
+                    checkPageLenAll(table.page.len());
+                });
+
+                function checkPageLenAll(len) {
                     if (len === -1) {
                         if ($("#datepicker_from").val() === "" || $("#datepicker_to").val() === "") {
-                            alert("Please refresh and input date interval first.");
-                            table.page.len(25).draw();
+                            alert("Fill date interval first to show all rows.");
+                            table.page.len(10).draw();
+                            wsOpen();
                         } else {
                             disconnectToServer();
                         }
+                    } else {
+                        wsOpen();
                     }
-                });
+                }
 
                 function isWebSocketClose() {
                     return ws && (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING);
+                }
+
+                function isWebSocketOpen() {
+                    return ws && (ws.readyState === WebSocket.OPEN);
                 }
             });
 
