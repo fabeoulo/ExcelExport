@@ -153,7 +153,8 @@
             com.advantech.job,
             com.advantech.webservice,
             com.advantech.helper,
-            com.advantech.sap
+            com.advantech.sap,
+            com.advantech.trigger
     " />
 
     <!--要使用 @Transactional 時需要--> 

@@ -45,7 +45,15 @@ public class UserNotificationService {
     public UserNotification findByName(String name) {
         return repo.findByName(name);
     }
+
+    public Optional<UserNotification> findByIdWithUser(Integer id) {
+        return repo.findByIdWithUser(id);
+    }
     
+    public Optional<UserNotification> findByNameWithUser(String name) {
+        return repo.findByNameWithUser(name);
+    }
+
     public void delete(UserNotification t) {
         repo.delete(t);
     }

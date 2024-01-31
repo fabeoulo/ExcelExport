@@ -28,6 +28,7 @@ import com.advantech.service.db2.OrderResponseService;
 import com.advantech.service.db2.OrdersService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.Factory;
+import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -38,6 +39,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -248,24 +250,26 @@ public class TestService {
         dto.setData(filteredData);
     }
 
-//    @Autowired
-//    private RequisitionStateChangeTrigger trigger;
+    @Autowired
+    private RequisitionStateChangeTrigger trigger;
 
 //    @Test
 //    @Transactional
 //    @Rollback(true)
     public void testTrigger() {
-//        System.out.println("Requisition.isPresent= " + rservice.findById(88).isPresent());
+        Optional<Requisition> r = rservice.findById(2707);
+        System.out.println("Requisition.isPresent= " + r.isPresent());
 
-//        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
-//        final int[] checkStateList = {2, 5};
-//
-//        trigger.checkRepair(rl);
-//        List<Requisition> checkedList = rl.stream().filter(e -> {
-//            int userId = e.getUser().getId();
-//            int rsId = e.getRequisitionState().getId();
-//            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
-//        }).collect(Collectors.toList());
+        final int[] checkUserList = {742, 753, 895, 1024, 1025, 1};
+        final int[] checkStateList = {2, 5};
+
+        List<Requisition> rl = Arrays.asList(r.get());
+        trigger.checkRepair(rl);
+        List<Requisition> checkedList = rl.stream().filter(e -> {
+            int userId = e.getUser().getId();
+            int rsId = e.getRequisitionState().getId();
+            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
+        }).collect(Collectors.toList());
     }
 
 //    @Test
@@ -354,26 +358,29 @@ public class TestService {
             int rsId = e.getRequisitionState().getId();
             return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
         }).collect(Collectors.toList());
-    }	
-	
-//    @Autowired
-//    private UserNotificationService notificationService;
-//    
+    }
+
+    @Autowired
+    private UserNotificationService notificationService;
+
 //    @Test
 //    @Transactional
 //    @Rollback(true)
-//    public void testUserNotificationService() {
-//        UserNotification un = notificationService.findByName("requisition_state_change_target");
-//        List<User> ls = userService.findByUserNotifications(un);
-//        List<Integer> li = ls.stream().map(User::getId).collect(Collectors.toList());
-//        
-//        HibernateObjectPrinter.print(ls);
-//    }
+    public void testUserNotificationService() {
+        Optional<UserNotification> oUn = notificationService.findByNameWithUser("repair_state_change_target");
+//        Optional<UserNotification> oUn = notificationService.findByIdWithUser(13);
+        Preconditions.checkState(oUn.isPresent(), "User notification not found.");
+//        UserNotification un = oUn.get();
+
+        Set<User> ls2 = oUn.get().getUsers();
+        List<Integer> li = ls2.stream().map(User::getId).collect(Collectors.toList());
+        HibernateObjectPrinter.print(li);
+    }
 
 //    @Test
 //    @Transactional
 //    @Rollback(false)
-    public void testUserNotificationService() {
+    public void testSaveUserWithName() {
         userService.saveUserWithNameByProc("A-9095", "Asryder.Wang@advantech.com.tw", "王彥喆");
     }
 }
