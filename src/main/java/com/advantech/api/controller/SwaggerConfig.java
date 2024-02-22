@@ -31,18 +31,40 @@ public class SwaggerConfig {
 //                .or(RequestHandlerSelectors.basePackage("com.advantech.api.auth"));
 
         return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("0.API public")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.advantech.api"))
+                .apis(RequestHandlerSelectors.basePackage("com.advantech.api.controller"))
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo());
     }
 
+    @Bean
+    public Docket apiAuth() {
+
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("1.API auth")
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.advantech.api.auth"))
+                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+                .paths(PathSelectors.any())
+                .build()
+                .apiInfo(apiInfoAuth());
+    }
+    
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Requisition API")
                 .description("APIs for Requisition")
+                .version("1.0")
+                .build();
+    }
+    
+    private ApiInfo apiInfoAuth() {
+        return new ApiInfoBuilder()
+                .title("Auth API")
+                .description("APIs for Auth")
                 .version("1.0")
                 .build();
     }

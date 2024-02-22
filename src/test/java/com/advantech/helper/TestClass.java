@@ -6,6 +6,8 @@
 package com.advantech.helper;
 
 import static com.advantech.helper.DateConversion.*;
+import com.advantech.model.db1.IECalendarLinkou;
+import com.advantech.service.db1.IECalendarLinkouService;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
 import static com.google.common.collect.Lists.newArrayList;
@@ -18,8 +20,12 @@ import java.util.Map;
 import static java.util.Map.Entry.comparingByKey;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
+import javax.validation.Valid;
+import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import static org.joda.time.DateTimeConstants.*;
@@ -28,12 +34,38 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
  *
  * @author Wei.Cheng
  */
+@WebAppConfiguration
+@ContextConfiguration(locations = {
+    "classpath:servlet-context_test.xml"
+})
+@RunWith(SpringJUnit4ClassRunner.class)
 public class TestClass {
+
+    @Autowired
+    private IECalendarLinkouService calendarLinkouService;
+
+    @Autowired
+    private Validator validator;
+
+//    @Test
+    public void testNotNullCall() {
+        testNotnull(null);
+    }
+
+    private void testNotnull(@Valid @NotNull String ss) {// NotNull useless and cannot be valid.
+        boolean re = ss.equals("");
+        HibernateObjectPrinter.print(ss);
+    }
 
 //    @Test
     public void testDerCool() {
@@ -136,7 +168,7 @@ public class TestClass {
         System.out.println(LocalDate.now().compareTo(new LocalDate(lastDateOfWeek)) == 0);
     }
 
-    @Test
+//    @Test
     public void testDateTime3() {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
 //        DateTime d = new DateTime("2022-08-01");
@@ -162,19 +194,43 @@ public class TestClass {
         System.out.println(fmt.print(dt));
     }
 
-    public double firstBusinessDayOfMonth(DateTime dt) {
+    private DateTime findLastBusinessDay(DateTime dt, Set<LocalDate> holidays) {
+        final Set<Integer> businessDays = newHashSet(
+                MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY
+        );
 
+        DateTime d = new DateTime(dt);
+        while (!businessDays.contains(d.dayOfWeek().get())
+                || holidays.contains(d.toLocalDate())) {
+            d = d.minusDays(1);
+        }
+        return d;
+    }
+
+//    @Test
+    public void firstBusinessDayOfMonth() {
+
+        DateTime dt = new DateTime("2024-02-28");
         // I've hardcoded the holidays as LocalDates
         // and put them in a Set
-        final Set<LocalDate> holidays = newHashSet();
+        Set<LocalDate> holidays = newHashSet();
+        List<IECalendarLinkou> l = calendarLinkouService.findAll();
+        for (IECalendarLinkou c : l) {
+            DateTime holiday = new DateTime(c.getDateMark());
+            if (holiday.getYear() == dt.getYear() && holiday.getMonthOfYear() == dt.getMonthOfYear()) {
+                holidays.add(holiday.toLocalDate());
+            }
+        }
+
         // For the sake of efficiency, I also put the business days into a Set.
         // In general, a Set has a better lookup speed than a List.
         final Set<Integer> businessDays = newHashSet(
                 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY
         );
 
+        dt = findLastBusinessDay(dt, holidays);
         if (!businessDays.contains(dt.dayOfWeek().get())) {
-            return -1d;
+//            return -1d;
         }
 
         int period = new DateTime(dt).dayOfMonth().getMaximumValue();
@@ -186,7 +242,8 @@ public class TestClass {
         System.out.println(period);
 
         for (int i = 1; i <= period; i++) {
-            if (businessDays.contains(d.dayOfWeek().get())) {
+            if (businessDays.contains(d.dayOfWeek().get())
+                    && !holidays.contains(d.toLocalDate())) {
                 total++;
                 if (d.isEqual(dt)) {
                     curr = total;
@@ -198,10 +255,10 @@ public class TestClass {
         System.out.println(curr);
         System.out.println(total);
 
-        return curr * 1.0 / total;
+        double r = curr * 1.0 / total;
     }
 
-    @Test
+//    @Test
     public void testString() {
         String str = "000000001700014718";
 

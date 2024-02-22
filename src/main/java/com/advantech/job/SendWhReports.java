@@ -50,6 +50,9 @@ public class SendWhReports {
     @Autowired
     protected UserService userService;
 
+    @Autowired
+    private WorkingDayUtils workingDayUtils;
+
     protected final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
 
     protected final DecimalFormat df = new DecimalFormat("$#,##0");
@@ -229,7 +232,7 @@ public class SendWhReports {
         sb.append("<th>本月產值預估</th>");
         sb.append("<th>工時累計達成率</th>");
         sb.append("<th>產值累計達成率</th>");
-        sb.append("<th>累計天數比例</th>");
+        sb.append("<th>工作日累計比例</th>");
         sb.append("<th>廠別</th>");
         sb.append("</tr>");
 
@@ -238,9 +241,8 @@ public class SendWhReports {
                 totalSapOutputValue = BigDecimal.ZERO,
                 totalWorktimeEstimated = BigDecimal.ZERO,
                 totalOutputValueEstimated = BigDecimal.ZERO;
-        
-        DateTime prevBusinessDay = WorkingDayUtils.findLastBusinessDay(dt.minusDays(1));
-        double datePercentage = WorkingDayUtils.findBusinessDayPercentage(prevBusinessDay);
+
+        double datePercentage = workingDayUtils.findBusinessDayPercentageByDb(dt);
 
         for (WorkingHoursReport whr : l) {
             totalQuantity = totalQuantity + whr.getQuantity();

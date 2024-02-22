@@ -214,7 +214,7 @@
                         if (datas.length < 1) {
                             return  alert("待領料數量0.");
                         }
-                        
+
                         eFlow({
                             "datas": JSON.stringify(datas),
                             "commitJobNo": "<c:out value="${user.jobnumber}" />"
@@ -622,11 +622,7 @@
                     const requestParams = [
                         {
                             url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
-                            target: $("#model-table2 #requisitionReason\\.id")
-                        },
-                        {
-                            url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
-                            target: $("#model-table #requisitionReason\\.id")
+                            target: $("#model-table #requisitionReason\\.id, #model-table2 #requisitionReason\\.id")
                         },
                         {
                             url: "<c:url value="/RequisitionController/findRequisitionStateOptions" />",

@@ -15,6 +15,7 @@
         <h1>入口</h1>
         <ol>
             <li><a href="setting.jsp">當月預估達成產值維護</a></li>
+            <li><a href="workdays.jsp">休假補班維護</a></li>
         </ol>
     </body>
 </html>

@@ -18,9 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Justin.Yeh
  */
-//@RestController
+@RestController
 @RequestMapping("/ApiAuth/test")
 public class TestApiAuthController {
 
@@ -58,6 +62,19 @@ public class TestApiAuthController {
 
 //    @Autowired
     private HttpSessionCsrfTokenRepository csrfTokenRepository;
+
+//    @PostMapping("/authLogout")
+//    public String logout(HttpServletRequest request, HttpServletResponse response) {
+//        boolean isAuth = false;
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth != null) {
+//            auth.setAuthenticated(false);
+//            SecurityContextHolder.getContext().setAuthentication(null);
+//            new SecurityContextLogoutHandler().logout(request, response, auth);
+//            isAuth = !auth.isAuthenticated();
+//        }
+//        return String.valueOf(isAuth);
+//    }
 
     @GetMapping("/getCsrfToken")
     public String getCsrfToken(@Autowired HttpServletRequest request) {
@@ -84,7 +101,6 @@ public class TestApiAuthController {
 //        floors.forEach((u) -> {
 //            logger.info("Name: {} id: {} \n", u.getName(), u.getId());
 //        });
-
         Map<String, String> response = new HashMap<>();
         response.put("message", "Hello, World!");
         return response; // 返回JSON格式的数据

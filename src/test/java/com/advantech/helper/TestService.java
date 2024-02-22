@@ -5,6 +5,8 @@
  */
 package com.advantech.helper;
 
+import com.advantech.model.db1.IECalendarLinkou;
+import com.advantech.model.db1.IEWorkdayCalendar;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
@@ -16,7 +18,9 @@ import com.advantech.model.db2.OrderResponseOwners;
 import com.advantech.model.db2.Orders;
 import com.advantech.sap.SapService;
 import com.advantech.sap.SapMrpTbl;
+import com.advantech.service.db1.IECalendarLinkouService;
 import com.advantech.service.db1.ExceptionService;
+import com.advantech.service.db1.IEWorkdayCalendarService;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
@@ -31,7 +35,6 @@ import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.sun.org.apache.bcel.internal.generic.DDIV;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -95,6 +99,12 @@ public class TestService {
 
     @Autowired
     private OrderResponseService orderResponseService;
+
+    @Autowired
+    private IECalendarLinkouService calendarLinkouService;
+
+    @Autowired
+    private IEWorkdayCalendarService workdayCalendarService;
 
 //    @Test
 //    @Transactional
@@ -271,6 +281,46 @@ public class TestService {
         dto.setData(filteredData);
     }
 
+//    @Test
+    @Transactional
+    @Rollback(true)
+    public void testWorkdayCalendarService() {
+
+        DateTime dt = new DateTime().minusDays(1);
+        List<IEWorkdayCalendar> monthWorkdays = getMonthWorkdays(dt);
+
+        Predicate<IEWorkdayCalendar> isPastWorkday = w -> new DateTime(w.getDate()).compareTo(dt) <= 0;
+        boolean hasWorkdays = monthWorkdays.stream().anyMatch(isPastWorkday);
+        if (!hasWorkdays) {
+            DateTime preMonth = dt.minusMonths(1);
+            monthWorkdays = getMonthWorkdays(preMonth);
+        }
+
+        int curr = 0, total = 0;
+        curr = monthWorkdays.stream().filter(isPastWorkday)
+                .mapToInt(w -> 1).sum();
+        total = monthWorkdays.size();
+    }
+
+    private List<IEWorkdayCalendar> updateCalendar(DateTime dt, List<IEWorkdayCalendar> l) {
+        Date lastDayOfMonth = dt.dayOfMonth().withMaximumValue().toLocalDate().toDate();
+        boolean hasLastDay = l.stream().anyMatch(c -> c.getDate().compareTo(lastDayOfMonth) == 0);
+        if (!hasLastDay) {
+            workdayCalendarService.calculateIEWorkdayCalendar();
+            l = workdayCalendarService.findByYearMonth(dt);
+            HibernateObjectPrinter.print(hasLastDay);
+        }
+        return l;
+    }
+
+    private List<IEWorkdayCalendar> getMonthWorkdays(DateTime dt) {
+        List<IEWorkdayCalendar> l = workdayCalendarService.findByYearMonth(dt);
+        l = updateCalendar(dt, l);
+        List<IEWorkdayCalendar> r = l.stream().filter(c -> c.getWorkdayFlag() == 1)
+                .collect(Collectors.toList());
+        return r;
+    }
+
     @Autowired
     private RequisitionStateChangeTrigger trigger;
 
@@ -389,7 +439,7 @@ public class TestService {
 //        UserNotification un = oUn.get();
         Set<User> ls2 = oUn.get().getUsers();
         List<Integer> li = ls2.stream().map(User::getId).collect(Collectors.toList());
-		
+
         HibernateObjectPrinter.print(li);
     }
 
@@ -398,5 +448,12 @@ public class TestService {
 //    @Rollback(false)
     public void testSaveUserWithName() {
         userService.saveUserWithNameByProc("A-9095", "Asryder.Wang@advantech.com.tw", "王彥喆");
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(false)
+    public void testCalendarLinkouService() {
+        List<IECalendarLinkou> l = calendarLinkouService.findAll();
     }
 }

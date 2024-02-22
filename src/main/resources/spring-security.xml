@@ -25,7 +25,7 @@
     </beans:bean> -->
     
     <http pattern="/ApiAuth/**" create-session="stateless">
-        <intercept-url pattern="/**" access="isAuthenticated()" />
+        <intercept-url pattern="/**" access="hasAnyRole('ADMIN')" />
         <http-basic />
         
         <csrf disabled="true"/>
