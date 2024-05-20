@@ -42,6 +42,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
 import com.advantech.model.db1.Requisition_;
+import com.advantech.model.db1.WorkingHoursReport;
 import com.advantech.model.db2.Items;
 import com.advantech.model.db2.OrderTypes;
 import com.advantech.model.db2.Orders;
@@ -61,6 +62,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import com.advantech.repo.db3.OutputValueViewRepository;
+import com.advantech.model.db3.OutputValueView;
+import com.advantech.model.db3.WorkingHoursView;
+import com.advantech.repo.db3.WhReportRepository;
+import com.advantech.repo.db3.WorkingHoursViewRepository;
+import com.advantech.model.db3.WhReport;
 
 /**
  *
@@ -87,6 +94,15 @@ public class TestRepository {
 
     @Autowired
     private UserNotificationRepository notificationRepo;
+
+    @Autowired
+    private OutputValueViewRepository outputValueViewRepository;
+
+    @Autowired
+    private WorkingHoursViewRepository workingHoursViewRepository;
+
+    @Autowired
+    private WhReportRepository whReportRepository;
 
 //    @Test
     @Transactional
@@ -250,7 +266,7 @@ public class TestRepository {
     @Transactional
     @Rollback(true)
     public void testJpa() {
-        List l = scrappedRepo.findAllGroupByWeek();
+        List<ScrappedDetailWeekGroup> l = scrappedRepo.findAllGroupByWeek();
         assertTrue(!l.isEmpty());
         HibernateObjectPrinter.print(l);
     }
@@ -262,15 +278,15 @@ public class TestRepository {
 
         DateTime now = new DateTime();
 
-        List l = whRepo.findDailyWhReport(now.toDate());
+        List<WorkingHoursReport> l = whRepo.findDailyWhReport(now.toDate());
         assertTrue(!l.isEmpty());
         HibernateObjectPrinter.print(l);
 
-        List l2 = whRepo.findWeeklyWhReport(now.toDate());
+        List<WorkingHoursReport> l2 = whRepo.findWeeklyWhReport(now.toDate());
         assertTrue(!l2.isEmpty());
         HibernateObjectPrinter.print(l2);
 
-        List l3 = whRepo.findMonthlyWhReport(now.toDate());
+        List<WorkingHoursReport> l3 = whRepo.findMonthlyWhReport(now.toDate());
         assertTrue(!l3.isEmpty());
         HibernateObjectPrinter.print(l3);
 
@@ -328,6 +344,82 @@ public class TestRepository {
 
         HibernateObjectPrinter.print(r.get(0));
         HibernateObjectPrinter.print(r.get(1));
+    }
+
+//    @Test
+    @Transactional
+    public void testWhReport() {
+        List<String> workCentersM3 = Lists.newArrayList("ASS-01", "ES");
+        List<String> plantsM3 = Lists.newArrayList("TWM3", "TWM6");
+        List<String> productionTypeM3 = Lists.newArrayList("");
+
+        List<WhReport> w = whReportRepository.findDailyWhReportWc("20240704");
+        assertTrue(!w.isEmpty());
+        HibernateObjectPrinter.print(w);
+
+        List<WhReport> w2 = whReportRepository.findWeeklyWhReportWc("20240704");
+        assertTrue(!w2.isEmpty());
+        HibernateObjectPrinter.print(w2);
+
+        List<WhReport> w3 = whReportRepository.findMonthlyWhReportWc("20240704");
+        assertTrue(!w3.isEmpty());
+        HibernateObjectPrinter.print(w3);
+//        
+//        List<String> plants = Lists.newArrayList("TWM3", "TWM6");
+//        
+//        List<WhReport> r = whReportRepository.findDailyWhReport("20240520", plants);
+//        assertTrue(r.size() > 0);
+//        HibernateObjectPrinter.print(r.get(0));
+//
+//        List<WhReport> r1 = whReportRepository.findWeeklyWhReport("20240520", plants);
+//        assertTrue(r1.size() > 0);
+//        HibernateObjectPrinter.print(r1.get(0));
+//
+//        List<WhReport> r2 = whReportRepository.findMonthlyWhReport("20240520", plants);
+//        assertTrue(r2.size() > 0);
+//        HibernateObjectPrinter.print(r2.get(0));
+//        WhReport w1 = r2.get(0);
+//        BigDecimal dd = wh.getWorktimeEstimated();
+//        wh.setWorktimeEstimated(new BigDecimal(1));
+//         dd = wh.getWorktimeEstimated();
+    }
+
+//    @Test
+    @Transactional
+    public void testWorkingHoursView() {
+        List<String> plants = Lists.newArrayList("TWM3");
+        List<String> dates = Lists.newArrayList("20240520");
+        List<String> workCentersM3 = Lists.newArrayList("ASS-01", "ES");
+        List<String> workCentersM6 = Lists.newArrayList("LCD_ENHS", "LCD_ES");
+
+//        List<String> days = workingHoursViewRepository.findPastDays("20240520");
+//        assertTrue(days.size() > 0);
+//        HibernateObjectPrinter.print(days);
+//        
+//        List<WorkingHoursView> r = workingHoursViewRepository.findGroupByDateInAndPlantIn(days, plants);
+//        assertTrue(r.size() > 0);
+//        HibernateObjectPrinter.print(r);
+//
+        List<WorkingHoursView> r2 = workingHoursViewRepository.findGroupByDateInAndWcIn(dates, workCentersM3);
+        assertTrue(r2.size() > 0);
+        HibernateObjectPrinter.print(r2);
+
+//        HibernateObjectPrinter.print(r.get(1));
+    }
+
+//    @Test
+    @Transactional
+    public void testOutputValueViewRepository() {
+        List<String> plants = Lists.newArrayList("TWM3");
+        List<String> dates = Lists.newArrayList("20240520");
+        List<String> workCentersM3 = Lists.newArrayList("ASS-01", "ES");
+        List<String> workCentersM6 = Lists.newArrayList("LCD_ENHS", "LCD_ES");
+
+        List<OutputValueView> r = outputValueViewRepository.findGroupByDateInAndPlantIn(dates, plants);
+        assertTrue(r.size() > 0);
+        HibernateObjectPrinter.print(r);
+
+//        HibernateObjectPrinter.print(r.get(1));
     }
 
     @Autowired

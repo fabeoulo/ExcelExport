@@ -24,8 +24,12 @@
                 border-radius:5px;
                 margin-top:25px;
             }
-            th { font-size: 12px; }
-            td { font-size: 11px; }
+            th {
+                font-size: 12px;
+            }
+            td {
+                font-size: 11px;
+            }
             .job-close {
                 color: grey;
                 opacity: 0.8;
@@ -81,7 +85,8 @@
                         {data: "id", title: "id"},
                         {data: "worktimeEstimated", title: "預估工時"},
                         {data: "outputValueEstimated", title: "預估產值"},
-                        {data: "factory", title: "廠別"}
+                        {data: "factory", title: "廠別"},
+                        {data: "sapProductionType", title: "部別"}
                     ],
                     "columnDefs": [
 
@@ -155,6 +160,7 @@
                                 $("#model-table #worktimeEstimated").val(data.worktimeEstimated);
                                 $("#model-table #outputValueEstimated").val(data.outputValueEstimated);
                                 $("#model-table #factory").val(data.factory);
+                                $("#model-table #sapProductionType").val(data.sapProductionType);
                             }
                         },
                         {
@@ -186,12 +192,13 @@
                             id: $("#model-table #id").val(),
                             worktimeEstimated: $("#model-table #worktimeEstimated").val(),
                             outputValueEstimated: $("#model-table #outputValueEstimated").val(),
-                            factory: $("#model-table #factory").val()
+                            factory: $("#model-table #factory").val(),
+                            sapProductionType: $("#model-table #sapProductionType").val()
                         };
                         save(data);
                     }
                 });
-                
+
                 $("body").on("keyup", ":text", function () {
                     $(this).val($(this).val().trim().toLocaleUpperCase());
                 });
@@ -281,6 +288,12 @@
                                     <td class="lab">factory</td>
                                     <td>
                                         <input type="text" id="factory" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lab">部別</td>
+                                    <td>
+                                        <input type="text" id="sapProductionType" />
                                     </td>
                                 </tr>
                             </table>

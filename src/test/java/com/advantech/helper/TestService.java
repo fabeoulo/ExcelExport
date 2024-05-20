@@ -11,6 +11,7 @@ import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
+import com.advantech.model.db1.WorkingHoursReport;
 import com.advantech.model.db2.Items;
 import com.advantech.model.db2.MaterialMrp;
 import com.advantech.model.db2.OrderResponse;
@@ -24,16 +25,17 @@ import com.advantech.service.db1.IEWorkdayCalendarService;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
+import com.advantech.service.db1.WorkingHoursService;
 import com.advantech.service.db2.ItemsService;
 import com.advantech.service.db2.MaterialMrpService;
 import com.advantech.service.db2.OrderResponseOwnersService;
 import com.advantech.service.db2.OrderResponseService;
 import com.advantech.service.db2.OrdersService;
+import com.advantech.service.db3.WhReportService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
-import com.advantech.webservice.Factory;
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
-import com.sun.org.apache.bcel.internal.generic.DDIV;
+import com.google.common.collect.Lists;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,6 +56,7 @@ import javax.persistence.criteria.Root;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +67,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import com.advantech.model.db3.WhReport;
 
 /**
  *
@@ -105,6 +109,87 @@ public class TestService {
 
     @Autowired
     private IEWorkdayCalendarService workdayCalendarService;
+
+    @Autowired
+    private WorkingHoursService whService;
+
+    @Autowired
+    private WorkingDayUtils workingDayUtils;
+
+    @Autowired
+    private WhReportService whReportService;
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testWhReportService() throws Exception {
+        List<String> plants = Lists.newArrayList("TWM3", "TWM6", "TWM2");
+        List<String> workCenters = Lists.newArrayList("ASS-01", "ES", "LCD_ENHS", "LCD_ES");
+
+        DateTime dt = new DateTime(2024, 6, 13, 0, 0);
+
+//        List<WhReport> wcr = whReportService.findDailyWhReportWc(dt, workCenters);
+//        assertTrue(!wcr.isEmpty());
+//        HibernateObjectPrinter.print(wcr);
+//
+//        List<WhReport> wcr1 = whReportService.findWeeklyWhReportWc(dt, workCenters);
+//        assertTrue(!wcr1.isEmpty());
+//        HibernateObjectPrinter.print(wcr1);
+//
+//        List<WhReport> wcr2 = whReportService.findMonthlyWhReportWc(dt, workCenters);
+//        HibernateObjectPrinter.print(wcr2);
+
+        List<WhReport> r = whReportService.findDailyWhReport(dt, plants);
+        assertTrue(!r.isEmpty());
+        HibernateObjectPrinter.print(r);
+        
+        List<WhReport> r1 = whReportService.findWeeklyWhReport(dt, plants);
+        assertTrue(!r1.isEmpty());
+        HibernateObjectPrinter.print(r1);
+
+        List<WhReport> r2 = whReportService.findMonthlyWhReport(dt, plants);
+        HibernateObjectPrinter.print(r2);
+        
+//        WhReport w1 = r2.get(0);
+//        BigDecimal tt = w1.getSapWorktimeWithScale();
+//        String plant = w1.getPlantByWorkCenter();
+//        String wc = w1.getWorkCenter();
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testMonthlyWhReport() throws Exception {
+
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+        DateTime dt = formatter.parseDateTime("20230402");
+
+        double datePercentage;
+        List<WorkingHoursReport> monthlyList = whService.findMonthlyWhReportM8(dt);
+        DateTime lastDate = this.findLastDateByReport(dt, monthlyList);
+//        datePercentage = workingDayUtils.findBusinessDayPercentageByDb(lastDate.plusDays(1));
+        datePercentage = workingDayUtils.findBusinessDayPercentageByDb(dt);
+
+        monthlyList = whService.findMonthlyWhReport(dt);
+        lastDate = this.findLastDateByReport(dt, monthlyList);
+//        datePercentage = workingDayUtils.findBusinessDayPercentageByDb(lastDate.plusDays(1));
+        datePercentage = workingDayUtils.findBusinessDayPercentageByDb(dt);
+
+        System.out.println(lastDate);
+    }
+
+    private DateTime findLastDateByReport(DateTime today, List<WorkingHoursReport> l) {
+        DateTime workDate = today.minusDays(1);
+        Optional<String> monthlyDateField = l.stream().map(whr -> whr.getDateField()).findFirst();
+        if (monthlyDateField.isPresent()) {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMM");
+            DateTime monthlyDate = formatter.parseDateTime(monthlyDateField.get());
+            if (today.monthOfYear().get() > monthlyDate.monthOfYear().get()) {
+                workDate = monthlyDate.dayOfMonth().withMaximumValue();
+            }
+        }
+        return workDate;
+    }
 
 //    @Test
 //    @Transactional

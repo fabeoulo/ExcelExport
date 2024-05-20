@@ -52,7 +52,7 @@ public class DriverContextListener implements ServletContextListener {
             }
         }
 
-        // MySQL driver leaves around a thread. This static method cleans it up.
+        // MySQL driver leaves around a thread. This static method cleaning it up.
         try {
             AbandonedConnectionCleanupThread.checkedShutdown();
         } catch (Exception e) {

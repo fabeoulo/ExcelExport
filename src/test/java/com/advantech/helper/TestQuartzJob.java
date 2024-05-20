@@ -9,11 +9,11 @@ import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendRequiredToPMC;
-import com.advantech.job.SendWhReports;
 import com.advantech.job.SendWhReportsLinkou;
 import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SyncData;
 import com.advantech.job.SyncLackMrp;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +40,6 @@ public class TestQuartzJob {
     @Autowired
     private SyncData syncJob;
 
-//    @Autowired
-//    @Qualifier("sendWhReports")
-//    private SendWhReports whReportJob;
     @Autowired
     private SendWhReportsDonghu sendDonghu;
 
@@ -75,13 +72,17 @@ public class TestQuartzJob {
     }
 
 //    @Test
-    public void testSendWhReportsDonghu() {
-        sendDonghu.execute();
+    public void testSendWhReportsDonghu() throws Exception {
+//        sendDonghu.execute();
+        DateTime dt = new DateTime(2024, 7,8, 0, 0, 0);
+        String sb = sendDonghu.generateMailBody(dt);
     }
+    
 //    @Test
-
-    public void testSendWhReportsLinkou() {
-        sendLinkou.execute();
+    public void testSendWhReportsLinkou() throws Exception {
+//        sendLinkou.execute();
+        DateTime dt = new DateTime(2024, 7,8, 0, 0, 0);
+        String sb = sendLinkou.generateMailBody(dt);
     }
 
 //    @Test
@@ -104,7 +105,7 @@ public class TestQuartzJob {
         sendRequiredToPMC.execute();
     }
 
-    @Test
+//    @Test
     public void testSyncLackMrp() throws Exception {
         syncLackMrp.execute();
     }

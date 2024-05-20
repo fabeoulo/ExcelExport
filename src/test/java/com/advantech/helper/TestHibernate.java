@@ -52,6 +52,10 @@ public class TestHibernate {
     private EntityManagerFactory factory2;
 
     @Autowired
+    @Qualifier("entityManagerFactory3")
+    private EntityManagerFactory factory3;
+    
+    @Autowired
     private UserRepository userRepo;
 
 //    @Test
@@ -81,6 +85,16 @@ public class TestHibernate {
 
     }
 
+//    @Test
+//    @Transactional("transactionManager3")
+    @Rollback(true)
+    public void testFactory3Pojo() {
+        EntityManager manager = factory3.createEntityManager();
+        List l = manager.createNativeQuery("SELECT \"ZSTDCST\", \"ERDAT\", \"SWERK\" FROM rv_biprd_ztpp_zrpp87s").setMaxResults(1).getResultList();
+        HibernateObjectPrinter.print(l);
+
+    }
+    
 //    @Test
     @Rollback(false)
     public void testResetPassword() {

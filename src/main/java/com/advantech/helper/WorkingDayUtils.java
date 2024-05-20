@@ -80,31 +80,29 @@ public class WorkingDayUtils {
     public double findBusinessDayPercentageByDb(DateTime now) {
 
         DateTime dt = now.minusDays(1);
-        List<IEWorkdayCalendar> monthWorkdays = findMonthWorkdays(dt);
+        List<IEWorkdayCalendar> monthWorkdays = this.findMonthWorkdays(dt);
 
         Predicate<IEWorkdayCalendar> isPastWorkday = wc -> new DateTime(wc.getDate()).compareTo(dt) <= 0;
         boolean hasWorkdays = monthWorkdays.stream().anyMatch(isPastWorkday);
         if (!hasWorkdays) {
             DateTime preMonth = dt.minusMonths(1);
-            monthWorkdays = findMonthWorkdays(preMonth);
+            monthWorkdays = this.findMonthWorkdays(preMonth);
         }
 
-        int curr = 0, total = 0;
-        curr = monthWorkdays.stream().filter(isPastWorkday)
-                .mapToInt(wc -> 1).sum();
-        total = monthWorkdays.size();
+        int curr = monthWorkdays.stream().filter(isPastWorkday).mapToInt(wc -> 1).sum();
+        int total = monthWorkdays.size();
 
         return curr * 1.0 / total;
     }
 
     private List<IEWorkdayCalendar> findMonthWorkdays(DateTime dt) {
         List<IEWorkdayCalendar> l = workdayCalendarService.findByYearMonth(dt);
-        l = updateCalendar(dt, l);
+        l = this.checkAndUpdateCalendar(dt, l);
         return l.stream().filter(c -> c.getWorkdayFlag() == 1)
                 .collect(Collectors.toList());
     }
 
-    private List<IEWorkdayCalendar> updateCalendar(DateTime dt, List<IEWorkdayCalendar> l) {
+    private List<IEWorkdayCalendar> checkAndUpdateCalendar(DateTime dt, List<IEWorkdayCalendar> l) {
         Date lastDayOfMonth = dt.dayOfMonth().withMaximumValue().toLocalDate().toDate();
         boolean hasLastDay = l.stream().anyMatch(c -> c.getDate().compareTo(lastDayOfMonth) == 0);
         if (!hasLastDay) {

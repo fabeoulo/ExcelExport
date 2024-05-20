@@ -4,7 +4,7 @@
 
     <groupId>com.advantech</groupId>
     <artifactId>ExcelReport</artifactId>
-    <version>1.8.5</version>
+    <version>1.8.6</version>
     <packaging>war</packaging>
 
     <pluginRepositories>
@@ -33,7 +33,7 @@
         </repository>
         
         <repository>
-            <id>local-maven-repo</id>
+            <id>maven-remote-project-repo</id>
             <url>file://${project.basedir}/my-repo</url>
         </repository>
     </repositories>
@@ -492,16 +492,22 @@
             <groupId>com.github.darrachequesne</groupId>
             <artifactId>spring-data-jpa-datatables</artifactId>
             <version>5.0.0</version>
-        </dependency>
- 
+        </dependency> 
+        
         <!-- https://mvnrepository.com/artifact/com.sap.conn.jco/sapjco3 -->
         <dependency>
             <groupId>com.sap.conn.jco</groupId>
             <artifactId>sapjco3</artifactId>
             <version>3.0.14</version>
-            <scope>provided</scope>
+            <scope>provided</scope><!-- There is the driver on tomcat libs.-->
         </dependency>
-        
+                
+        <dependency>
+            <groupId>com.myproject</groupId>
+            <artifactId>denodo-vdp-jdbcdriver</artifactId>
+            <version>8.0-update-20230914</version>
+        </dependency>
+    
         <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

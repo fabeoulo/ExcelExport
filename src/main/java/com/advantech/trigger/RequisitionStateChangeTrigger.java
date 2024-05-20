@@ -5,7 +5,6 @@
 package com.advantech.trigger;
 
 import com.advantech.helper.MailManager;
-import com.advantech.job.SendReport;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
@@ -39,7 +38,7 @@ import org.xml.sax.SAXException;
 @Component
 public class RequisitionStateChangeTrigger {
 
-    private static final Logger logger = LoggerFactory.getLogger(SendReport.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequisitionStateChangeTrigger.class);
 
     @Autowired
     private MailManager manager;

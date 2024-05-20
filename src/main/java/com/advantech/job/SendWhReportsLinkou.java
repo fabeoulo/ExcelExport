@@ -6,7 +6,8 @@
 package com.advantech.job;
 
 import com.advantech.model.db1.UserNotification;
-import com.advantech.model.db1.WorkingHoursReport;
+import com.advantech.model.db3.WhReport;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.List;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -19,22 +20,25 @@ import org.xml.sax.SAXException;
 
 /**
  *
- * @author Wei.Cheng Send wh report for M8
+ * @author Justin.Yeh Send wh report for M8
  */
 @Component
 public class SendWhReportsLinkou extends SendWhReports {
 
-    private static final Logger logger = LoggerFactory.getLogger(SendReport.class);
+    private static final Logger logger = LoggerFactory.getLogger(SendWhReportsLinkou.class);
+
+    private final List<String> plants = Lists.newArrayList("TWM8");
 
     @Override
-    public void execute() {
-        try {
-            this.sendMail();
-        } catch (Exception ex) {
-            logger.error("Send mail fail.", ex);
-        }
+    protected Logger getLogger() {
+        return logger;
     }
-    
+
+    @Override
+    public List<String> getPlants() {
+        return plants;
+    }
+
     @Override
     protected void sendMail() throws Exception {
 
@@ -56,7 +60,7 @@ public class SendWhReportsLinkou extends SendWhReports {
         manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
 
     }
-    
+
     @Override
     public String generateMailBody(DateTime dt) throws IOException, SAXException, InvalidFormatException {
 
@@ -70,6 +74,7 @@ public class SendWhReportsLinkou extends SendWhReports {
         sb.append("table th {background-color: yellow;}");
         sb.append("#mailBody {font-family: 微軟正黑體;}");
         sb.append(".highlight {background-color: yellow;}");
+        sb.append(".m3 {background-color: #FFDAC8;}");
         sb.append(".rightAlign {text-align:right;}");
         sb.append(".total {font-weight: bold;}");
         sb.append("</style>");
@@ -79,27 +84,26 @@ public class SendWhReportsLinkou extends SendWhReports {
         sb.append(fmt.print(dt));
         sb.append("):</h3>");
 
+        super.setPlantAchievingMap();
+        
         //Generate DailyWhReport table, send mail when friday
-        List<WorkingHoursReport> daliyList = whService.findDailyWhReportM8(dt);
-
+        List<WhReport> daliyList = whReportService.findDailyWhReport(dt, plants);
         sb.append("<h5>Daily report(7日)</h5>");
-
         addTable("日期", daliyList, sb);
 
         //Generate weekly table
         DateTime firstDateOfWeek = dt.withTime(0, 0, 0, 0).dayOfWeek().withMinimumValue();
         if (dt.toLocalDate().compareTo(new LocalDate(firstDateOfWeek)) == 0) {
-            List weeklyList = whService.findWeeklyWhReportM8(dt);
+            List<WhReport> weeklyList = whReportService.findWeeklyWhReport(dt, plants);
             sb.append("<h5>Weekly report(4週)</h5>");
             addTable("週別", weeklyList, sb);
         }
 
         //Generate monthly table
-        List monthlyList = whService.findMonthlyWhReportM8(dt);
+        List<WhReport> monthlyList = whReportService.findMonthlyWhReport(dt, plants);
         sb.append("<h5>Monthly report(當月累計)</h5>");
         addTable2("月份", dt, monthlyList, sb);
 
         return sb.toString();
-
     }
 }

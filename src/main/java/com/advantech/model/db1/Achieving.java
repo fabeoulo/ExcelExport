@@ -18,7 +18,7 @@ import javax.persistence.Table;
 
 /**
  *
- * @author Wei.Cheng
+ * @author Justin.Yeh
  */
 @Entity
 @Table(name = "Achieving")
@@ -26,9 +26,10 @@ import javax.persistence.Table;
 public class Achieving implements Serializable {
 
     private int id;
-    private BigDecimal outputValueEstimated;
-    private BigDecimal worktimeEstimated;
+    private BigDecimal outputValueEstimated = BigDecimal.ONE;
+    private BigDecimal worktimeEstimated = BigDecimal.ONE;
     private String factory;
+    private String sapProductionType;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -66,6 +67,15 @@ public class Achieving implements Serializable {
 
     public void setFactory(String factory) {
         this.factory = factory;
+    }
+
+    @Column(name = "sap_production_type")
+    public String getSapProductionType() {
+        return sapProductionType;
+    }
+
+    public void setSapProductionType(String sapProductionType) {
+        this.sapProductionType = sapProductionType;
     }
 
 }

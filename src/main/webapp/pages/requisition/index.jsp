@@ -813,7 +813,6 @@
                 }
 
                 table.on('length.dt', function (e, settings, len) {
-                    // console.log('Length changed to ' + len);
                     checkPageLenAll(len);
                 });
 
