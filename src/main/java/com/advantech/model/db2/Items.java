@@ -35,11 +35,12 @@ public class Items implements java.io.Serializable {
     public Items() {
     }
 
-    public Items(Orders orders, String label1, String label2, String label3) {
+    public Items(Orders orders, String label1, String label2, String label3, String label4) {
         this.orders = orders;
         this.label1 = label1;
         this.label2 = label2;
         this.label3 = label3;
+        this.label4 = label4;
     }
 
     @Id

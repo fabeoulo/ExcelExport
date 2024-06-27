@@ -51,7 +51,7 @@ public class TestSap {
     @Autowired
     private SapService sapService;
 
-    @Test
+//    @Test
     public void testWarehouse() throws JCoException, URISyntaxException {
 
         JCoFunction function = port.getMaterialInfo("PNH1102ZA", null);
@@ -85,12 +85,14 @@ public class TestSap {
 
     }
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testStock() throws JCoException, URISyntaxException {
-        List<Integer> listInt = Arrays.asList(88,90);
+        List<Integer> listInt = Arrays.asList(24084,24032);
         List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
+        
+//        port.setLgortGood();
         JCoFunction function = port.getMaterialStock(rl);
         JCoTable output = function.getTableParameterList().getTable("ZMARD_OUTPUT");
 

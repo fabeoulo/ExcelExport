@@ -43,7 +43,7 @@ public class OrdersController {
 
     @ResponseBody
     @RequestMapping(value = "/save", method = {RequestMethod.POST})
-    protected String save(@ModelAttribute Orders orders, @RequestParam String po, @RequestParam String material, @RequestParam int requision_id, BindingResult bindingResult) throws Exception {
+    protected String save(@ModelAttribute Orders orders, @RequestParam String po, @RequestParam String material, @RequestParam String snBoard, @RequestParam int requision_id, BindingResult bindingResult) throws Exception {
 
         bindingResult.getAllErrors().stream().map((object) -> {
             if (object instanceof FieldError) {
@@ -56,9 +56,10 @@ public class OrdersController {
             System.out.println(objectError.getCode());
         });
 
-        Items i = new Items(orders, po, null, material);
+        orders.setRequisionId(requision_id);
+        Items i = new Items(orders, po, null, material, snBoard);
         service.save(orders, i);
-        
+
         Requisition req = requisitionService.findById(requision_id).get();
         req.setLackingFlag(1);
         requisitionService.save(req, "Save data to lacking db");

@@ -7,7 +7,7 @@ package com.advantech.sap;
 
 import com.advantech.model.db1.Requisition;
 import com.advantech.webservice.Factory;
-import com.sap.conn.jco.JCo;
+import com.google.common.collect.Lists;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
@@ -15,6 +15,7 @@ import com.sap.conn.jco.JCoParameterList;
 import com.sap.conn.jco.JCoTable;
 import java.net.URISyntaxException;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +29,19 @@ public class SapQueryPort {
     @Autowired
     private SAPConn1 sapConn;
 
-    private String[] lgort = {"0015", "0008", "0012", "0055", "0058", "CUST"};
+    private final List<String> lgortGood = Lists.newArrayList("0008", "0012", "0015", "CUST", "0018", "0016");
+    private final List<String> lgortOther = Lists.newArrayList("0055", "0058");
+    private List<String> lgort;
+
+    @PostConstruct
+    private void setLgortAll() {
+        setLgortGood();
+        lgort.addAll(lgortOther);
+    }
+
+    public void setLgortGood() {
+        lgort = Lists.newArrayList(lgortGood);
+    }
 
     public JCoFunction getMaterialInfo(String po, Factory factory) throws JCoException, URISyntaxException {
         JCoFunction function;
@@ -75,9 +88,10 @@ public class SapQueryPort {
 
         JCoTable zmardTable = function.getTableParameterList().getTable("ZMARD_INPUT");
         for (Requisition detail : rl) {
+            String werk = "TWM3".equals(detail.getWerk()) ? "TWM9" : detail.getWerk();
             for (String l : lgort) {
                 zmardTable.appendRow();
-                zmardTable.setValue("WERKS", detail.getWerk());
+                zmardTable.setValue("WERKS", werk);
                 zmardTable.setValue("MATNR", detail.getMaterialNumber());
                 zmardTable.setValue("LGORT", l);
             }
@@ -87,10 +101,6 @@ public class SapQueryPort {
         return function;
     }
 
-    public void setGoodLgort() {
-        lgort = new String[]{"0015", "CUST"};
-    }
-    
     public JCoFunction getMrpCode(List<SapMrpTbl> tblIns) throws JCoException, URISyntaxException {
         JCoFunction function;
         JCoDestination destination = sapConn.getConn();

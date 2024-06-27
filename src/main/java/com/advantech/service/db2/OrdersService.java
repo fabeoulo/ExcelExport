@@ -93,7 +93,7 @@ public class OrdersService {
         //Auto change user's identity when ADMIN is testing data.
         Users remoteUser = usersRepo.findById(userInSession.getJobnumber()).orElse(null);
         if (remoteUser == null && auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            remoteUser = usersRepo.getOne("test2");
+            remoteUser = usersRepo.getOne("test4");
         }
 
         checkState(remoteUser != null, "Remote user's account not found");

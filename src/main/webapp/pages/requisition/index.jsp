@@ -478,6 +478,7 @@
                         var number = $("#myModal3 #model-table #number").val();
                         var po = $("#myModal3 #model-table #itemses\\[0\\]\\.label1").val();
                         var material = $("#myModal3 #model-table #itemses\\[0\\]\\.label3").val();
+                        var snBoard = $("#myModal3 #model-table #itemses\\[0\\]\\.label4").val();
                         var orderType = $("#myModal3 #model-table #orderTypes\\.id").val();
                         var respectDate = $("#myModal3 #model-table #respectDate").val();
                         var comment = $("#myModal3 #model-table #comment").val();
@@ -497,7 +498,8 @@
                         var data = {
                             "requision_id": requision_id,
                             "po": po,
-                            "material": material,
+                            "material": material,                            
+                            "snBoard": snBoard,
                             "number": number,
                             "orderTypes.id": orderType,
                             "respectDate": respectDate,
@@ -724,7 +726,7 @@
                             }
                             const {materialNumber, amount, unitPrice, storageSpaces} = arr[0];
                             target.html('<h5>料號: ' + materialNumber +
-                                    ' 數量: ' + amount +
+                                    ' 工單數量: ' + amount +
                                     ' 單價: ' + unitPrice +
                                     ' 儲區: ' + storageSpaces + '</h5>');
 
@@ -1082,6 +1084,12 @@
                                     <td class="lab">料號</td>
                                     <td>
                                         <input type="text" id="itemses[0].label3" readonly="readonly" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lab">機台序號</td>
+                                    <td>
+                                        <input type="text" id="itemses[0].label4" />
                                     </td>
                                 </tr>
                                 <tr>

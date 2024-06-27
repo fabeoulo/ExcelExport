@@ -264,7 +264,7 @@
         <entry key="TWM3" value-ref="webServiceTemplate" />
         <entry key="TWM6" value-ref="webServiceTemplate1" />
         <entry key="TWM2" value-ref="webServiceTemplate2" />
-        <entry key="M3WH" value-ref="webServiceTemplate3" />
+        <entry key="M9WH" value-ref="webServiceTemplate3" />
     </util:map>
        
     <!--regist for WsClient.class use, -->

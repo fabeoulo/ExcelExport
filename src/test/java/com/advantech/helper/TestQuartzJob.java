@@ -5,6 +5,7 @@
  */
 package com.advantech.helper;
 
+import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendWhReports;
@@ -43,8 +44,8 @@ public class TestQuartzJob {
     @Autowired
     private SendOvertimeReport sendOvertimeReport;
 	
-//    @Autowired
-//    private SendLackWithStock sendLackWithStock;
+    @Autowired
+    private SendLackWithStock sendLackWithStock;
 //
 //    @Autowired
 //    private SendRequiredToPMC sendRequiredToPMC;
@@ -75,11 +76,11 @@ public class TestQuartzJob {
         sendOvertimeReport.execute();
     }
 	
-////    @Test
-//    public void testSendLackWithStock() {
-//        sendLackWithStock.execute();
-//    }
-//
+    @Test
+    public void testSendLackWithStock() {
+        sendLackWithStock.execute();
+    }
+
 ////    @Test
 //    public void testSendRequiredToPMC() {
 //        sendRequiredToPMC.execute();
