@@ -100,7 +100,7 @@ public class SendRequiredToPMC extends SendEmailBase {
             String mapKey = r.getMaterialNumber() + "," + r.getWerk();
             String mrpCode = mrpCodeMap.get(mapKey);
 
-            if ("TWM3".equals(r.getWerk())) {
+            if ("TWM3".equals(r.getWerk()) || "TWM9".equals(r.getWerk())) {
                 sb.append("<tr class='m3'>");
             } else {
                 sb.append("<tr>");

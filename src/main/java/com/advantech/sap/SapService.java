@@ -101,7 +101,7 @@ public class SapService {
     }
 
     public Map<String, BigDecimal> getStockMapWithGoodLgort(List<Requisition> l) throws Exception {
-        port.setGoodLgort();
+        port.setLgortGood();
         return getStockMap(l);
     }
 
