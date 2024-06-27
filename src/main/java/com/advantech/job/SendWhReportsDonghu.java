@@ -29,8 +29,6 @@ public class SendWhReportsDonghu extends SendWhReports {
 
     private final List<String> plants = Lists.newArrayList("TWM3", "TWM6");
 
-//    private final List<String> workCenters = Lists.newArrayList("ASS-01", "ES", "LCD_ENHS", "LCD_ES");
-
     @Override
     protected Logger getLogger() {
         return logger;

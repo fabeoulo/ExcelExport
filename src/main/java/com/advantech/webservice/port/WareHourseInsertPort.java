@@ -65,7 +65,7 @@ public class WareHourseInsertPort {
             whi.setPlant(werk);
 
             String jsonString = getJsonString(whi);
-            response += eFlowSendAndReceive(jsonString, Factory.M3WH);
+            response += eFlowSendAndReceive(jsonString, Factory.M9WH);
         }
         return response;
     }

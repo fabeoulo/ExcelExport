@@ -13,11 +13,11 @@ import java.util.List;
  * @author Justin.Yeh
  */
 public class WareHourseInsert {
-//只有當場區、工單、料號能正確查出庫存，才卡數量不能大於庫存
+//只有當廠區、工單、料號能正確查出庫存，才卡數量不能大於庫存
 //否則一律不卡
 
     @JsonProperty("PLANT")
-    String plant = "TWM3";
+    String plant = "TWM9";
 
     @JsonProperty("NO")
     String no = "";

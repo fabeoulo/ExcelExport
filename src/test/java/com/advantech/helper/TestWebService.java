@@ -90,7 +90,7 @@ public class TestWebService {
         HibernateObjectPrinter.print(rever);
         wh.setSparam(jsonString);
 
-        Factory f = Factory.M3WH;
+        Factory f = Factory.M9WH;
         WebServiceTemplate t = resourceMap.get(f);
         checkState(t != null, f.token() + " webService template is not inject");
         InsertWareHourseEFlowMasResponse response = (InsertWareHourseEFlowMasResponse) t.marshalSendAndReceive(wh);
