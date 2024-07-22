@@ -98,6 +98,24 @@ public class SendWhReports {
         manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
 
     }
+    
+    public void testSendMail2(int testTargetUserId, DateTime specDate) throws Exception {
+
+        User user = userService.findById(testTargetUserId).orElseGet(null);
+
+        checkState(user != null, "User not found.");
+
+        String[] mailTarget = {user.getEmail()};
+        String[] mailCcTarget = {};
+
+        checkState(mailTarget.length != 0, "Job sendReport can't find mail target in database table.");
+
+        String mailBody = "generateMailBody";
+        String mailTitle = fmt.print(specDate) + " - SAP產值/工時資料";
+
+        manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
+
+    }
 
     protected String[] findUsersMail(UserNotification notifi) {
         List<User> l = userService.findByUserNotifications(notifi);

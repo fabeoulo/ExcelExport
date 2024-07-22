@@ -63,6 +63,15 @@ public class TestController {
     }
     
     @ResponseBody
+    @RequestMapping(value = "/testSendWhReport2", method = {RequestMethod.GET})
+    public String testSendWhReport2(@RequestParam int targetUserId, @RequestParam int year,
+            @RequestParam int month, @RequestParam int day) throws Exception {
+        DateTime dt = new DateTime(year, month, day, 0, 0, 0);
+        job.testSendMail2(targetUserId, dt);
+        return "success";
+    }
+    
+    @ResponseBody
     @RequestMapping(value = "/testGenerateMailBody", method = {RequestMethod.GET})
     public String testGenerateMailBody(@RequestParam int year,
             @RequestParam int month, @RequestParam int day) throws Exception {
