@@ -19,7 +19,6 @@ import com.advantech.model.db1.RequisitionType;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.User_;
-import com.advantech.sap.SapQueryPort;
 import com.advantech.service.db1.RequisitionEventService;
 import com.advantech.service.db1.RequisitionReasonService;
 import com.advantech.service.db1.RequisitionService;
@@ -54,14 +53,11 @@ import com.advantech.sap.SapService;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.FloorService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
-import com.advantech.webservice.port.WareHourseInsertPort;
+import com.advantech.webservice.WareHourseService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
-import com.mysql.cj.conf.PropertyKey;
 import com.sap.conn.jco.JCoException;
-import com.sap.conn.jco.JCoFunction;
-import com.sap.conn.jco.JCoTable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -69,8 +65,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 
 /**
  *
@@ -102,7 +100,7 @@ public class RequisitionController {
     private SapService sapService;
 
     @Autowired
-    private WareHourseInsertPort whInsertPort;
+    private WareHourseService wareHourseService;
 
     @Autowired
     private RequisitionStateChangeTrigger trigger;
@@ -115,10 +113,8 @@ public class RequisitionController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime endDate) {
 
-        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-        Floor floor = user.getFloor();
-        Integer m6FloorId = 7;
-        boolean isM6 = floor.getId() == m6FloorId;
+//        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+//        Floor floor = user.getFloor();
         if (startDate != null && endDate != null) {
             final Date sD = startDate.toDate();
             final Date eD = endDate.withHourOfDay(23).toDate();
@@ -126,37 +122,68 @@ public class RequisitionController {
             return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
                 Path<Date> dateEntryPath = root.get(Requisition_.createDate);
 //                if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-                Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-                if (!isM6) {
-//                    return cb.between(dateEntryPath, sD, eD);
-                    return cq.where(cb.and(
-                            cb.between(dateEntryPath, sD, eD),
-                            cb.notEqual(userJoin.get(User_.FLOOR).get(Floor_.ID), m6FloorId)
-                    )).getRestriction();
-                } else {
+                return cb.between(dateEntryPath, sD, eD);
+//                } else {
 //                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-                    return cq.where(cb.and(
-                            cb.between(dateEntryPath, sD, eD),
-                            cb.equal(userJoin.get(User_.FLOOR), floor)
-                    )).getRestriction();
-                }
+//                    return cq.where(cb.and(cb.between(dateEntryPath, sD, eD), cb.equal(userJoin.get(User_.FLOOR), floor))).getRestriction();
+//                }
             });
         } else {
 //            if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-            if (!isM6) {
-//                return service.findAll(input);
-                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-                    return cb.notEqual(userJoin.get(User_.FLOOR).get(Floor_.ID), m6FloorId);
-                });
-            } else {
-                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-                    return cb.equal(userJoin.get(User_.FLOOR), floor);
-                });
-            }
+            return service.findAll(input);
+//            } else {
+//                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+//                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
+//                    return cb.equal(userJoin.get(User_.FLOOR), floor);
+//                });
+//            }
         }
     }
+//
+//    @JsonView(DataTablesOutput.View.class)
+//    @RequestMapping(value = "/findAllCheckM6", method = {RequestMethod.POST})
+//    protected DataTablesOutput<Requisition> findAllCheckM6(
+//            HttpServletRequest request,
+//            @Valid DataTablesInput input,
+//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime startDate,
+//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime endDate) {
+//
+//        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+//        List<Integer> m6FloorIds = newArrayList(4, 7);
+//        boolean isM6 = m6FloorIds.contains(user.getFloor().getId());
+//
+//        if (startDate != null && endDate != null) {
+//            final Date sD = startDate.toDate();
+//            final Date eD = endDate.withHourOfDay(23).toDate();
+//
+//            return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+//                Path<Date> dateEntryPath = root.get(Requisition_.createDate);
+//                Predicate floorM6 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m6FloorIds);
+//
+//                if (!isM6) {
+//                    return cq.where(cb.and(
+//                            cb.between(dateEntryPath, sD, eD),
+//                            cb.not(floorM6)
+//                    )).getRestriction();
+//                } else {
+//                    return cq.where(cb.and(
+//                            cb.between(dateEntryPath, sD, eD),
+//                            floorM6
+//                    )).getRestriction();
+//                }
+//            });
+//        } else {
+//            return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+//                Predicate floorM6 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m6FloorIds);
+//
+//                if (!isM6) {
+//                    return cb.not(floorM6);
+//                } else {
+//                    return cb.and(floorM6);
+//                }
+//            });
+//        }
+//    }
 
     @ResponseBody
     @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})
@@ -170,48 +197,7 @@ public class RequisitionController {
             return "待領料數量0.";
         }
 
-//        //check login
-//        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-//        checkArgument(commitJobNo.equals(user.getJobnumber()), "User lost.請重新登入");//not handle error msg
-        //check stock
-        Map<String, BigDecimal> stockMap = sapService.getStockMap(l);
-        String[] stockMsg = {""};
-        List<Requisition> passList = new ArrayList<>();
-        List<Requisition> lackList = new ArrayList<>();
-        List<Requisition> noStockList = new ArrayList<>();
-        l.forEach(t -> {
-            String mat = t.getMaterialNumber();
-            BigDecimal stock = stockMap.get(mat);
-            if (stock != null && stock.compareTo(BigDecimal.ZERO) == 0) {
-                noStockList.add(t);
-            } else if (stock != null && stock.compareTo(BigDecimal.valueOf(Math.abs(t.getAmount()))) == -1) {
-                lackList.add(t);
-            } else {
-                passList.add(t);
-                return;
-            }
-            String remarkStock = " [庫存量：" + stock + "],";
-            t.setRemark(t.getRemark() + remarkStock);
-            stockMsg[0] += "料號：" + mat + remarkStock;
-        });
-
-        //insert WH
-        String response = whInsertPort.insertWareHourse(passList, commitJobNo);
-//        String response = "";//for quickly debug
-        if (response.equals("")) {
-
-            service.updateWithStateAndEvent(lackList, 4);
-            service.updateWithStateAndEvent(passList, 5);
-            service.updateWithStateAndEvent(noStockList, 2);
-            trigger.checkRepair(l);
-
-            if (stockMsg[0].isEmpty()) {
-                return "success";
-            } else {
-                return "部份成功,有庫存不足. " + stockMsg[0];
-            }
-        }
-        return "失敗 response:=" + response;
+        return wareHourseService.insertEflow(l, commitJobNo);
     }
 
     @ResponseBody

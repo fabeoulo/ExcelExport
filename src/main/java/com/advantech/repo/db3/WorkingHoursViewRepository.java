@@ -33,10 +33,18 @@ public interface WorkingHoursViewRepository extends JpaRepository<JpaAbstractEnt
             + "FROM rv_biprd_ztpp_zrpp89s "
             + "WHERE \"BUDAT\" >= FIRSTDAYOFWEEK(ADDWEEK(TO_LOCALDATE('yyyyMMdd', ?1), -4)) AND \"BUDAT\" < FIRSTDAYOFWEEK(TO_LOCALDATE('yyyyMMdd', ?1)) ";
 
+    public static final String FIRSTDAYSUNDAYCLAUSE
+            = "CASE WHEN GETDAYOFWEEK(TO_LOCALDATE('yyyyMMdd', ?1)) = 2 AND "
+            + "ADDDAY(TO_LOCALDATE('yyyyMMdd', ?1), -1) = FIRSTDAYOFMONTH(TO_LOCALDATE('yyyyMMdd', ?1)) "
+            + "THEN FIRSTDAYOFMONTH(ADDDAY(TO_LOCALDATE('yyyyMMdd', ?1), -2)) "
+            + "ELSE FIRSTDAYOFMONTH(ADDDAY(TO_LOCALDATE('yyyyMMdd', ?1), -1)) "
+            + "END ";
+
     public static final String PASTMONTH
             = "SELECT DISTINCT \"BUDAT\" AS \"DataDates\" "
             + "FROM rv_biprd_ztpp_zrpp89s "
-            + "WHERE  \"BUDAT\" >= FIRSTDAYOFMONTH(ADDDAY(TO_LOCALDATE('yyyyMMdd', ?1), -1)) AND \"BUDAT\" < ?1 ";
+            + "WHERE  \"BUDAT\" >= "
+            + FIRSTDAYSUNDAYCLAUSE + " AND \"BUDAT\" < ?1 ";
 
     public static final String WORKHOURGROUP
             = "SELECT \"BUDAT\", SUM(ROUND(\"ISM02\"/60, 2)) AS \"Workhour\", \"SWERK\" AS \"Plant\" "

@@ -5,6 +5,8 @@
  */
 package com.advantech.service.db1;
 
+import com.advantech.model.db1.Floor;
+import com.advantech.model.db1.Floor_;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionEvent;
@@ -135,6 +137,25 @@ public class RequisitionService {
         eD = edt.toDate();
     }
 
+    public List<Requisition> findAllByCreateAndStateAndFloor(DateTime sdt, int state, List<Integer> floorIds) {
+        return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            root.fetch(Requisition_.FLOOR, JoinType.LEFT);
+            root.fetch(Requisition_.USER, JoinType.LEFT);
+            root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
+
+            Path<Date> dateEntryPath = root.get(Requisition_.createDate);
+            Predicate datePredicate = cb.between(dateEntryPath, sdt.toDate(), sdt.plusDays(1).toDate());
+
+            Path<RequisitionState> rsEntryPath = root.get(Requisition_.requisitionState);
+            Predicate statePredicate = cb.equal(rsEntryPath.get(RequisitionState_.id), state);
+
+            Path<Floor> floorPath = root.get(Requisition_.floor);
+            Predicate floorPredicate = floorPath.get(Floor_.id).in(floorIds);
+
+            return cb.and(datePredicate, statePredicate, floorPredicate);
+        });
+    }
+
     public List<ModelMaterialDetails> findModelMaterialDetails(String modelName) {
         return repo.findModelMaterialDetails(modelName);
     }
@@ -204,6 +225,7 @@ public class RequisitionService {
     public int updateWithStateAndEvent(List<Requisition> l, int state_id) {
 
         RequisitionState state = stateRepo.getOne(state_id);
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
         List<RequisitionEvent> reLists = new ArrayList<>();
         for (Requisition r : l) {
             r.setRequisitionState(state);
@@ -214,7 +236,6 @@ public class RequisitionService {
                 r.setReturnDate(now);
             }
 
-            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
             RequisitionEvent e = new RequisitionEvent(r, user, state, r.getRemark());
             reLists.add(e);
         }

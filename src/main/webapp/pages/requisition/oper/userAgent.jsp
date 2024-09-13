@@ -1,8 +1,9 @@
 <%-- 
-    Document   : workdays
-    Created on : 2024年2月22日, 下午3:38:08
+    Document   : userAgent
+    Created on : 2024年10月8日, 下午5:42:13
     Author     : Justin.Yeh
 --%>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
@@ -17,7 +18,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Holiday Setting</title>
+        <title>UserAgent Setting</title>
         <style>
             h1{
                 color: red;
@@ -81,7 +82,7 @@
                     "fixedHeader": true,
                     "orderCellsTop": true,
                     "ajax": {
-                        "url": "<c:url value="/IECalendarController/findAll" />",
+                        "url": "<c:url value="/UserAgentController/findAll" />",
                         "type": "GET",
                         "data": function (d) {
                         },
@@ -91,8 +92,8 @@
                     },
                     "columns": [
                         {data: "id", title: "id"},
-                        {data: "dateMark", title: "日期"},
-                        {data: "dateName", title: "假日補班"}
+                        {data: "beginDate", title: "代理日期"},
+                        {data: "user.username", title: "申請人"}
                     ],
                     "columnDefs": [
                         {
@@ -139,7 +140,7 @@
                     "buttons": [
                         'pageLength',
                         {
-                            "text": '新增',
+                            "text": '申請',
                             "attr": {
                                 "data-toggle": "modal",
                                 "data-target": "#myModal"
@@ -147,6 +148,7 @@
                             "action": function (e, dt, node, config) {
                                 $("#model-table input").val("");
                                 $("#model-table #id").val(0);
+                                $("#model-table #userName").val("<c:out value="${user.username}" />");
                             }
                         },
                         {
@@ -164,8 +166,8 @@
                                 var arr = table.rows('.selected').data();
                                 var data = arr[0];
                                 $("#model-table #id").val(data.id);
-                                $("#model-table #dateMark").val(data.dateMark);
-                                $("#model-table #dateName").val(data.dateName);
+                                $("#model-table #beginDate").val(data.beginDate);
+                                $("#model-table #userName").val("<c:out value="${user.username}" />");
                             }
                         },
                         {
@@ -191,7 +193,7 @@
 
                 var table = $('#favourable').DataTable(dataTable_config);
 
-                $("#dateMark").datepicker({
+                $("#beginDate").datepicker({
                     format: "yyyy-mm-dd",
                     showOn: "button",
                     buttonImage: "images/calendar.gif",
@@ -208,18 +210,17 @@
 
                 $("#myModal #save").click(function () {
                     if (confirm("Confirm save?")) {
-                        var dateMark = $("#model-table #dateMark").val();
-                        var formatDate = moment(dateMark, 'YYYY-MM-DD', true);
-                        if (!formatDate.isValid()) {
-                            return alert(dateMark + '非正確日期格式.');
-                        }
+                        var beginDate = $("#model-table #beginDate").val();
 
-                        var dateName = $("#model-table #dateName").val();
+                        var formatBegin = moment(beginDate, 'YYYY-MM-DD', true);
+                        if (!formatBegin.isValid()) {
+                            return alert(beginDate + '非正確日期格式.');
+                        }
 
                         var data = {
                             id: $("#model-table #id").val(),
-                            dateMark: dateMark,
-                            dateName: dateName
+                            beginDate: beginDate,
+                            "user.id": "<c:out value="${user.id}" />"
                         };
                         save(data);
                     }
@@ -228,7 +229,7 @@
                 function save(data) {
                     $.ajax({
                         type: "POST",
-                        url: "<c:url value="/IECalendarController/save" />",
+                        url: "<c:url value="/UserAgentController/save" />",
                         data: data,
                         success: function (response) {
                             alert(response);
@@ -249,7 +250,7 @@
                 function deleteRow(data) {
                     $.ajax({
                         type: "POST",
-                        url: "<c:url value="/IECalendarController/delete" />",
+                        url: "<c:url value="/UserAgentController/delete" />",
                         data: data,
                         success: function (response) {
                             alert(response);
@@ -295,18 +296,15 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="lab">日期</td>
+                                    <td class="lab">代理日期</td>
                                     <td> 
-                                        <input type="text" id="dateMark">
+                                        <input type="text" id="beginDate">
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="lab">假日補班</td>
+                                    <td class="lab">申請人</td>
                                     <td> 
-                                        <select id="dateName">
-                                            <option value="Holiday">Holiday</option>
-                                            <option value="Not Holiday">Not Holiday</option>
-                                        </select>
+                                        <input type="text" id="userName" disabled="true" readonly>
                                     </td>
                                 </tr>
                             </table>

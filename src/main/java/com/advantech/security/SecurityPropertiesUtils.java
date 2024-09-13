@@ -8,8 +8,10 @@ package com.advantech.security;
 import com.advantech.model.db1.User;
 import static com.google.common.base.Preconditions.checkState;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
@@ -23,4 +25,15 @@ public class SecurityPropertiesUtils {
         return (User) auth.getPrincipal();
     }
 
+    public static void loginUserManual(UserDetails userDetails) {
+        UsernamePasswordAuthenticationToken authentication
+                = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        System.out.println("User manually logged in: " + ((User) userDetails).getJobnumber());
+    }
+
+    public static void logoutUserManual() {
+        SecurityContextHolder.clearContext();
+    }
 }

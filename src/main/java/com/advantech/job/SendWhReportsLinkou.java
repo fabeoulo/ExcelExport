@@ -35,11 +35,6 @@ public class SendWhReportsLinkou extends SendWhReports {
     }
 
     @Override
-    public List<String> getPlants() {
-        return plants;
-    }
-
-    @Override
     protected void sendMail() throws Exception {
 
         UserNotification notifi = notificationService.findById(8).get();
@@ -85,7 +80,7 @@ public class SendWhReportsLinkou extends SendWhReports {
         sb.append("):</h3>");
 
         super.setPlantAchievingMap();
-        
+
         //Generate DailyWhReport table, send mail when friday
         List<WhReport> daliyList = whReportService.findDailyWhReport(dt, plants);
         sb.append("<h5>Daily report(7日)</h5>");

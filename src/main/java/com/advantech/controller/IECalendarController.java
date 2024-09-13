@@ -44,7 +44,6 @@ public class IECalendarController {
             @Valid DataTablesInput input) {
 
         return calendarLinkouService.findAll(input);
-
     }
 
     @ResponseBody

@@ -48,7 +48,7 @@ public abstract class SendWhReports {
     protected UserNotificationService notificationService;
 
     @Autowired
-    protected UserService userService;
+    private UserService userService;
 
     @Autowired
     private WorkingDayUtils workingDayUtils;
@@ -76,8 +76,6 @@ public abstract class SendWhReports {
     }
 
     protected abstract Logger getLogger();
-
-    protected abstract List<String> getPlants();
 
     protected abstract void sendMail() throws Exception;
 

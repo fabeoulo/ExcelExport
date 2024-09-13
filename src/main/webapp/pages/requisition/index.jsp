@@ -393,6 +393,8 @@
                     showOn: "button",
                     buttonImage: "images/calendar.gif",
                     buttonImageOnly: false
+                }).on('change', function () {
+                    $('.datepicker').hide();
                 });
 
                 $("#search").click(function () {

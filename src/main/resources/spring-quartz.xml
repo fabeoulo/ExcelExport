@@ -112,6 +112,18 @@
         <property name="cronExpression" value="0 0 22 ? * MON-FRI *" />
     </bean>
     
+    <!--job10 setting-->
+    <bean name="WareHourseAgent-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="wareHourseAgent" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="WareHourseAgent-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="WareHourseAgent-Job" />
+        <property name="cronExpression" value="0 0 9-20 ? * MON-SAT *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -124,7 +136,10 @@
                 <ref bean="SendWhReportsM8-Trig"/>
                 <ref bean="SendLackWithStock-Trig"/>
                 <ref bean="SendRequiredToPMC-Trig"/>
-                <!--<ref bean="SyncLackMrp-Trig"/>-->
+                
+                <ref bean="WareHourseAgent-Trig"/>
+<!--                exec on M9 version
+                <ref bean="SyncLackMrp-Trig"/> -->
             </list>
         </property>
         <property name="schedulerName">

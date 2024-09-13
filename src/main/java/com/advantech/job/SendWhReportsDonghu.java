@@ -35,11 +35,6 @@ public class SendWhReportsDonghu extends SendWhReports {
     }
 
     @Override
-    protected List<String> getPlants() {
-        return plants;
-    }
-
-    @Override
     protected void sendMail() throws Exception {
 
         UserNotification notifi = notificationService.findById(6).get();
@@ -85,7 +80,7 @@ public class SendWhReportsDonghu extends SendWhReports {
         sb.append("):</h3>");
 
         super.setPlantAchievingMap();
-                
+
         //Generate DailyWhReport table
         List<WhReport> daliyList = whReportService.findDailyWhReportWc(dt);
         sb.append("<h5>Daily report(7日)</h5>");

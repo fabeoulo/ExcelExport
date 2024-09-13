@@ -13,6 +13,7 @@ import com.advantech.job.SendWhReportsLinkou;
 import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SyncData;
 import com.advantech.job.SyncLackMrp;
+import com.advantech.job.WareHourseAgent;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,9 +59,17 @@ public class TestQuartzJob {
     @Autowired
     private SyncLackMrp syncLackMrp;
 
+    @Autowired
+    private WareHourseAgent wareHourseAgent;
+    
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
+//    @Test
+    public void testWareHourseAgent() {
+        wareHourseAgent.execute();
+    }
+    
 //    @Test
     public void testMail() {
         reportJob.execute();
@@ -74,14 +83,14 @@ public class TestQuartzJob {
 //    @Test
     public void testSendWhReportsDonghu() throws Exception {
 //        sendDonghu.execute();
-        DateTime dt = new DateTime(2024, 7,8, 0, 0, 0);
+        DateTime dt = new DateTime(2024, 9,2, 0, 0, 0);
         String sb = sendDonghu.generateMailBody(dt);
     }
     
 //    @Test
     public void testSendWhReportsLinkou() throws Exception {
 //        sendLinkou.execute();
-        DateTime dt = new DateTime(2024, 7,8, 0, 0, 0);
+        DateTime dt = new DateTime(2024, 9,2, 0, 0, 0);
         String sb = sendLinkou.generateMailBody(dt);
     }
 

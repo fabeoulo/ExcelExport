@@ -10,6 +10,7 @@ import com.advantech.model.db1.IEWorkdayCalendar;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
+import com.advantech.model.db1.UserAgent;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.model.db1.WorkingHoursReport;
 import com.advantech.model.db2.Items;
@@ -68,6 +69,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db3.WhReport;
+import com.advantech.security.SecurityPropertiesUtils;
+import com.advantech.service.db1.CustomUserDetailsService;
+import com.advantech.service.db1.UserAgentService;
+import com.advantech.webservice.WareHourseService;
+import static com.google.common.collect.Lists.newArrayList;
+import org.joda.time.LocalTime;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
@@ -119,6 +127,60 @@ public class TestService {
     @Autowired
     private WhReportService whReportService;
 
+    @Autowired
+    private WareHourseService wareHourseService;
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private UserAgentService userAgentService;
+
+//    @Test
+    public void testUserAgentService() {
+//        List<UserAgent> l = userAgentService.findAll();
+
+        DateTime today = new DateTime(2023, 12, 21, 9, 0).withTime(LocalTime.MIDNIGHT);
+//        DateTime today = new DateTime().withTime(LocalTime.MIDNIGHT);
+        List<UserAgent> ul = userAgentService.findAllInDateWithUser(today.toDate());
+
+        if (ul.isEmpty()) {
+            return;
+        }
+        String jobNo = ul.get(0).getUser().getJobnumber();
+
+        HibernateObjectPrinter.print(ul);
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testWareHourseService() {
+        DateTime today = new DateTime(2023, 12, 21, 9, 0).withTime(LocalTime.MIDNIGHT);
+//        DateTime today = new DateTime().withTime(LocalTime.MIDNIGHT);
+        List<UserAgent> ul = userAgentService.findAllInDateWithUser(today.toDate());
+
+        if (ul.isEmpty()) {
+            return;
+        }
+        String jobNo = ul.get(0).getUser().getJobnumber();
+
+        DateTime sdt = today;
+        int rState = 4;
+        List<Integer> floorIds = newArrayList(9);
+        List<Requisition> l = rservice.findAllByCreateAndStateAndFloor(sdt, rState, floorIds);
+
+//        jobNo = "";
+        try {
+            UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);
+            SecurityPropertiesUtils.loginUserManual(user);
+            String result = wareHourseService.insertEflow(l, jobNo);
+//            SecurityPropertiesUtils.logoutUserManual();
+        } catch (Exception ex) {
+            HibernateObjectPrinter.print("WareHourse agent fail. ", ex.toString());
+        }
+    }
+
 //    @Test
 //    @Transactional
 //    @Rollback(true)
@@ -126,30 +188,30 @@ public class TestService {
         List<String> plants = Lists.newArrayList("TWM3", "TWM6", "TWM2");
         List<String> workCenters = Lists.newArrayList("ASS-01", "ES", "LCD_ENHS", "LCD_ES");
 
-        DateTime dt = new DateTime(2024, 6, 13, 0, 0);
+        DateTime dt = new DateTime(2024, 9, 2, 0, 0);
 
-//        List<WhReport> wcr = whReportService.findDailyWhReportWc(dt, workCenters);
+//        List<WhReport> wcr = whReportService.findDailyWhReportWc(dt);
 //        assertTrue(!wcr.isEmpty());
 //        HibernateObjectPrinter.print(wcr);
 //
-//        List<WhReport> wcr1 = whReportService.findWeeklyWhReportWc(dt, workCenters);
+//        List<WhReport> wcr1 = whReportService.findWeeklyWhReportWc(dt);
 //        assertTrue(!wcr1.isEmpty());
 //        HibernateObjectPrinter.print(wcr1);
 //
-//        List<WhReport> wcr2 = whReportService.findMonthlyWhReportWc(dt, workCenters);
-//        HibernateObjectPrinter.print(wcr2);
-
-        List<WhReport> r = whReportService.findDailyWhReport(dt, plants);
-        assertTrue(!r.isEmpty());
-        HibernateObjectPrinter.print(r);
-        
-        List<WhReport> r1 = whReportService.findWeeklyWhReport(dt, plants);
-        assertTrue(!r1.isEmpty());
-        HibernateObjectPrinter.print(r1);
-
-        List<WhReport> r2 = whReportService.findMonthlyWhReport(dt, plants);
-        HibernateObjectPrinter.print(r2);
-        
+        List<WhReport> wcr2 = whReportService.findMonthlyWhReportWc(dt);
+        HibernateObjectPrinter.print(wcr2);
+//
+//        List<WhReport> r = whReportService.findDailyWhReport(dt, plants);
+//        assertTrue(!r.isEmpty());
+//        HibernateObjectPrinter.print(r);
+//        
+//        List<WhReport> r1 = whReportService.findWeeklyWhReport(dt, plants);
+//        assertTrue(!r1.isEmpty());
+//        HibernateObjectPrinter.print(r1);
+//
+//        List<WhReport> r2 = whReportService.findMonthlyWhReport(dt, plants);
+//        HibernateObjectPrinter.print(r2);
+//        
 //        WhReport w1 = r2.get(0);
 //        BigDecimal tt = w1.getSapWorktimeWithScale();
 //        String plant = w1.getPlantByWorkCenter();
@@ -340,9 +402,9 @@ public class TestService {
         eD = edt.toDate();
     }
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testDataTablesOutput() {
         setDate();
 
