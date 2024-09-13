@@ -34,7 +34,7 @@ public class SendWhReportsLinkou extends SendWhReports {
             logger.error("Send mail fail.", ex);
         }
     }
-    
+	
     @Override
     protected void sendMail() throws Exception {
 

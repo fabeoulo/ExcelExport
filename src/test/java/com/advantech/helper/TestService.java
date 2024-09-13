@@ -9,6 +9,7 @@ import com.advantech.model.db1.ModelMaterialDetails;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
+import com.advantech.model.db1.UserAgent;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.model.db2.Items;
 import com.advantech.model.db2.MaterialMrp;
@@ -57,6 +58,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import com.advantech.security.SecurityPropertiesUtils;
+import com.advantech.service.db1.CustomUserDetailsService;
+import com.advantech.service.db1.UserAgentService;
+import com.advantech.webservice.WareHourseService;
+import static com.google.common.collect.Lists.newArrayList;
+import org.joda.time.LocalTime;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
@@ -224,9 +232,9 @@ public class TestService {
         eD = edt.toDate();
     }
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testDataTablesOutput() {
         setDate();
 

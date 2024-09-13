@@ -5,6 +5,8 @@
  */
 package com.advantech.service.db1;
 
+import com.advantech.model.db1.Floor;
+import com.advantech.model.db1.Floor_;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionEvent;
@@ -28,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
+import com.advantech.model.db1.RequisitionState_;
 import com.advantech.model.db1.Requisition_;
 import static com.google.common.collect.Lists.newArrayList;
 import java.util.ArrayList;
@@ -35,7 +38,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -94,6 +99,25 @@ public class RequisitionService {
             root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
             Path<Integer> idEntryPath = root.get(Requisition_.ID);
             return cb.and(idEntryPath.in(ids));
+        });
+    }
+
+    public List<Requisition> findAllByCreateAndStateAndFloor(DateTime sdt, int state, List<Integer> floorIds) {
+        return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            root.fetch(Requisition_.FLOOR, JoinType.LEFT);
+            root.fetch(Requisition_.USER, JoinType.LEFT);
+            root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
+
+            Path<Date> dateEntryPath = root.get(Requisition_.createDate);
+            Predicate datePredicate = cb.between(dateEntryPath, sdt.toDate(), sdt.plusDays(1).toDate());
+
+            Path<RequisitionState> rsEntryPath = root.get(Requisition_.requisitionState);
+            Predicate statePredicate = cb.equal(rsEntryPath.get(RequisitionState_.id), state);
+
+            Path<Floor> floorPath = root.get(Requisition_.floor);
+            Predicate floorPredicate = floorPath.get(Floor_.id).in(floorIds);
+
+            return cb.and(datePredicate, statePredicate, floorPredicate);
         });
     }
 
@@ -166,6 +190,7 @@ public class RequisitionService {
     public int updateWithStateAndEvent(List<Requisition> l, int state_id) {
 
         RequisitionState state = stateRepo.getOne(state_id);
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
         List<RequisitionEvent> reLists = new ArrayList<>();
         for (Requisition r : l) {
             r.setRequisitionState(state);
@@ -176,8 +201,7 @@ public class RequisitionService {
                 r.setReturnDate(now);
             }
 
-            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-            RequisitionEvent e = new RequisitionEvent(r, user, state, r.getRemark());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(),r.getRequisitionReason(),r.getRequisitionType());
             reLists.add(e);
         }
         repo.saveAll(l);

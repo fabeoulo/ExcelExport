@@ -41,7 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user = userService.findByJobnumber(jobnumber);
             } else {
                 System.out.println("User not found");
-                throw new UsernameNotFoundException("User not found in ATMC");
+                throw new UsernameNotFoundException("User not found in ATMC. jobnumber:" + jobnumber);
             }
         }
 
