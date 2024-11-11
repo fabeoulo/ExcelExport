@@ -47,7 +47,7 @@ public interface WhReportRepository extends JpaRepository<JpaAbstractEntity, Int
             = ORDERSELECT
             + SELECTCLAUSE + ", \"BUDAT\" AS \"dateField\" "
             + "FROM ( "
-            + JOINVIEWS + "JOIN (" + PASTDAYS + ") AS dt ON wh.\"BUDAT\" = dt.\"DataDates\" "
+            + JOINVIEWS + "JOIN (" + PASTDAYS + ") AS dt ON wh.\"BUDAT\" = dt.\"TargetDates\" "
             + JOINWHERE
             + ") subTb "
             + "GROUP BY \"BUDAT\", \"Plant\" "
@@ -59,7 +59,7 @@ public interface WhReportRepository extends JpaRepository<JpaAbstractEntity, Int
             = ORDERSELECT
             + SELECTCLAUSE + ", \"WK\" AS \"dateField\" "
             + "FROM ( "
-            + JOINVIEWS + "JOIN (" + PASTWEEKS + ") AS dt ON wh.\"BUDAT\" = dt.\"DataDates\" "
+            + JOINVIEWS + "JOIN (" + PASTWEEKS + ") AS dt ON wh.\"BUDAT\" = dt.\"TargetDates\" "
             + JOINWHERE
             + ") subTb "
             + "GROUP BY \"WK\", \"Plant\" "
@@ -71,7 +71,7 @@ public interface WhReportRepository extends JpaRepository<JpaAbstractEntity, Int
             = ORDERSELECT
             + SELECTCLAUSE + ", SUBSTRING(\"BUDAT\",0,6) AS \"dateField\" "
             + "FROM ( "
-            + JOINVIEWS + "JOIN (" + PASTMONTH + ") AS dt ON wh.\"BUDAT\" = dt.\"DataDates\" "
+            + JOINVIEWS + "JOIN (" + PASTMONTH + ") AS dt ON wh.\"BUDAT\" = dt.\"TargetDates\" "
             + JOINWHERE
             + ") subTb "
             + "GROUP BY SUBSTRING(\"BUDAT\", 0, 6), \"Plant\" "
@@ -79,50 +79,53 @@ public interface WhReportRepository extends JpaRepository<JpaAbstractEntity, Int
             nativeQuery = true)
     public List<WhReport> findMonthlyWhReport(String date, List<String> plants);
 
-    /**
-     *
-     * query by work center.
-     */
+// <editor-fold desc="Query by work center. At least either Workhour or StandardCost.">
     public static final String WHGROUPWC = WorkingHoursViewRepository.WORKHOURGROUPWC;
     public static final String OVGROUPWC = OutputValueViewRepository.OUTPUTVALUEGROUPWC;
 
-    public static final String JOINVIEWSWC
-            = "SELECT GETWEEK(TO_LOCALDATE('yyyyMMdd', \"BUDAT\")) AS \"WK\", \"BUDAT\", "
-            + "\"Quantity\", \"Workhour\", \"StandardCost\", \"Plant\" , \"SWERK1\" "
-            + "FROM(" + WHGROUPWC + ") AS wh JOIN (" + OVGROUPWC + ") AS ov "
+    public static final String FULLJOINVIEWSWC
+            = " SELECT *, CASE WHEN \"StandardCost\" IS NOT NULL THEN \"ERDAT\" ELSE \"BUDAT\" END AS \"JoinDates\" , "
+            + "CASE WHEN \"StandardCost\" IS NOT NULL THEN \"SWERK1\" ELSE \"Plant\" END AS \"JoinPlant\"  "
+            + "FROM(" + WHGROUPWC + ") AS wh FULL JOIN (" + OVGROUPWC + ") AS ov "
             + "ON wh.\"BUDAT\" = ov.\"ERDAT\" AND wh.\"Plant\" = ov.\"SWERK1\" ";
+
+    public static final String FULLJOINSELECT
+            = "SELECT GETWEEK(TO_LOCALDATE('yyyyMMdd', \"JoinDates\")) AS \"WK\", \"JoinDates\" AS \"BUDAT\", "
+            + "\"Quantity\", \"Workhour\", \"StandardCost\", \"JoinPlant\" AS \"Plant\" "
+            + "FROM(" + FULLJOINVIEWSWC + ") ";
 
     @Query(value
             = ORDERSELECT
             + SELECTCLAUSE + ", \"BUDAT\" AS \"dateField\" "
             + "FROM ( "
-            + JOINVIEWSWC + "JOIN (" + PASTDAYS + ") AS dt ON wh.\"BUDAT\" = dt.\"DataDates\" "
+            + FULLJOINSELECT + "AS fj WHERE fj.\"JoinDates\" BETWEEN ?1 AND ?2 "
             + ") subTb "
-            + "GROUP BY \"BUDAT\", \"Plant\" "
+            + "GROUP BY \"dateField\", \"plant\" "
             + ORDERCLAUSE,
             nativeQuery = true)
-    public List<WhReport> findDailyWhReportWc(String date);
+    public List<WhReport> findDailyWhReportWc(String sd, String ed);
 
     @Query(value
             = ORDERSELECT
             + SELECTCLAUSE + ", \"WK\" AS \"dateField\" "
             + "FROM ( "
-            + JOINVIEWSWC + "JOIN (" + PASTWEEKS + ") AS dt ON wh.\"BUDAT\" = dt.\"DataDates\" "
+            + FULLJOINSELECT + "AS fj WHERE fj.\"JoinDates\" BETWEEN ?1 AND ?2 "
             + ") subTb "
-            + "GROUP BY \"WK\", \"Plant\" "
+            + "GROUP BY \"dateField\", \"plant\" "
             + ORDERCLAUSE,
             nativeQuery = true)
-    public List<WhReport> findWeeklyWhReportWc(String date);
+    public List<WhReport> findWeeklyWhReportWc(String sd, String ed);
 
     @Query(value
             = ORDERSELECT
             + SELECTCLAUSE + ", SUBSTRING(\"BUDAT\",0,6) AS \"dateField\" "
             + "FROM ( "
-            + JOINVIEWSWC + "JOIN (" + PASTMONTH + ") AS dt ON wh.\"BUDAT\" = dt.\"DataDates\" "
+            + FULLJOINSELECT + "AS fj WHERE fj.\"JoinDates\" BETWEEN ?1 AND ?2 "
             + ") subTb "
-            + "GROUP BY SUBSTRING(\"BUDAT\", 0, 6), \"Plant\" "
+            + "GROUP BY \"dateField\", \"plant\" "
             + ORDERCLAUSE,
             nativeQuery = true)
-    public List<WhReport> findMonthlyWhReportWc(String date);
+    public List<WhReport> findMonthlyWhReportWc(String sd, String ed);
+// </editor-fold>
 
 }

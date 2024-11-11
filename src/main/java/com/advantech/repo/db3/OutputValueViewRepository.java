@@ -21,7 +21,7 @@ public interface OutputValueViewRepository extends JpaRepository<JpaAbstractEnti
     public static final String OUTPUTVALUEGROUP
             = "SELECT \"ERDAT\", ROUND(SUM(\"ZSTDCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" "
             + "FROM rv_biprd_ztpp_zrpp87s GROUP BY \"ERDAT\", \"SWERK\" ";
-    
+
     public static final String OUTPUTVALUEGROUPWC
             = "SELECT \"ERDAT\", ROUND(SUM(\"ZSTDCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK1\" "
             + "FROM ( "
@@ -33,7 +33,7 @@ public interface OutputValueViewRepository extends JpaRepository<JpaAbstractEnti
             + "WHERE \"SWERK\" IN ('TWM3','TWM6') OR \"ZZCFTNO\" LIKE 'MS3F%' OR \"ZZCFTNO\" LIKE 'MS4F%' "
             + ") AS filterTb  "
             + "GROUP BY \"ERDAT\", \"SWERK1\" ";
-    
+
     @Query(value
             = "SELECT \"ERDAT\", ROUND(SUM(\"ZSTDCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" AS \"Plant\" "
             + "FROM rv_biprd_ztpp_zrpp87s "

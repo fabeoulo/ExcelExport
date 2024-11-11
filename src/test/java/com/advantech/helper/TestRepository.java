@@ -68,6 +68,8 @@ import com.advantech.model.db3.WorkingHoursView;
 import com.advantech.repo.db3.WhReportRepository;
 import com.advantech.repo.db3.WorkingHoursViewRepository;
 import com.advantech.model.db3.WhReport;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  *
@@ -346,6 +348,34 @@ public class TestRepository {
         HibernateObjectPrinter.print(r.get(1));
     }
 
+    private List<String> findSdEd(DateTime dt, int interval) {
+        List<String> days = Lists.newArrayList();
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
+
+        days.add(fmt.print(dt.minusDays(interval)));
+        days.add(fmt.print(dt.minusDays(1)));
+        return days;
+    }
+
+    private List<String> findPastMonth(DateTime dt) {
+        List<String> days = Lists.newArrayList();
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
+
+        int dayOfWeek = dt.getDayOfWeek();
+        int dayOfMonth = dt.getDayOfMonth();
+        if (dayOfMonth == 2 && dayOfWeek == 1) { // 2th-day on monday
+            return findPastMonth(dt.minusDays(1));
+        }
+        
+        DateTime endDate = dt.minusDays(1);
+        String sd = fmt.print(endDate.dayOfMonth().withMinimumValue());
+        String ed = fmt.print(endDate);
+
+        days.add(sd);
+        days.add(ed);
+        return days;
+    }
+
 //    @Test
     @Transactional
     public void testWhReport() {
@@ -353,17 +383,18 @@ public class TestRepository {
         List<String> plantsM3 = Lists.newArrayList("TWM3", "TWM6");
         List<String> productionTypeM3 = Lists.newArrayList("");
 
-        List<WhReport> w = whReportRepository.findDailyWhReportWc("20240704");
-        assertTrue(!w.isEmpty());
-        HibernateObjectPrinter.print(w);
-
-        List<WhReport> w2 = whReportRepository.findWeeklyWhReportWc("20240704");
-        assertTrue(!w2.isEmpty());
-        HibernateObjectPrinter.print(w2);
-
-        List<WhReport> w3 = whReportRepository.findMonthlyWhReportWc("20240704");
-        assertTrue(!w3.isEmpty());
-        HibernateObjectPrinter.print(w3);
+        List<String> pastDays3 = findSdEd(new DateTime(), 7);
+        List<WhReport> wc3 = whReportRepository.findDailyWhReportWc(pastDays3.get(0), pastDays3.get(1));
+        HibernateObjectPrinter.print(wc3);
+//
+        List<String> pastDays23 = findSdEd(new DateTime(2024, 12, 9, 0, 0), 28);
+        List<WhReport> wc23 = whReportRepository.findWeeklyWhReportWc(pastDays23.get(0), pastDays23.get(1));
+        HibernateObjectPrinter.print(wc23);
+//
+        List<String> pastDays33test = findPastMonth(new DateTime(2025, 2, 28, 0, 0));
+        List<String> pastDays33 = findPastMonth(new DateTime(2024, 12, 2, 0, 0));
+        List<WhReport> wc33 = whReportRepository.findMonthlyWhReportWc(pastDays33.get(0), pastDays33.get(1));
+        HibernateObjectPrinter.print(wc33);
 //        
 //        List<String> plants = Lists.newArrayList("TWM3", "TWM6");
 //        

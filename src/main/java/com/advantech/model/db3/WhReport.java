@@ -26,7 +26,7 @@ public interface WhReport {
 
     default BigDecimal getSapWorktimeScaled() {
         BigDecimal sapWorktime = getSapWorktime();
-        return sapWorktime != null ? sapWorktime.setScale(3) : sapWorktime;
+        return sapWorktime != null ? sapWorktime.setScale(3) : BigDecimal.ZERO.setScale(3);
     }
 
     default String convertPlant() {
@@ -55,7 +55,8 @@ public interface WhReport {
     }
 
     default BigDecimal getSapOutputValueCutDigits() {
-        return getSapOutputValue() == null ? BigDecimal.ZERO
-                : getSapOutputValue().subtract(getSapOutputValue().remainder(new BigDecimal(10)));
+        BigDecimal sapOutputValue = getSapOutputValue();
+        return sapOutputValue == null ? BigDecimal.ZERO
+                : sapOutputValue.subtract(sapOutputValue.remainder(new BigDecimal(10)));
     }
 }

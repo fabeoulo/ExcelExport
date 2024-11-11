@@ -19,17 +19,17 @@ import org.springframework.stereotype.Repository;
 public interface WorkingHoursViewRepository extends JpaRepository<JpaAbstractEntity, Integer> {
 
     public static final String PASTDAYS
-            = "SELECT \"BUDAT\" AS \"DataDates\" FROM( "
+            = "SELECT \"BUDAT\" AS \"TargetDates\" FROM( "
             + "SELECT *, ROW_NUMBER() OVER (ORDER BY \"BUDAT\" DESC) row_num FROM ( "
             + "SELECT DISTINCT \"BUDAT\" "
             + "FROM rv_biprd_ztpp_zrpp89s "
-            + "WHERE \"SWERK\" LIKE 'TWM%' AND \"BUDAT\" < ?1 "
+            + "WHERE \"SWERK\" IN ( 'TWM3','TWM6','TWM9','TWM8' ) AND \"BUDAT\" < ?1 "
             + ") AS distinct_table "
             + ") AS rowNum_table "
             + "WHERE row_num <= 7";
 
     public static final String PASTWEEKS
-            = "SELECT DISTINCT \"BUDAT\" AS \"DataDates\" "
+            = "SELECT DISTINCT \"BUDAT\" AS \"TargetDates\" "
             + "FROM rv_biprd_ztpp_zrpp89s "
             + "WHERE \"BUDAT\" >= FIRSTDAYOFWEEK(ADDWEEK(TO_LOCALDATE('yyyyMMdd', ?1), -4)) AND \"BUDAT\" < FIRSTDAYOFWEEK(TO_LOCALDATE('yyyyMMdd', ?1)) ";
 
@@ -41,7 +41,7 @@ public interface WorkingHoursViewRepository extends JpaRepository<JpaAbstractEnt
             + "END ";
 
     public static final String PASTMONTH
-            = "SELECT DISTINCT \"BUDAT\" AS \"DataDates\" "
+            = "SELECT DISTINCT \"BUDAT\" AS \"TargetDates\" "
             + "FROM rv_biprd_ztpp_zrpp89s "
             + "WHERE  \"BUDAT\" >= "
             + FIRSTDAYSUNDAYCLAUSE + " AND \"BUDAT\" < ?1 ";

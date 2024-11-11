@@ -61,7 +61,7 @@ public class TestQuartzJob {
 
     @Autowired
     private WareHourseAgent wareHourseAgent;
-    
+
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
@@ -69,7 +69,7 @@ public class TestQuartzJob {
     public void testWareHourseAgent() {
         wareHourseAgent.execute();
     }
-    
+
 //    @Test
     public void testMail() {
         reportJob.execute();
@@ -83,14 +83,14 @@ public class TestQuartzJob {
 //    @Test
     public void testSendWhReportsDonghu() throws Exception {
 //        sendDonghu.execute();
-        DateTime dt = new DateTime(2024, 9,2, 0, 0, 0);
+        DateTime dt = new DateTime(2024, 12,16, 0, 0, 0);
         String sb = sendDonghu.generateMailBody(dt);
     }
-    
+
 //    @Test
     public void testSendWhReportsLinkou() throws Exception {
 //        sendLinkou.execute();
-        DateTime dt = new DateTime(2024, 9,2, 0, 0, 0);
+        DateTime dt = new DateTime(2024, 11, 21, 0, 0, 0);
         String sb = sendLinkou.generateMailBody(dt);
     }
 
