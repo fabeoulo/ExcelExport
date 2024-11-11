@@ -54,8 +54,6 @@ public class RequisitionApiController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private String msg = "";
-
     @Autowired
     private RequisitionService requisitionService;
 
@@ -126,16 +124,18 @@ public class RequisitionApiController {
 
     @ResponseBody
     @RequestMapping(value = "/createRequisition", method = RequestMethod.POST, produces = "application/json")
-    public String addRequisition(
+    public ResponseEntity<String> addRequisition(
             @ApiParam(required = true, value = "String of AddRequisitionDto model.")
             @RequestBody String datas) throws Exception {
+
+        String msg = "";
         AddRequisitionDto dto = new AddRequisitionDto();
         try {
             dto = objectMapper.readValue(datas, AddRequisitionDto.class);
         } catch (JsonProcessingException e) {
             msg = e.getMessage();
             logger.error(msg);
-            throw new Exception(msg);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
         }
         User userDetail = (User) customUserDetailsService.loadUserByUsername(dto.getJobnumber());
         List<Requisition> rL = ConvertToReq(dto, userDetail);
@@ -144,7 +144,7 @@ public class RequisitionApiController {
         requisitionController.checkModelMaterial(rL);
         requisitionService.batchInsert(rL, userDetail);
 
-        return msg;
+        return ResponseEntity.ok(msg);
     }
 
     private List<Requisition> ConvertToReq(AddRequisitionDto dto, User userDetail) {
