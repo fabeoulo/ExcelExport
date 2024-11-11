@@ -353,17 +353,17 @@ public class TestRepository {
         List<String> plantsM3 = Lists.newArrayList("TWM3", "TWM6");
         List<String> productionTypeM3 = Lists.newArrayList("");
 
-        List<WhReport> w = whReportRepository.findDailyWhReportWc("20240704");
-        assertTrue(!w.isEmpty());
-        HibernateObjectPrinter.print(w);
+        List<WhReport> w0 = whReportRepository.findDailyWhReportWc("20241119");
+        assertTrue(!w0.isEmpty());
+        HibernateObjectPrinter.print(w0);
 
-        List<WhReport> w2 = whReportRepository.findWeeklyWhReportWc("20240704");
-        assertTrue(!w2.isEmpty());
-        HibernateObjectPrinter.print(w2);
+        List<WhReport> w20 = whReportRepository.findWeeklyWhReportWc("20241119");
+        assertTrue(!w20.isEmpty());
+        HibernateObjectPrinter.print(w20);
 
-        List<WhReport> w3 = whReportRepository.findMonthlyWhReportWc("20240704");
-        assertTrue(!w3.isEmpty());
-        HibernateObjectPrinter.print(w3);
+        List<WhReport> w30 = whReportRepository.findMonthlyWhReportWc("20241119");
+        assertTrue(!w30.isEmpty());
+        HibernateObjectPrinter.print(w30);
 //        
 //        List<String> plants = Lists.newArrayList("TWM3", "TWM6");
 //        
