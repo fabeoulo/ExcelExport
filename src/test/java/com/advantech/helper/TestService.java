@@ -7,6 +7,7 @@ package com.advantech.helper;
 
 import com.advantech.model.db1.ModelMaterialDetails;
 import com.advantech.model.db1.Requisition;
+import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserAgent;
@@ -19,6 +20,7 @@ import com.advantech.model.db2.Orders;
 import com.advantech.sap.SapService;
 import com.advantech.sap.SapMrpTbl;
 import com.advantech.service.db1.ExceptionService;
+import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
@@ -101,6 +103,14 @@ public class TestService {
     @Autowired
     private OrderResponseService orderResponseService;
 
+    @Autowired
+    private RequisitionFlowService requisitionFlowService;
+    
+//    @Test
+    public void testRequisitionFlowService() throws Exception {
+        List<RequisitionFlow> lr = requisitionFlowService.findAll();
+    }
+    
 //    @Test
 //    @Transactional
 //    @Rollback(true)

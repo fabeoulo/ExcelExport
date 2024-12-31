@@ -83,7 +83,7 @@ public class TestQuartzJob {
     public void testSync() {
         syncJob.execute();
     }
-    
+
 //    @Test
     public void testSendWhReportsDonghu() throws Exception {
 //        sendDonghu.execute();

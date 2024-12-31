@@ -11,6 +11,7 @@ import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionEvent;
 import com.advantech.model.db1.RequisitionEvent_;
+import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.RequisitionReason;
 import com.advantech.model.db1.RequisitionState;
 import com.advantech.model.db1.RequisitionState_;
@@ -56,10 +57,7 @@ import com.advantech.webservice.WareHourseService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
-import com.mysql.cj.conf.PropertyKey;
 import com.sap.conn.jco.JCoException;
-import com.sap.conn.jco.JCoFunction;
-import com.sap.conn.jco.JCoTable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -94,6 +92,9 @@ public class RequisitionController {
 
     @Autowired
     private RequisitionStateService requisitionStateService;
+
+    @Autowired
+    private RequisitionFlowService requisitionFlowService;
 
     @Autowired
     private FloorService floorService;
@@ -316,8 +317,16 @@ public class RequisitionController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/findRequisitionFlowOptions", method = {RequestMethod.GET})
+    protected List<RequisitionFlow> findRequisitionFlowOptions() {
+        return requisitionFlowService.findAll();
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/findFloorOptions", method = {RequestMethod.GET})
     protected List<Floor> findFloorOptions() {
-        return floorService.findAll();
+        List<Integer> ids = newArrayList(7, 8, 9, 10);
+        List<Floor> floors = floorService.findAll();
+        return floors.stream().filter(f -> ids.contains(f.getId())).collect(Collectors.toList());
     }
 }
