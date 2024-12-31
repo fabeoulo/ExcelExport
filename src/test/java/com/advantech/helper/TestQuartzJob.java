@@ -83,7 +83,7 @@ public class TestQuartzJob {
 //    @Test
     public void testSendWhReportsDonghu() throws Exception {
 //        sendDonghu.execute();
-        DateTime dt = new DateTime(2024, 12,16, 0, 0, 0);
+        DateTime dt = new DateTime(2024, 12,31, 0, 0, 0);
         String sb = sendDonghu.generateMailBody(dt);
     }
 

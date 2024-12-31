@@ -53,6 +53,7 @@ public class Requisition implements Serializable {
     private Date createDate;
     private Date lastUpdateDate;
     private String materialType;
+    private RequisitionFlow requisitionFlow;
     private String remark;
     private Floor floor;
 
@@ -239,6 +240,16 @@ public class Requisition implements Serializable {
 
     public void setMaterialType(String materialType) {
         this.materialType = materialType;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisitionFlow_id")
+    public RequisitionFlow getRequisitionFlow() {
+        return requisitionFlow;
+    }
+
+    public void setRequisitionFlow(RequisitionFlow requisitionFlow) {
+        this.requisitionFlow = requisitionFlow;
     }
 
     @Column(name = "remark", length = 150)

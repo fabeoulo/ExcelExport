@@ -366,7 +366,7 @@ public class TestRepository {
         if (dayOfMonth == 2 && dayOfWeek == 1) { // 2th-day on monday
             return findPastMonth(dt.minusDays(1));
         }
-        
+
         DateTime endDate = dt.minusDays(1);
         String sd = fmt.print(endDate.dayOfMonth().withMinimumValue());
         String ed = fmt.print(endDate);
@@ -500,9 +500,20 @@ public class TestRepository {
     @Autowired
     private RequisitionRepository requisitionRepository;
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testFindAllByPoAndMat() {
+        List< Requisition> l = requisitionRepository.findAllByPoInAndMaterialNumberIn(Lists.newArrayList("TPO000146ZA"), Lists.newArrayList("2000023012-11"));
+
+        assertEquals(2, l.size());
+
+        HibernateObjectPrinter.print(l);
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testPoMaterialDetails() {
         List<ModelMaterialDetails> l = requisitionRepository.findModelMaterialDetails("FII1282ZA");
 

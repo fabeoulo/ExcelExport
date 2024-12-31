@@ -12,6 +12,7 @@ import com.advantech.model.db1.Floor_;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionEvent;
 import com.advantech.model.db1.RequisitionEvent_;
+import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.RequisitionReason;
 import com.advantech.model.db1.RequisitionState;
 import com.advantech.model.db1.RequisitionState_;
@@ -52,6 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.advantech.sap.SapService;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.FloorService;
+import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.WareHourseService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -92,6 +94,9 @@ public class RequisitionController {
 
     @Autowired
     private RequisitionStateService requisitionStateService;
+
+    @Autowired
+    private RequisitionFlowService requisitionFlowService;
 
     @Autowired
     private FloorService floorService;
@@ -219,7 +224,10 @@ public class RequisitionController {
         this.checkModelMaterial(newArrayList(requisition));
 
         service.save(requisition, remark);
+
         trigger.checkRepair(newArrayList(requisition));
+        trigger.checkQualify(newArrayList(requisition));
+
         return "success";
 
     }
@@ -317,8 +325,16 @@ public class RequisitionController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/findRequisitionFlowOptions", method = {RequestMethod.GET})
+    protected List<RequisitionFlow> findRequisitionFlowOptions() {
+        return requisitionFlowService.findAll();
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/findFloorOptions", method = {RequestMethod.GET})
     protected List<Floor> findFloorOptions() {
-        return floorService.findAll();
+        List<Integer> ids = newArrayList(7, 8, 9, 10);
+        List<Floor> floors = floorService.findAll();
+        return floors.stream().filter(f -> ids.contains(f.getId())).collect(Collectors.toList());
     }
 }

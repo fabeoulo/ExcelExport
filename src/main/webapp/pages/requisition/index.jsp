@@ -105,6 +105,7 @@
                         {data: "materialNumber", title: "料號", className: "excel_export"},
                         {data: "amount", title: "數量", className: "excel_export"},
                         {data: "unitPrice", title: "單價", className: "excel_export"},
+                        {data: "requisitionFlow.name", "defaultContent": "n/a", title: "製程", className: "excel_export"},
                         {data: "requisitionReason.name", "defaultContent": "n/a", title: "原因", className: "excel_export"},
                         {data: "user.username", "defaultContent": "n/a", title: "申請人", className: "excel_export"},
                         {data: "floor.name", "defaultContent": "n/a", title: "樓層", className: "excel_export"},
@@ -126,26 +127,26 @@
                             "searchable": false
                         },
                         {
-                            "targets": [15, 16],
+                            "targets": [17, 16],
                             "visible": isEditor || isInsertWh,
                             "searchable": false
                         },
                         {
-                            "targets": [11, 12, 13],
+                            "targets": [14, 12, 13],
                             "searchable": false,
                             'render': function (data, type, full, meta) {
                                 return data == null ? "n/a" : formatDate(data);
                             }
                         },
                         {
-                            "targets": [17],
+                            "targets": [18],
                             "searchable": false,
                             'render': function (data, type, full, meta) {
                                 return "<a href='event.jsp?requisition_id=" + data + "' target='_blank'>紀錄</a>";
                             }
                         },
                         {
-                            "targets": [18],
+                            "targets": [19],
                             "searchable": false,
                             'render': function (data, type, full, meta) {
                                 return data == 1 ? "Y" : "N";
@@ -186,7 +187,6 @@
                     "action": function (e, dt, node, config) {
                         $("#model-table input").val("");
                         $("#model-table #id").val(0);
-                        $("#model-table2 #requisitionReason\\.id  option[value='2']").prop('selected', true);
                         $("#model-table2 #floor\\.id  option[value='" + userFloorId + "']").prop('selected', true);
                     }
                 };
@@ -281,16 +281,15 @@
                                     $('#myModal').modal('show');
                                     var arr = table.rows('.selected').data();
                                     var data = arr[0];
-                                    if (data.requisitionState.id != 4) {
-                                        $("#model-table #requisitionState\\.id option[value='4']").hide();
-                                    } else {
-                                        $("#model-table #requisitionState\\.id option[value='4']").show();
-                                    }
+
+                                    $("#model-table #requisitionState\\.id option[value='4']").toggle(data.requisitionState.id === 4);
+
                                     $("#model-table #id").val(data.id);
                                     $("#model-table #po").val(data.po);
                                     $("#model-table #materialNumber").val(data.materialNumber);
                                     $("#model-table #amount").val(data.amount);
                                     $("#model-table #floor\\.id").val(data.floor.id);
+                                    $("#model-table #requisitionFlow\\.id").val('requisitionFlow' in data && data.requisitionFlow != null ? data.requisitionFlow.id : 1);
                                     $("#model-table #requisitionReason\\.id").val(data.requisitionReason.id);
                                     $("#model-table #requisitionState\\.id").val(data.requisitionState.id);
                                     $("#model-table #requisitionType\\.id").val('requisitionType' in data && data.requisitionType != null ? data.requisitionType.id : 1);
@@ -412,7 +411,24 @@
                     $("input").not(".search_disabled").removeAttr("disabled");
                 });
 
+                function validSelect($modal) {
+                    let allValid = true;
+                    $modal.find('select').each(function () {
+                        if (!$(this).val()) {
+                            allValid = false;
+                            return false;
+                        }
+                    });
+                    return allValid;
+                }
+
                 $("#myModal #save").click(function () {
+                    let allValid = validSelect($("#myModal"));
+                    if (!allValid) {
+                        alert("選單 can't be empty.");
+                        return false;
+                    }
+
                     if (confirm("Confirm save?")) {
                         var amount = $("#model-table #amount").val();
                         var po = $("#model-table #po").val(), m = $("#model-table #materialNumber").val();
@@ -429,6 +445,7 @@
                             po: po,
                             materialNumber: m,
                             amount: amount,
+                            "requisitionFlow.id": $("#model-table #requisitionFlow\\.id").val(),
                             "requisitionReason.id": $("#model-table #requisitionReason\\.id").val(),
                             "requisitionState.id": $("#model-table #requisitionState\\.id").val(),
                             "requisitionType.id": $("#model-table #requisitionType\\.id").val(),
@@ -447,6 +464,12 @@
                 });
 
                 $("#myModal2 #save").click(function () {
+                    let allValid = validSelect($("#myModal2"));
+                    if (!allValid) {
+                        alert("選單 can't be empty.");
+                        return false;
+                    }
+
                     if (confirm("Confirm save?")) {
                         const tb = $("#material-detail tbody tr");
                         const po = $("#model-table2 #po").val();
@@ -460,7 +483,8 @@
                                 amount: amount === "" ? 0 : amount,
                                 remark: $(this).find("#remark").val(),
                                 "requisitionReason.id": $(this).find("#requisitionReason\\.id").val(),
-                                "floor.id": floor
+                                "floor.id": floor,
+                                "requisitionFlow.id": $(this).find("#requisitionFlow\\.id").val()
                             };
                             return o;
                         }).get();
@@ -501,7 +525,7 @@
                         var data = {
                             "requision_id": requision_id,
                             "po": po,
-                            "material": material,                            
+                            "material": material,
                             "snBoard": snBoard,
                             "number": number,
                             "orderTypes.id": orderType,
@@ -626,7 +650,12 @@
                     const requestParams = [
                         {
                             url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
-                            target: $("#model-table #requisitionReason\\.id, #model-table2 #requisitionReason\\.id")
+                            target: $("#model-table #requisitionReason\\.id, #model-table2 #requisitionReason\\.id"),
+                            func: adjustRequisitionReason,
+                            funcTargets: [
+                                {sel: $("#model-table #requisitionReason\\.id"), optionVal: 2},
+                                {sel: $("#model-table2 #requisitionReason\\.id"), optionVal: 2}
+                            ]
                         },
                         {
                             url: "<c:url value="/RequisitionController/findRequisitionStateOptions" />",
@@ -642,7 +671,16 @@
                         },
                         {
                             url: "<c:url value="/RequisitionController/findFloorOptions" />",
-                            target: $("#model-table  #floor\\.id, #model-table2 #floor\\.id")
+                            target: $("#model-table  #floor\\.id, #model-table2 #floor\\.id"),
+                            func: defaultFirstOption,
+                            funcTargets: [
+                                {sel: $("#model-table #floor\\.id"), optionVal: 9},
+                                {sel: $("#model-table2 #floor\\.id"), optionVal: 9}
+                            ]
+                        },
+                        {
+                            url: "<c:url value="/RequisitionController/findRequisitionFlowOptions" />",
+                            target: $("#model-table #RequisitionFlow\\.id, #model-table2 #RequisitionFlow\\.id")
                         }
                     ];
 
@@ -658,8 +696,12 @@
                                     sel.append("<option value='" + options.id + "'>" + options.name + "</option>");
                                 }
 
-                                if (sel.is($("#model-table2 #requisitionReason\\.id")))
-                                    adjustRequisitionReason();
+                                if (params.func) {
+                                    var funcTargets = params.funcTargets;
+                                    for (var j = 0; j < funcTargets.length; j++) {
+                                        params.func(funcTargets[j]);
+                                    }
+                                }
                             },
                             error: function (xhr, ajaxOptions, thrownError) {
                                 alert(xhr.responseText);
@@ -668,15 +710,21 @@
                     });
                 }
 
-                function adjustRequisitionReason() {
-                    const selectElement = $("#model-table2 #requisitionReason\\.id");
-                    const secondOption = selectElement.find("option:eq(1)");
-                    selectElement.prepend(secondOption);
+                function adjustRequisitionReason(funcTarget) {
+                    defaultFirstOption(funcTarget);
 
-                    $("#model-table2 #requisitionReason\\.id option").each(function (index) {
+                    funcTarget.sel.find("option").each(function (index) {
                         const letter = String.fromCharCode(65 + index); // A is 65 in ASCII, B is 66, and so on
                         $(this).text(letter + ". " + $(this).text());
                     });
+                }
+
+                function defaultFirstOption(funcTarget) {
+                    var $selector = funcTarget.sel;
+                    var optionVal = funcTarget.optionVal;
+
+                    const targetOption = $selector.find("option[value='" + optionVal + "']").prop('selected', true);
+                    $selector.prepend(targetOption);
                 }
 
                 function refreshTable() {
@@ -898,6 +946,12 @@
                                 </tr>
 
                                 <c:if test="${isUser && (!isOper || !isAdmin)}">
+                                    <tr>
+                                        <td class="lab">製程</td>
+                                        <td>
+                                            <select id="RequisitionFlow.id"></select>
+                                        </td>
+                                    </tr>
                                     <tr class="hide_col">
                                         <td class="lab">原因</td>
                                         <td>
@@ -907,6 +961,12 @@
                                 </c:if>
 
                                 <c:if test="${isOper || isAdmin}">
+                                    <tr>
+                                        <td class="lab">製程</td>
+                                        <td>
+                                            <select id="RequisitionFlow.id"></select>
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <td class="lab">原因</td>
                                         <td>
@@ -1000,8 +1060,9 @@
                                         <table id="material-detail" class="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th>料號</th>
+                                                    <th width="25%">料號</th>
                                                     <th>數量</th>
+                                                    <th width="20%">製程</th>
                                                     <th width="20%">原因</th>
                                                     <th>備註</th>
                                                     <th>動作</th>
@@ -1014,6 +1075,9 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" id="amount" />
+                                                    </td>
+                                                    <td>
+                                                        <select id="RequisitionFlow.id"></select>
                                                     </td>
                                                     <td>
                                                         <select id="requisitionReason.id"></select>

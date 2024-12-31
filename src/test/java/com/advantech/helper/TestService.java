@@ -8,10 +8,12 @@ package com.advantech.helper;
 import com.advantech.model.db1.IECalendarLinkou;
 import com.advantech.model.db1.IEWorkdayCalendar;
 import com.advantech.model.db1.Requisition;
+import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserAgent;
 import com.advantech.model.db1.UserNotification;
+import com.advantech.model.db1.VwM3Worktime;
 import com.advantech.model.db1.WorkingHoursReport;
 import com.advantech.model.db2.Items;
 import com.advantech.model.db2.MaterialMrp;
@@ -71,9 +73,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db3.WhReport;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.CustomUserDetailsService;
+import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.service.db1.UserAgentService;
+import com.advantech.service.db1.VwM3WorktimeService;
 import com.advantech.webservice.WareHourseService;
 import static com.google.common.collect.Lists.newArrayList;
+import java.util.function.Function;
 import org.joda.time.LocalTime;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -96,6 +101,9 @@ public class TestService {
 
     @Autowired
     private RequisitionService rservice;
+
+    @Autowired
+    private RequisitionFlowService requisitionFlowService;
 
     @Autowired
     private SapService sapService;
@@ -135,6 +143,38 @@ public class TestService {
 
     @Autowired
     private UserAgentService userAgentService;
+
+    @Autowired
+    private VwM3WorktimeService vwM3WorktimeService;
+
+//    @Test
+    public void testVwM3WorktimeService() {
+        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
+        List<String> modelNames = rl.stream().map(Requisition::getModelName).collect(Collectors.toList());
+//        List<String> modelNames = newArrayList("2070001832", "AMIS50FM11502E-T");
+
+        Requisition r0 = rl.get(0);
+
+//        List<VwM3Worktime> ul = vwM3WorktimeService.findAll();
+        List<VwM3Worktime> vwM3Wt = vwM3WorktimeService.findAllByModelName(modelNames);
+        Set<String> mail12 = findEmailInWorktime(modelNames, VwM3Worktime::getBpeMail);
+
+        if (vwM3Wt.isEmpty()) {
+            return;
+        }
+        String jobNo = vwM3Wt.get(0).getQcMail();
+        HibernateObjectPrinter.print(vwM3Wt);
+    }
+
+    private <T> String testType(T obj, Function<T, String> getter) {
+        return obj != null ? getter.apply(obj) : "";
+    }
+
+    private Set<String> findEmailInWorktime(List<String> modelNames, Function<VwM3Worktime, String> mailProvider) {
+        List<VwM3Worktime> vwM3Wt = vwM3WorktimeService.findAllByModelName(modelNames);
+        Set<String> mails = vwM3Wt.stream().map(mailProvider).filter(s -> s != null).collect(Collectors.toSet());
+        return mails;//.toArray(new String[0])
+    }
 
 //    @Test
     public void testUserAgentService() {
@@ -380,6 +420,15 @@ public class TestService {
 //    @Test
 //    @Transactional
 //    @Rollback(true)
+    public void testRequisitionFlowService() {
+        List<RequisitionFlow> rl = requisitionFlowService.findAll();
+        RequisitionFlow rf = requisitionFlowService.getOne(1);
+        return;
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testToPMC() {
 //        setDatetime(sD, eD);
 
@@ -474,18 +523,61 @@ public class TestService {
 //    @Test
 //    @Transactional
 //    @Rollback(true)
-    public void testTrigger() {
-        List<Integer> listInt = Arrays.asList(66124, 66125);
-        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
+    public void testTriggerCheckQualify() {
+        final int[] exceptUserIds = {36};
+        final int[] stateForQualify = {7};
+        final int[] reasonForQualify = {2};
+        final int[] typeForQualify = {2, 4};
 
-        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
-        final int[] checkStateList = {2, 5};
-        trigger.checkRepair(rl);
-        List<Requisition> checkedList = rl.stream().filter(e -> {
-            int userId = e.getUser().getId();
-            int rsId = e.getRequisitionState().getId();
-            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
-        }).collect(Collectors.toList());
+        List<Requisition> rForm = rservice.findAllByIdWithUserAndState(newArrayList(7883, 7888));
+        List<String> pos = rForm.stream().map(Requisition::getPo).collect(Collectors.toList());
+        List<String> matNos = rForm.stream().map(Requisition::getMaterialNumber).collect(Collectors.toList());
+        List<Requisition> result = rservice.findAllByPoAndMatNoWithLazy(pos, matNos);
+
+        List<Requisition> checkedList = result.stream()
+                .filter(e -> {
+                    int userId = e.getUser().getId();
+                    int rsId = e.getRequisitionState().getId();
+                    int rrId = e.getRequisitionReason().getId();
+                    int rtId = e.getRequisitionType().getId();
+
+                    return Arrays.stream(exceptUserIds).noneMatch(i -> i == userId)
+                            && Arrays.stream(stateForQualify).anyMatch(i -> i == rsId)
+                            && Arrays.stream(reasonForQualify).anyMatch(i -> i == rrId)
+                            && Arrays.stream(typeForQualify).anyMatch(i -> i == rtId);
+                })
+                .collect(Collectors.groupingBy(item -> Arrays.asList(item.getPo(), item.getMaterialNumber())))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue().stream().mapToInt(Requisition::getAmount).sum() > 2)
+                .flatMap(entry -> entry.getValue().stream())
+                .collect(Collectors.toList());
+
+        if (checkedList.isEmpty()) {
+            return;
+        }
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testTrigger() {
+        List<Integer> listInt = Arrays.asList(50091, 49963, 49925, 47796, 47591, 91015);
+        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt); 
+        trigger.checkQualify(rl);       
+//        List<Requisition> rForm = rservice.findAllByHalfdayWithUserAndState();
+//        trigger.checkQualify(rForm);
+
+//        List<Integer> listInt = Arrays.asList(66124, 66125);
+//        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
+//
+//        final int[] checkUserList = {742, 753, 895, 1024, 1025, 36};
+//        final int[] checkStateList = {2, 5};
+//        trigger.checkRepair(rl);
+//        List<Requisition> checkedList = rl.stream().filter(e -> {
+//            int userId = e.getUser().getId();
+//            int rsId = e.getRequisitionState().getId();
+//            return Arrays.stream(checkUserList).anyMatch(i -> i == userId);
+//        }).collect(Collectors.toList());
     }
 
 //    @Test

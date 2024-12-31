@@ -96,12 +96,11 @@ public class RequisitionService {
     }
 
     public List<Requisition> findAllByIdWithUserAndState(List<Integer> ids) {
-        return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-            root.fetch(Requisition_.USER, JoinType.LEFT);
-            root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
-            Path<Integer> idEntryPath = root.get(Requisition_.ID);
-            return cb.and(idEntryPath.in(ids));
-        });
+        return repo.findAllByIdIn(ids);
+    }
+
+    public List<Requisition> findAllByPoAndMatNoWithLazy(List<String> pos, List<String> matNos) {
+        return repo.findAllByPoInAndMaterialNumberIn(pos, matNos);
     }
 
     public List<Requisition> findAllByHalfdayWithUserAndState() {
