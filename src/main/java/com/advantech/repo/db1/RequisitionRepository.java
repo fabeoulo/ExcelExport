@@ -26,4 +26,9 @@ public interface RequisitionRepository extends JpaRepository<Requisition, Intege
             nativeQuery = true)
     public List<ModelMaterialDetails> findModelMaterialDetails(@Param("modelName") String modelName);
 
+    @EntityGraph(attributePaths = {"user", "requisitionState"})
+    public List<Requisition> findAllByIdIn(List<Integer> ids);
+
+    @EntityGraph(attributePaths = {"requisitionState", "requisitionReason", "requisitionType", "requisitionFlow", "floor", "user"})
+    public List<Requisition> findAllByPoInAndMaterialNumberIn(List<String> po, List<String> modelName);
 }

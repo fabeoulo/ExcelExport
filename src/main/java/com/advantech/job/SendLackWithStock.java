@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.joda.time.DateTime;
@@ -120,10 +121,10 @@ public class SendLackWithStock extends SendEmailBase {
     }
 
     private String[] findEMailFromLack() {
-        List<String> lackMails = checkedOrders.stream().map(l -> l.getUsers().getMail())
-                .filter(e -> e != null && !e.trim().equals("")).distinct().collect(Collectors.toList());
-        List<String> reqMails = checkedReq.stream().map(r -> r.getUser().getEmail())
-                .filter(e -> e != null && !e.trim().equals("")).distinct().collect(Collectors.toList());
+        Set<String> lackMails = checkedOrders.stream().map(l -> l.getUsers().getMail())
+                .filter(e -> e != null && !e.trim().equals("")).collect(Collectors.toSet());
+        Set<String> reqMails = checkedReq.stream().map(r -> r.getUser().getEmail())
+                .filter(e -> e != null && !e.trim().equals("")).collect(Collectors.toSet());
         lackMails.addAll(reqMails);
         return lackMails.stream().toArray(size -> new String[size]);
     }

@@ -65,7 +65,7 @@ public class TestQuartzJob {
     public void testSync() {
         syncJob.execute();
     }
-    
+
 //    @Test
     public void testSendWhReports() {
         whReportJob.execute();
