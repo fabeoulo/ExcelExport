@@ -24,9 +24,6 @@ public interface UserRepository extends JpaRepository<User, Integer>, CrudReposi
 
     public List<User> findByUserNotifications(UserNotification notifi);
 
-    @Procedure("M9_Picking.usp_QuickInsertUser")
-    public void saveUserByProc(String jobnumber);
-
     @Procedure("M9_Picking.usp_QuickInsertUserWithName")
     public void saveUserWithNameByProc(String jobnumber, String email, String name);
 }

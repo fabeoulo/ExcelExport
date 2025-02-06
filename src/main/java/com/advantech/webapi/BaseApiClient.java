@@ -50,7 +50,7 @@ public abstract class BaseApiClient {
                 .responseTimeout(Duration.ofSeconds(response_Timeout));
     };
 
-    protected String getBaseUrl() {
+    public String getBaseUrl() {
         return baseUrl;
     }
 
