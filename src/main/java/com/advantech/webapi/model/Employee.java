@@ -57,7 +57,7 @@ public class Employee {
     }
 
     public String getLocal_Name() {
-        return Local_Name;
+        return Local_Name != null ? Local_Name : "";
     }
 
     public void setLocal_Name(String Local_Name) {
@@ -65,7 +65,7 @@ public class Employee {
     }
 
     public String getEmail_Addr() {
-        return Email_Addr;
+        return Email_Addr != null ? Email_Addr : "";
     }
 
     public void setEmail_Addr(String Email_Addr) {

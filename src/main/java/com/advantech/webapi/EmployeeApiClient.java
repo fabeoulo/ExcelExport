@@ -24,10 +24,6 @@ public class EmployeeApiClient extends BaseApiClient {
 
     private static final Logger log = LoggerFactory.getLogger(EmployeeApiClient.class);
 
-    public String getBaseUrl() {
-        return super.getBaseUrl();
-    }
-
     public Employee getUserInAtmc(String jobnumber) {
         Mono<Object[]> body = super.getClient()
                 .get()
