@@ -47,14 +47,13 @@ public class UserService {
     public User findByJobnumber(String jobnumber) {
         User i = repo.findByJobnumber(jobnumber);
 
-        if (i == null) {
-            return null;
+        if (i != null) {
+            //Initialize the lazy loading relative object
+            Hibernate.initialize(i.getUnit());
+            Hibernate.initialize(i.getFloor());
+            Hibernate.initialize(i.getUserProfiles());
         }
 
-        //Initialize the lazy loading relative object
-        Hibernate.initialize(i.getUnit());
-        Hibernate.initialize(i.getFloor());
-        Hibernate.initialize(i.getUserProfiles());
         return i;
     }
 

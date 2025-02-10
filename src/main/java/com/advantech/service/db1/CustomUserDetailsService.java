@@ -6,6 +6,7 @@
 package com.advantech.service.db1;
 
 import com.advantech.model.db1.User;
+import com.advantech.model.db1.VwMfgWorker;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private EmployeeApiClient wc;
 
+    @Autowired
+    private VwMfgWorkerService vwMfgWorkerService;
+
     @Override
     public UserDetails loadUserByUsername(String jobnumber) throws UsernameNotFoundException {
         User user = userService.findByJobnumber(jobnumber);
@@ -40,8 +44,14 @@ public class CustomUserDetailsService implements UserDetailsService {
                 userService.saveUserWithNameByProc(atmcUser.getEmplr_Id(), atmcUser.getEmail_Addr(), atmcUser.getLocal_Name());
                 user = userService.findByJobnumber(jobnumber);
             } else {
-                System.out.println("User not found");
-                throw new UsernameNotFoundException("User not found in ATMC. jobnumber:" + jobnumber);
+                VwMfgWorker mfgWorker = vwMfgWorkerService.findByJobnumber(jobnumber);
+                if (mfgWorker != null) {
+                    userService.saveUserWithNameByProc(mfgWorker.getJobnumber(), "", mfgWorker.getUsername());
+                    user = userService.findByJobnumber(jobnumber);
+                } else {
+                    System.out.println("User not found");
+                    throw new UsernameNotFoundException("User not found in both ATMC and MFG user. jobnumber:" + jobnumber);
+                }
             }
         }
 

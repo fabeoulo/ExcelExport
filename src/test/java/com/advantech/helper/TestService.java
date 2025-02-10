@@ -14,6 +14,7 @@ import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserAgent;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.model.db1.VwM3Worktime;
+import com.advantech.model.db1.VwMfgWorker;
 import com.advantech.model.db1.WorkingHoursReport;
 import com.advantech.model.db2.Items;
 import com.advantech.model.db2.MaterialMrp;
@@ -76,6 +77,7 @@ import com.advantech.service.db1.CustomUserDetailsService;
 import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.service.db1.UserAgentService;
 import com.advantech.service.db1.VwM3WorktimeService;
+import com.advantech.service.db1.VwMfgWorkerService;
 import com.advantech.webservice.WareHourseService;
 import static com.google.common.collect.Lists.newArrayList;
 import java.util.function.Function;
@@ -146,6 +148,17 @@ public class TestService {
 
     @Autowired
     private VwM3WorktimeService vwM3WorktimeService;
+
+    @Autowired
+    private VwMfgWorkerService vwMfgWorkerService;
+
+//    @Test
+    public void testVwMfgWorkerService() {
+//        List<VwMfgWorker> rl = vwMfgWorkerService.findAll();
+//        assertTrue(rl != null);
+        VwMfgWorker vw = vwMfgWorkerService.findByJobnumber("MI-1483");
+        assertTrue(vw != null);
+    }
 
 //    @Test
     public void testVwM3WorktimeService() {
@@ -562,8 +575,8 @@ public class TestService {
 //    @Rollback(true)
     public void testTrigger() {
         List<Integer> listInt = Arrays.asList(50091, 49963, 49925, 47796, 47591, 91015);
-        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt); 
-        trigger.checkQualify(rl);       
+        List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
+        trigger.checkQualify(rl);
 //        List<Requisition> rForm = rservice.findAllByHalfdayWithUserAndState();
 //        trigger.checkQualify(rForm);
 
