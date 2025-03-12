@@ -182,7 +182,7 @@ public class RequisitionService {
 
         S result = repo.save(s);
 
-        RequisitionEvent e = new RequisitionEvent(s, user, stat, remark);
+        RequisitionEvent e = new RequisitionEvent(s, user, s.getRequisitionState(), remark,s.getRequisitionReason(),s.getRequisitionType());
         eventRepo.save(e);
 
         return result;
@@ -209,7 +209,7 @@ public class RequisitionService {
             r.setRequisitionReason(reason);
             r.setUser(user);
             repo.save(r);
-            RequisitionEvent e = new RequisitionEvent(r, user, defaultState, r.getRemark());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(),r.getRequisitionReason(),r.getRequisitionType());
             eventRepo.save(e);
         }
 
@@ -235,7 +235,7 @@ public class RequisitionService {
                 r.setReturnDate(now);
             }
 
-            RequisitionEvent e = new RequisitionEvent(r, user, state, r.getRemark());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(),r.getRequisitionReason(),r.getRequisitionType());
             reLists.add(e);
         }
         repo.saveAll(l);

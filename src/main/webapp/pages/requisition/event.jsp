@@ -69,6 +69,8 @@
                         {data: "id"},
                         {data: "user.username"},
                         {data: "requisitionState.name"},
+                        {data: "requisitionType.name"},
+                        {data: "requisitionReason.name"},
                         {data: "modifiedDate"},
                         {data: "remark"}
                     ],
@@ -78,13 +80,13 @@
                             "visible": true
                         },
                         {
-                            "targets": [3],
+                            "targets": [5],
                             'render': function (data, type, full, meta) {
                                 return data == null ? "n/a" : formatDate(data);
                             }
                         },
                         {
-                            "targets": [4],
+                            "targets": [3, 4, 6],
                             'render': function (data, type, full, meta) {
                                 return data == null ? "n/a" : data;
                             }
@@ -131,6 +133,8 @@
                             <th>id</th>
                             <th>人員</th>
                             <th>申請狀態</th>
+                            <th>料號狀態</th>
+                            <th>原因</th>
                             <th>異動日期</th>
                             <th>備註</th>
                         </tr>
