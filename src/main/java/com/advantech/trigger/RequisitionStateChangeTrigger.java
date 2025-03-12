@@ -61,13 +61,31 @@ public class RequisitionStateChangeTrigger {
 // <editor-fold desc="checkQualify.">
     public void checkQualify(List<Requisition> rForm) {
 
-        final int[] exceptUserIds = {36};
-        final int[] stateForQualify = {7};
-        final int[] reasonForQualify = {2};
-        final int[] typeForQualify = {2, 4};
+        final List<Integer> exceptUserIds = Arrays.asList(1);
+        final List<Integer> stateForQualify = Arrays.asList(7);
+        final List<Integer> reasonForQualify = Arrays.asList(2);
+        final List<Integer> typeForQualify = Arrays.asList(2, 4);
 
-        List<String> pos = rForm.stream().map(Requisition::getPo).collect(Collectors.toList());
-        List<String> matNos = rForm.stream().map(Requisition::getMaterialNumber).collect(Collectors.toList());
+        List<Requisition> filterSrc = rForm.stream()
+                .filter(e -> {
+                    int userId = e.getUser().getId();
+                    int rsId = e.getRequisitionState().getId();
+                    int rrId = e.getRequisitionReason().getId();
+                    int rtId = e.getRequisitionType().getId();
+
+                    return !exceptUserIds.contains(userId)
+                            && stateForQualify.contains(rsId)
+                            && reasonForQualify.contains(rrId)
+                            && typeForQualify.contains(rtId);
+                })
+                .collect(Collectors.toList());
+
+        if (filterSrc.isEmpty()) {
+            return;
+        }
+
+        List<String> pos = filterSrc.stream().map(Requisition::getPo).collect(Collectors.toList());
+        List<String> matNos = filterSrc.stream().map(Requisition::getMaterialNumber).collect(Collectors.toList());
         List<Requisition> result = rservice.findAllByPoAndMatNoWithLazy(pos, matNos);
 
         List<Requisition> checkedList = result.stream()
@@ -79,10 +97,10 @@ public class RequisitionStateChangeTrigger {
                     Date returnDate = e.getReturnDate();
 
                     return returnDate != null
-                            && Arrays.stream(exceptUserIds).noneMatch(i -> i == userId)
-                            && Arrays.stream(stateForQualify).anyMatch(i -> i == rsId)
-                            && Arrays.stream(reasonForQualify).anyMatch(i -> i == rrId)
-                            && Arrays.stream(typeForQualify).anyMatch(i -> i == rtId);
+                            && !exceptUserIds.contains(userId)
+                            && stateForQualify.contains(rsId)
+                            && reasonForQualify.contains(rrId)
+                            && typeForQualify.contains(rtId);
                 })
                 .collect(Collectors.groupingBy(item -> Arrays.asList(item.getPo(), item.getMaterialNumber())))
                 .entrySet().stream()
@@ -234,14 +252,14 @@ public class RequisitionStateChangeTrigger {
 // <editor-fold desc="checkRepair.">
     public void checkRepair(List<Requisition> rl) {
         setRepairUserList();
-        final int[] stateForRepair = {2, 5};
+        final List<Integer> stateForRepair = Arrays.asList(2, 5);
 
         List<Requisition> checkedList = rl.stream()
                 .filter(e -> {
                     int userId = e.getUser().getId();
                     int rsId = e.getRequisitionState().getId();
                     return Arrays.stream(repairUserIds).anyMatch(i -> i == userId)
-                            && Arrays.stream(stateForRepair).anyMatch(i -> i == rsId);
+                            && stateForRepair.contains(rsId);
                 }).collect(Collectors.toList());
 
         if (checkedList.isEmpty()) {

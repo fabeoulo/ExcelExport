@@ -35,6 +35,9 @@ public class RequisitionType implements Serializable {
     @JsonIgnore
     private Set<Requisition> requisitions = new HashSet(0);
 
+    @JsonIgnore
+    private Set<RequisitionEvent> requisitionEvents = new HashSet();
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", unique = true, nullable = false)
@@ -62,6 +65,15 @@ public class RequisitionType implements Serializable {
 
     public void setRequisitions(Set<Requisition> requisitions) {
         this.requisitions = requisitions;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "requisitionType")
+    public Set<RequisitionEvent> getRequisitionEvents() {
+        return requisitionEvents;
+    }
+
+    public void setRequisitionEvents(Set<RequisitionEvent> requisitionEvents) {
+        this.requisitionEvents = requisitionEvents;
     }
 
 }

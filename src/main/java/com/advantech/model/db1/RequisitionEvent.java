@@ -39,15 +39,19 @@ public class RequisitionEvent implements Serializable {
     private RequisitionState requisitionState;
     private Date modifiedDate;
     private String remark;
+    private RequisitionReason requisitionReason;
+    private RequisitionType requisitionType;
 
     public RequisitionEvent() {
     }
 
-    public RequisitionEvent(Requisition requisition, User user, RequisitionState requisitionState, String remark) {
+    public RequisitionEvent(Requisition requisition, User user, RequisitionState requisitionState, String remark, RequisitionReason requisitionReason, RequisitionType requisitionType) {
         this.requisition = requisition;
         this.user = user;
         this.requisitionState = requisitionState;
         this.remark = remark;
+        this.requisitionReason = requisitionReason;
+        this.requisitionType = requisitionType;
     }
 
     @Id
@@ -113,4 +117,24 @@ public class RequisitionEvent implements Serializable {
         this.remark = remark;
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisitionReason_id")
+    public RequisitionReason getRequisitionReason() {
+        return requisitionReason;
+    }
+
+    public void setRequisitionReason(RequisitionReason requisitionReason) {
+        this.requisitionReason = requisitionReason;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisitionType_id")
+    public RequisitionType getRequisitionType() {
+        return requisitionType;
+    }
+
+    public void setRequisitionType(RequisitionType requisitionType) {
+        this.requisitionType = requisitionType;
+    }
+ 
 }
