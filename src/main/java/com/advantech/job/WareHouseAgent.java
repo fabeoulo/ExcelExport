@@ -28,9 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Justin.Yeh
  */
 @Component
-public class WareHourseAgent {
+public class WareHouseAgent {
 
-    private static final Logger logger = LoggerFactory.getLogger(WareHourseAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(WareHouseAgent.class);
 
     @Autowired
     private RequisitionService rservice;

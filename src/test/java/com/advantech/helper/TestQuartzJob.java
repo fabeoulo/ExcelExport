@@ -13,7 +13,7 @@ import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SendWhReportsLinkou;
 import com.advantech.job.SyncData;
 import com.advantech.job.SyncLackMrp;
-import com.advantech.job.WareHourseAgent;
+import com.advantech.job.WareHouseAgent;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,8 +64,8 @@ public class TestQuartzJob {
     private SyncLackMrp syncLackMrp;
 
     @Autowired
-    private WareHourseAgent wareHourseAgent;
-    
+    private WareHouseAgent wareHourseAgent;
+
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
