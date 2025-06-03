@@ -66,6 +66,7 @@
         <script src="<c:url value="/libs/moment/moment.js" />"></script>
         <script src="<c:url value="/libs/jsog/JSOG.js" />"></script>
         <script src="<c:url value="/libs/remarkable-bootstrap-notify/bootstrap-notify.js" />"></script>
+        <!--<script src="<c:url value="/libs/lodash/lodash.js" />"></script>-->
         <script>
             $(function () {
                 initDropDownOptions();
@@ -129,7 +130,7 @@
                         {
                             "targets": [17, 16],
                             "visible": isEditor || isInsertWh,
-                            "searchable": false
+                            "searchable": true
                         },
                         {
                             "targets": [14, 12, 13],
@@ -440,25 +441,27 @@
                             alert("Po or MaterialNumber can't be empty.");
                             return false;
                         }
-                        var data = {
-                            id: $("#model-table #id").val(),
+
+                        let arr = table.rows('.selected').data();
+                        var data = arr[0];
+
+                        var dataInput = {
                             po: po,
                             materialNumber: m,
                             amount: amount,
-                            "requisitionFlow.id": $("#model-table #requisitionFlow\\.id").val(),
-                            "requisitionReason.id": $("#model-table #requisitionReason\\.id").val(),
-                            "requisitionState.id": $("#model-table #requisitionState\\.id").val(),
-                            "requisitionType.id": $("#model-table #requisitionType\\.id").val(),
-                            "user.id": $("#model-table #user\\.id").val(),
+                            floor: {id: $("#model-table #floor\\.id").val()},
+                            requisitionFlow: {id: $("#model-table #requisitionFlow\\.id").val()},
+                            requisitionReason: {id: $("#model-table #requisitionReason\\.id").val()},
+                            requisitionState: {id: $("#model-table #requisitionState\\.id").val()},
+                            requisitionType: {id: $("#model-table #requisitionType\\.id").val()},
                             "materialType": $("#model-table #materialType").val(),
-                            "floor.id": $("#model-table #floor\\.id").val(),
-                            remark: $("#model-table #remark").val(),
-                            receiveDate: $("#model-table #receiveDate").val(),
-                            returnDate: $("#model-table #returnDate").val()
+                            remark: $("#model-table #remark").val()
                         };
-                        if (data.id == 0) {
-                            delete data["user.id"];
+                        if (dataInput.id == 0) {
+                            delete dataInput["user.id"];
                         }
+
+                        $.extend(data, dataInput);
                         save(data);
                     }
                 });
@@ -680,7 +683,7 @@
                         },
                         {
                             url: "<c:url value="/RequisitionController/findRequisitionFlowOptions" />",
-                            target: $("#model-table #RequisitionFlow\\.id, #model-table2 #RequisitionFlow\\.id")
+                            target: $("#model-table #requisitionFlow\\.id, #model-table2 #requisitionFlow\\.id")
                         }
                     ];
 
@@ -949,7 +952,7 @@
                                     <tr>
                                         <td class="lab">製程</td>
                                         <td>
-                                            <select id="RequisitionFlow.id"></select>
+                                            <select id="requisitionFlow.id"></select>
                                         </td>
                                     </tr>
                                     <tr class="hide_col">
@@ -964,7 +967,7 @@
                                     <tr>
                                         <td class="lab">製程</td>
                                         <td>
-                                            <select id="RequisitionFlow.id"></select>
+                                            <select id="requisitionFlow.id"></select>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1077,7 +1080,7 @@
                                                         <input type="number" id="amount" />
                                                     </td>
                                                     <td>
-                                                        <select id="RequisitionFlow.id"></select>
+                                                        <select id="requisitionFlow.id"></select>
                                                     </td>
                                                     <td>
                                                         <select id="requisitionReason.id"></select>
