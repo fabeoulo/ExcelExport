@@ -821,7 +821,7 @@
                 function connectToServer() {
 
                     try {
-                        ws = new WebSocket("ws://" + hostname + "/ExcelReport/myHandler");
+                        ws = new WebSocket("ws://" + hostname + "${pageContext.request.contextPath}/myHandler");
 
                         ws.onopen = function () {
                             wsFailMsg.remove();

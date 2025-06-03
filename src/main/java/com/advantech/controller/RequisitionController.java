@@ -60,7 +60,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -71,6 +70,8 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  *
@@ -110,85 +111,110 @@ public class RequisitionController {
     @Autowired
     private RequisitionStateChangeTrigger trigger;
 
-    @JsonView(DataTablesOutput.View.class)
-    @RequestMapping(value = "/findAll", method = {RequestMethod.POST})
-    protected DataTablesOutput<Requisition> findAll(
-            HttpServletRequest request,
-            @Valid DataTablesInput input,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime endDate) {
-
-//        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-//        Floor floor = user.getFloor();
-        if (startDate != null && endDate != null) {
-            final Date sD = startDate.toDate();
-            final Date eD = endDate.withHourOfDay(23).toDate();
-
-            return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-                Path<Date> dateEntryPath = root.get(Requisition_.createDate);
-//                if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-                return cb.between(dateEntryPath, sD, eD);
-//                } else {
-//                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-//                    return cq.where(cb.and(cb.between(dateEntryPath, sD, eD), cb.equal(userJoin.get(User_.FLOOR), floor))).getRestriction();
-//                }
-            });
-        } else {
-//            if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-            return service.findAll(input);
-//            } else {
-//                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-//                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-//                    return cb.equal(userJoin.get(User_.FLOOR), floor);
-//                });
-//            }
-        }
-    }
-//
 //    @JsonView(DataTablesOutput.View.class)
-//    @RequestMapping(value = "/findAllCheckM6", method = {RequestMethod.POST})
-//    protected DataTablesOutput<Requisition> findAllCheckM6(
+//    @RequestMapping(value = "/findAllOg", method = {RequestMethod.POST})
+//    protected DataTablesOutput<Requisition> findAll(
 //            HttpServletRequest request,
 //            @Valid DataTablesInput input,
 //            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime startDate,
 //            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime endDate) {
 //
-//        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-//        List<Integer> m6FloorIds = newArrayList(4, 7);
-//        boolean isM6 = m6FloorIds.contains(user.getFloor().getId());
-//
+////        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+////        Floor floor = user.getFloor();
 //        if (startDate != null && endDate != null) {
 //            final Date sD = startDate.toDate();
 //            final Date eD = endDate.withHourOfDay(23).toDate();
 //
 //            return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
 //                Path<Date> dateEntryPath = root.get(Requisition_.createDate);
-//                Predicate floorM6 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m6FloorIds);
-//
-//                if (!isM6) {
-//                    return cq.where(cb.and(
-//                            cb.between(dateEntryPath, sD, eD),
-//                            cb.not(floorM6)
-//                    )).getRestriction();
-//                } else {
-//                    return cq.where(cb.and(
-//                            cb.between(dateEntryPath, sD, eD),
-//                            floorM6
-//                    )).getRestriction();
-//                }
+////                if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
+//                return cb.between(dateEntryPath, sD, eD);
+////                } else {
+////                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
+////                    return cq.where(cb.and(cb.between(dateEntryPath, sD, eD), cb.equal(userJoin.get(User_.FLOOR), floor))).getRestriction();
+////                }
 //            });
 //        } else {
-//            return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-//                Predicate floorM6 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m6FloorIds);
-//
-//                if (!isM6) {
-//                    return cb.not(floorM6);
-//                } else {
-//                    return cb.and(floorM6);
-//                }
-//            });
+////            if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
+//            return service.findAll(input);
+////            } else {
+////                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+////                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
+////                    return cb.equal(userJoin.get(User_.FLOOR), floor);
+////                });
+////            }
 //        }
 //    }
+//
+    @JsonView(DataTablesOutput.View.class)
+    @RequestMapping(value = "/findAll", method = {RequestMethod.POST})
+    protected DataTablesOutput<Requisition> findAllCheckM6(
+            HttpServletRequest request,
+            @Valid DataTablesInput input,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime endDate) {
+
+        if (!(startDate != null && endDate != null)) {
+            startDate = new DateTime(0);
+            endDate = new DateTime();
+        }
+        final Date sD = startDate.toDate();
+        final Date eD = endDate.plusDays(1).withMillisOfDay(0).toDate();
+
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        boolean isFindAll = SecurityPropertiesUtils.checkUserInAuthorities(user,
+                newArrayList(
+                        new SimpleGrantedAuthority("ROLE_ADMIN"),
+                        new SimpleGrantedAuthority("ROLE_OPER"),
+                        new SimpleGrantedAuthority("ROLE_GUEST")
+                ));
+
+        List<Integer> m6FloorIds = newArrayList(4, 7);
+        boolean isM6 = m6FloorIds.contains(user.getFloor().getId());
+        List<Integer> m8FloorIds = newArrayList(6);
+        boolean isM8 = m8FloorIds.contains(user.getFloor().getId());
+        List<Integer> m9FloorIds = newArrayList(10, 8);
+        boolean isM9 = m9FloorIds.contains(user.getFloor().getId());
+        List<Integer> m3FloorIds = newArrayList(9, 8);
+        boolean isM3 = m3FloorIds.contains(user.getFloor().getId());
+
+        Specification<Requisition> s = (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            Path<Date> dateEntryPath = root.get(Requisition_.createDate);
+            Predicate betweenDate = cb.between(dateEntryPath, sD, eD);
+            Predicate floorM6 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m6FloorIds);
+            Predicate floorM8 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m8FloorIds);
+            Predicate floorM9 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m9FloorIds);
+            Predicate floorM3 = root.get(Requisition_.FLOOR).get(Floor_.ID).in(m3FloorIds);
+
+            if (isFindAll) {
+                return cb.and(betweenDate);
+            } else if (isM3) {
+                return cb.and(
+                        betweenDate,
+                        floorM3
+                );
+            } else if (isM6) {
+                return cb.and(
+                        betweenDate,
+                        floorM6
+                );
+            } else if (isM8) {
+                return cb.and(
+                        betweenDate,
+                        floorM8
+                );
+            } else if (isM9) {
+                return cb.and(
+                        betweenDate,
+                        floorM9
+                );
+            } else {
+                return cb.and(betweenDate);
+            }
+        };
+
+        return service.findAll(input, s);
+    }
 
     @ResponseBody
     @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})

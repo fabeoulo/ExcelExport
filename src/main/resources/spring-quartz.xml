@@ -113,14 +113,14 @@
     </bean>
     
     <!--job10 setting-->
-    <bean name="WareHourseAgent-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="wareHourseAgent" />
+    <bean name="WareHouseAgent-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="wareHouseAgent" />
         <property name="targetMethod" value="execute"/>  
         <property name="concurrent" value="false"/>
     </bean>
     
-    <bean id="WareHourseAgent-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="jobDetail" ref="WareHourseAgent-Job" />
+    <bean id="WareHouseAgent-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="WareHouseAgent-Job" />
         <property name="cronExpression" value="0 0 9-20 ? * MON-SAT *" />
     </bean>
     
@@ -137,7 +137,7 @@
                 <ref bean="SendLackWithStock-Trig"/>
                 <ref bean="SendRequiredToPMC-Trig"/>
                 
-                <ref bean="WareHourseAgent-Trig"/>
+                <ref bean="WareHouseAgent-Trig"/>
 <!--                exec on M9 version
                 <ref bean="SyncLackMrp-Trig"/> -->
             </list>
