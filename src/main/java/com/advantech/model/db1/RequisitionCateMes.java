@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.advantech.model.db1;
 
@@ -17,27 +16,29 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
  *
- * @author Wei.Cheng
+ * @author Justin.Yeh
  */
 @Entity
-@Table(name = "Requisition_Reason")
+@Table(name = "Requisition_CateMes")
 @JsonIdentityInfo(generator = JSOGGenerator.class)
-public class RequisitionReason implements Serializable {
+public class RequisitionCateMes implements Serializable {
 
     private int id;
     private String name;
-    private int flag;
 
     @JsonIgnore
     private Set<Requisition> requisitions = new HashSet(0);
 
     @JsonIgnore
-    private Set<RequisitionEvent> requisitionEvents = new HashSet();
+    private Set<RequisitionEvent> requisitionEvents = new HashSet(0);
+
+    private Set<RequisitionCateIms> requisitionCateImss = new HashSet(0);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -50,7 +51,7 @@ public class RequisitionReason implements Serializable {
         this.id = id;
     }
 
-    @Column(name = "[name]", length = 20, nullable = false)
+    @Column(name = "[name]", length = 100, nullable = false)
     public String getName() {
         return name;
     }
@@ -59,16 +60,7 @@ public class RequisitionReason implements Serializable {
         this.name = name;
     }
 
-    @Column(nullable = false)
-    public int getFlag() {
-        return flag;
-    }
-
-    public void setFlag(int flag) {
-        this.flag = flag;
-    }
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "requisitionReason")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "requisitionCateMes")
     public Set<Requisition> getRequisitions() {
         return requisitions;
     }
@@ -77,13 +69,22 @@ public class RequisitionReason implements Serializable {
         this.requisitions = requisitions;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "requisitionReason")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "requisitionCateMes")
     public Set<RequisitionEvent> getRequisitionEvents() {
         return requisitionEvents;
     }
 
     public void setRequisitionEvents(Set<RequisitionEvent> requisitionEvents) {
         this.requisitionEvents = requisitionEvents;
+    }
+
+    @ManyToMany(mappedBy = "requisitionCateMess")
+    public Set<RequisitionCateIms> getRequisitionCateImss() {
+        return requisitionCateImss;
+    }
+
+    public void setRequisitionCateImss(Set<RequisitionCateIms> requisitionCateImss) {
+        this.requisitionCateImss = requisitionCateImss;
     }
 
 }

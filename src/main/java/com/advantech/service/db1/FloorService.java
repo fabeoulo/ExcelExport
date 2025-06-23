@@ -28,6 +28,10 @@ public class FloorService {
         return repo.findAll();
     }
 
+    public List<Floor> findAllEnableState() {
+        return repo.findAllByEnableState(1);
+    }
+
     public Optional<Floor> findById(Integer id) {
         return repo.findById(id);
     }

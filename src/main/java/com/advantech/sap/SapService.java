@@ -45,6 +45,7 @@ public class SapService {
         }
 
         String modelName = detailTable.getString("BAUGR").trim();
+        modelName = CharMatcher.is('0').trimLeadingFrom(modelName);
 
         //Retrieve model name info
         for (int i = 0; i < detailTable.getNumRows(); i++) {

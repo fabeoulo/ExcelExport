@@ -13,6 +13,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -26,9 +29,15 @@ public class Floor implements java.io.Serializable {
 
     private int id;
     private String name;
+    private int enableState;
+
     private Set<User> users = new HashSet<>(0);
     private Set<ScrappedDetail> scrappedDetails = new HashSet<>(0);
     private Set<Requisition> requisitions = new HashSet<>(0);
+    private Set<RequisitionCateIms> requisitionCateImss = new HashSet<>(0);
+
+    @JsonIgnore
+    private Set<RequisitionEvent> requisitionEvents = new HashSet<>(0);
 
     public Floor() {
     }
@@ -95,6 +104,40 @@ public class Floor implements java.io.Serializable {
 
     public void setRequisitions(Set<Requisition> requisitions) {
         this.requisitions = requisitions;
+    }
+
+    @JsonIgnore
+    @JsonIgnoreProperties
+    @ManyToMany
+    @JoinTable(
+            name = "Floor_Requisition_CateIms_REF",
+            joinColumns = @JoinColumn(name = "floor_id"),
+            inverseJoinColumns = @JoinColumn(name = "requisition_cateIms_id")
+    )
+    public Set<RequisitionCateIms> getRequisitionCateImss() {
+        return requisitionCateImss;
+    }
+
+    public void setRequisitionCateImss(Set<RequisitionCateIms> requisitionCateImss) {
+        this.requisitionCateImss = requisitionCateImss;
+    }
+
+    @Column(nullable = false)
+    public int getEnableState() {
+        return enableState;
+    }
+
+    public void setEnableState(int enableState) {
+        this.enableState = enableState;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "floor")
+    public Set<RequisitionEvent> getRequisitionEvents() {
+        return requisitionEvents;
+    }
+
+    public void setRequisitionEvents(Set<RequisitionEvent> requisitionEvents) {
+        this.requisitionEvents = requisitionEvents;
     }
 
     @Override
