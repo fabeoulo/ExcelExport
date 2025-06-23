@@ -113,11 +113,6 @@ public class TestService {
     @Autowired
     private RequisitionFlowService requisitionFlowService;
 
-//    @Test
-    public void testRequisitionFlowService() throws Exception {
-        List<RequisitionFlow> lr = requisitionFlowService.findAll();
-    }
-
 ////    @Test
 //    public void testVwM3WorktimeService() {
 //        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
@@ -385,6 +380,21 @@ public class TestService {
     }
 
     private Date sD, eD;
+
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testRequisitionFlowService() {
+//        List<RequisitionFlow> rl = requisitionFlowService.findAll();
+        Optional<RequisitionFlow> oF = requisitionFlowService.findById(111);
+        RequisitionFlow rF = oF.orElse(requisitionFlowService.getOne(1));
+        HibernateObjectPrinter.print(rF);
+
+        RequisitionFlow rf = requisitionFlowService.getOne(1111);
+        Class cls = rf.getClass(); //throw except
+        String nm = rf.getName();
+        HibernateObjectPrinter.print(rf);
+    }
 
 //    @Test
 //    @Transactional

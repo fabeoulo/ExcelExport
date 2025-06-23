@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,26 +43,31 @@ public class Requisition implements Serializable {
     private int id;
     private String po;
     private String materialNumber;
+    private int amount;
     private String modelName;
     private BigDecimal unitPrice;
     private String werk;
-    private int amount;
-    private RequisitionState requisitionState;
-    private RequisitionReason requisitionReason;
-    private RequisitionType requisitionType;
-    private User user;
-    private Date createDate;
-    private Date lastUpdateDate;
-    private String materialType;
-    private RequisitionFlow requisitionFlow;
-    private String remark;
-    private Floor floor;
-    private Date receiveDate;
-    private Date returnDate;
-
     private BigDecimal poQty;
     private BigDecimal materialQty;
     private String storageSpaces;
+    private Floor floor;
+    private RequisitionState requisitionState;
+    private RequisitionFlow requisitionFlow;
+    private RequisitionReason requisitionReason;
+    private RequisitionType requisitionType;
+    private RequisitionCateIms requisitionCateIms;
+    private RequisitionCateMes requisitionCateMes;
+    private String requisitionCateMesCustom;
+    private String materialType;
+    private String materialBoardSn;
+    private User user;
+    private Date createDate;
+    private Date lastUpdateDate;
+    private String remark;
+    private Date receiveDate;
+    private Date returnDate;
+    private String isUrgent;
+    private String returnOrderNo;
 
     @JsonIgnore
     private Set<RequisitionEvent> requisitionEvents = new HashSet(0);
@@ -245,6 +251,7 @@ public class Requisition implements Serializable {
         this.materialType = materialType;
     }
 
+    @Nullable
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requisitionFlow_id")
     public RequisitionFlow getRequisitionFlow() {
@@ -316,4 +323,63 @@ public class Requisition implements Serializable {
     public void setStorageSpaces(String storageSpaces) {
         this.storageSpaces = storageSpaces;
     }
+
+    @Column(name = "materialBoardSn", length = 50)
+    public String getMaterialBoardSn() {
+        return materialBoardSn;
+    }
+
+    public void setMaterialBoardSn(String materialBoardSn) {
+        this.materialBoardSn = materialBoardSn;
+    }
+
+    @Column(name = "isUrgent", length = 10)
+    public String getIsUrgent() {
+        return isUrgent;
+    }
+
+    public void setIsUrgent(String isUrgent) {
+        this.isUrgent = isUrgent;
+    }
+
+    @Column(name = "returnOrderNo", length = 50)
+    public String getReturnOrderNo() {
+        return returnOrderNo;
+    }
+
+    public void setReturnOrderNo(String returnOrderNo) {
+        this.returnOrderNo = returnOrderNo;
+    }
+
+    @Nullable
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisitionCateIms_id")
+    public RequisitionCateIms getRequisitionCateIms() {
+        return requisitionCateIms;
+    }
+
+    public void setRequisitionCateIms(RequisitionCateIms requisitionCateIms) {
+        this.requisitionCateIms = requisitionCateIms;
+    }
+
+    @Nullable
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisitionCateMes_id")
+    public RequisitionCateMes getRequisitionCateMes() {
+        return requisitionCateMes;
+    }
+
+    public void setRequisitionCateMes(RequisitionCateMes requisitionCateMes) {
+        this.requisitionCateMes = requisitionCateMes;
+    }
+
+    @Column(name = "requisitionCateMesCustom", length = 100)
+    public String getRequisitionCateMesCustom() {
+        return requisitionCateMesCustom;
+    }
+
+    public void setRequisitionCateMesCustom(String requisitionCateMesCustom) {
+        this.requisitionCateMesCustom = requisitionCateMesCustom;
+    }
+
 }

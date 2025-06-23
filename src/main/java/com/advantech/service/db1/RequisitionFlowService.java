@@ -8,6 +8,7 @@ package com.advantech.service.db1;
 import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.repo.db1.RequisitionFlowRepository;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,4 +32,7 @@ public class RequisitionFlowService {
         return repo.getOne(id);
     }
 
+    public Optional<RequisitionFlow> findById(Integer id) {
+        return repo.findById(id);
+    }
 }
