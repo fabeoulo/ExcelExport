@@ -176,14 +176,16 @@ public class RequisitionService {
     }
 
     public <S extends Requisition> S save(S s, String remark) {
+        this.autoSetType(s);
+
         RequisitionState stat;
         User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
         if (s.getId() == 0) {
-            stat = stateRepo.getOne(4);
-            RequisitionType rType = typeRepo.getOne(1);
+            if (s.getRequisitionState() == null || s.getRequisitionType() == null) {
+                stat = stateRepo.getOne(4);
 
-            s.setRequisitionState(stat);
-            s.setRequisitionType(rType);
+                s.setRequisitionState(stat);
+            }
             s.setUser(user);
         } else {
             stat = s.getRequisitionState();
@@ -198,10 +200,29 @@ public class RequisitionService {
 
         S result = repo.save(s);
 
-        RequisitionEvent e = new RequisitionEvent(s, user, s.getRequisitionState(), remark, s.getRequisitionReason(), s.getRequisitionType());
+        RequisitionEvent e = new RequisitionEvent(s, user, remark);
         eventRepo.save(e);
 
         return result;
+    }
+
+    private void autoSetType(Requisition r) {
+        int reasonId = r.getRequisitionReason().getId();
+        int typeId;
+        switch (reasonId) {
+            case 2:
+            case 5:
+                typeId = 2;
+                break;
+            case 6:
+                typeId = 3;
+                break;
+            case 3:
+            default:
+                typeId = 1;
+        }
+
+        r.setRequisitionType(typeRepo.getOne(typeId));
     }
 
     public <S extends Requisition> int batchInsert(List<S> l) {
@@ -212,20 +233,19 @@ public class RequisitionService {
     public <S extends Requisition> int batchInsert(List<S> l, User user) {
 
         RequisitionState defaultState = stateRepo.getOne(4);
-        RequisitionType defaultType = typeRepo.getOne(1);
         List<RequisitionReason> reasonL = reasonRepo.findAll();
         RequisitionReason defaultReason = reasonL.stream().filter(rl -> rl.getId() == 2).findFirst().get();
 
         for (Requisition r : l) {
-            RequisitionReason reason = reasonL.stream().filter(rl -> rl.getId() == r.getRequisitionReason().getId())
+            RequisitionReason reason = reasonL.stream().filter(rl -> r.getRequisitionReason() != null && rl.getId() == r.getRequisitionReason().getId())
                     .findFirst().orElse(defaultReason);
 
             r.setRequisitionState(defaultState);
-            r.setRequisitionType(defaultType);
             r.setRequisitionReason(reason);
+            this.autoSetType(r);
             r.setUser(user);
             repo.save(r);
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(), r.getRequisitionReason(), r.getRequisitionType());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRemark());
             eventRepo.save(e);
         }
 
@@ -251,7 +271,7 @@ public class RequisitionService {
                 r.setReturnDate(now);
             }
 
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(), r.getRequisitionReason(), r.getRequisitionType());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRemark());
             reLists.add(e);
         }
         repo.saveAll(l);

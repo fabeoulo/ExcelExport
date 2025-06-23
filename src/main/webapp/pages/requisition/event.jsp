@@ -69,10 +69,13 @@
                         {data: "id"},
                         {data: "user.username"},
                         {data: "requisitionState.name"},
-                        {data: "requisitionType.name"},
                         {data: "requisitionReason.name"},
+                        {data: "requisitionCateIms.name"},
+                        {data: "requisitionCateMes.name"},
+                        {data: "requisitionType.name"},
                         {data: "modifiedDate"},
-                        {data: "remark"}
+                        {data: "remark"},
+                        {data: "floor.name"}
                     ],
                     "columnDefs": [
                         {
@@ -80,13 +83,20 @@
                             "visible": true
                         },
                         {
-                            "targets": [5],
+                            "targets": [7],
                             'render': function (data, type, full, meta) {
                                 return data == null ? "n/a" : formatDate(data);
                             }
                         },
                         {
-                            "targets": [3, 4, 6],
+                            "targets": [5],
+                            'render': function (data, type, full, meta) {
+                                return data ? data :
+                                        full.requisitionCateMesCustom ? full.requisitionCateMesCustom : "n/a";
+                            }
+                        },
+                        {
+                            "targets": [3, 4, 5, 6, 8, 9],
                             'render': function (data, type, full, meta) {
                                 return data == null ? "n/a" : data;
                             }
@@ -133,10 +143,13 @@
                             <th>id</th>
                             <th>人員</th>
                             <th>申請狀態</th>
+                            <th>產線判定</th>
+                            <th>材料類別</th>	
+                            <th>異常分類</th>
                             <th>料號狀態</th>
-                            <th>原因</th>
                             <th>異動日期</th>
                             <th>備註</th>
+                            <th>位置</th>
                         </tr>
                     </thead>
                 </table>

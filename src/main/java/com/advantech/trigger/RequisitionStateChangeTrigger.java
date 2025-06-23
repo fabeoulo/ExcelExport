@@ -62,18 +62,21 @@ public class RequisitionStateChangeTrigger {
     public void checkQualify(List<Requisition> rForm) {
 
         final List<Integer> exceptUserIds = Arrays.asList(36);
+        final List<Integer> exceptFloorIds = Arrays.asList(6);
         final List<Integer> stateForQualify = Arrays.asList(7);
         final List<Integer> reasonForQualify = Arrays.asList(2);
         final List<Integer> typeForQualify = Arrays.asList(2, 4);
 
         List<Requisition> filterSrc = rForm.stream()
                 .filter(e -> {
+                    int floorId = e.getFloor().getId();
                     int userId = e.getUser().getId();
                     int rsId = e.getRequisitionState().getId();
                     int rrId = e.getRequisitionReason().getId();
                     int rtId = e.getRequisitionType().getId();
 
-                    return !exceptUserIds.contains(userId)
+                    return !exceptFloorIds.contains(floorId)
+                            && !exceptUserIds.contains(userId)
                             && stateForQualify.contains(rsId)
                             && reasonForQualify.contains(rrId)
                             && typeForQualify.contains(rtId);
