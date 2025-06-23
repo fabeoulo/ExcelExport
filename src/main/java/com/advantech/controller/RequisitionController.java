@@ -10,6 +10,8 @@ import com.advantech.sap.SapMaterialInfo;
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Floor_;
 import com.advantech.model.db1.Requisition;
+import com.advantech.model.db1.RequisitionCateIms;
+import com.advantech.model.db1.RequisitionCateMes;
 import com.advantech.model.db1.RequisitionEvent;
 import com.advantech.model.db1.RequisitionEvent_;
 import com.advantech.model.db1.RequisitionFlow;
@@ -52,6 +54,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.advantech.sap.SapService;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.FloorService;
+import com.advantech.service.db1.RequisitionCateImsService;
+import com.advantech.service.db1.RequisitionCateMesService;
 import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.WareHourseService;
@@ -60,6 +64,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
@@ -92,6 +98,12 @@ public class RequisitionController {
 
     @Autowired
     private RequisitionFlowService requisitionFlowService;
+
+    @Autowired
+    private RequisitionCateImsService requisitionCateImsService;
+
+    @Autowired
+    private RequisitionCateMesService requisitionCateMesService;
 
     @Autowired
     private FloorService floorService;
@@ -211,21 +223,6 @@ public class RequisitionController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})
-    protected String insertEflow(@RequestParam String datas, @RequestParam String commitJobNo) throws Exception {
-
-        //check state
-        List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {
-        });
-        l = l.stream().filter(t -> t.getRequisitionState().getId() == 4).collect(Collectors.toList());
-        if (l.isEmpty()) {
-            return "待領料數量0.";
-        }
-
-        return wareHourseService.insertEflowWithUserRemark(l, commitJobNo);
-    }
-
-    @ResponseBody
     @RequestMapping(value = "/save", method = {RequestMethod.POST})
     protected String save(@ModelAttribute Requisition requisition, @RequestParam(required = false) String remark, BindingResult bindingResult) throws Exception {
 
@@ -240,9 +237,7 @@ public class RequisitionController {
             System.out.println(objectError.getCode());
         });
 
-        this.retrieveSapInfos(newArrayList(requisition));
-        this.checkModelMaterial(newArrayList(requisition));
-        this.checkPrintLabel(newArrayList(requisition));
+        this.batchSaveCheck(newArrayList(requisition));
 
         service.save(requisition, remark);
 
@@ -311,6 +306,21 @@ public class RequisitionController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})
+    protected String insertEflow(@RequestParam String datas, @RequestParam String commitJobNo) throws Exception {
+
+        //check state
+        List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {
+        });
+        l = l.stream().filter(t -> t.getRequisitionState().getId() == 4).collect(Collectors.toList());
+        if (l.isEmpty()) {
+            return "待領料數量0.";
+        }
+
+        return wareHourseService.insertEflowWithUserRemark(l, commitJobNo);
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/batchSave", method = {RequestMethod.POST})
     protected String batchSave(@ModelAttribute RequisitionListContainer container) throws Exception {
         List<Requisition> l = container.getMyList();
@@ -344,8 +354,8 @@ public class RequisitionController {
 
     @ResponseBody
     @RequestMapping(value = "/findRequisitionReasonOptions", method = {RequestMethod.GET})
-    protected List<RequisitionReason> findRequisitionReasonOptions() {
-        return requisitionReasonService.findAll();
+    public List<RequisitionReason> findRequisitionReasonOptions() {
+        return requisitionReasonService.findAllByFlag(1);
     }
 
     @ResponseBody
@@ -370,9 +380,48 @@ public class RequisitionController {
 
     @ResponseBody
     @RequestMapping(value = "/findFloorOptions", method = {RequestMethod.GET})
-    protected List<Floor> findFloorOptions() {
-        List<Integer> ids = newArrayList(7, 8, 9, 10);
-        List<Floor> floors = floorService.findAll();
-        return floors.stream().filter(f -> ids.contains(f.getId())).collect(Collectors.toList());
+    public List<Floor> findFloorOptions() {
+        return floorService.findAllEnableState();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/findUrgentOptions", method = {RequestMethod.GET})
+    public List findUrgentOptions() {
+        List l = new ArrayList();
+        List<String> datas = newArrayList("", "Y");
+
+        for (int i = 0; i < datas.size(); i++) {
+            HashMap<String, Object> map = new HashMap();
+            map.put("id", i);
+            map.put("name", datas.get(i));
+
+            l.add(map);
+        }
+
+        return l;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/findRequisitionCateImsOptions", method = {RequestMethod.GET})
+    protected List<RequisitionCateIms> findRequisitionCateImsOptions() {
+        return requisitionCateImsService.findAll();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/findRequisitionCateMesOptions", method = {RequestMethod.GET})
+    protected List<RequisitionCateMes> findRequisitionCateMesOptions() {
+        return requisitionCateMesService.findAll();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/findRequisitionCateImsRef", method = {RequestMethod.GET})
+    protected List<RequisitionCateIms> findRequisitionCateImsRef() {
+        return requisitionCateImsService.findAllWithFloor();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/findRequisitionCateMesRef", method = {RequestMethod.GET})
+    protected List<RequisitionCateMes> findRequisitionCateMesRef() {
+        return requisitionCateMesService.findAllWithCateIms();
     }
 }

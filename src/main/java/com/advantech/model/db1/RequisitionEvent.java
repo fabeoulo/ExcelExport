@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.voodoodyne.jackson.jsog.JSOGGenerator;
 import java.io.Serializable;
 import java.util.Date;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,21 +38,29 @@ public class RequisitionEvent implements Serializable {
     private Requisition requisition;
     private User user;
     private RequisitionState requisitionState;
+    private RequisitionReason requisitionReason;
+    private RequisitionCateIms requisitionCateIms;
+    private RequisitionCateMes requisitionCateMes;
+    private String requisitionCateMesCustom;
+    private RequisitionType requisitionType;
     private Date modifiedDate;
     private String remark;
-    private RequisitionReason requisitionReason;
-    private RequisitionType requisitionType;
+    private Floor floor;
 
     public RequisitionEvent() {
     }
 
-    public RequisitionEvent(Requisition requisition, User user, RequisitionState requisitionState, String remark, RequisitionReason requisitionReason, RequisitionType requisitionType) {
+    public RequisitionEvent(Requisition requisition, User user, String remark) {
         this.requisition = requisition;
         this.user = user;
-        this.requisitionState = requisitionState;
+        this.requisitionState = requisition.getRequisitionState();
         this.remark = remark;
-        this.requisitionReason = requisitionReason;
-        this.requisitionType = requisitionType;
+        this.requisitionReason = requisition.getRequisitionReason();
+        this.requisitionType = requisition.getRequisitionType();
+        this.requisitionCateIms = requisition.getRequisitionCateIms();
+        this.requisitionCateMes = requisition.getRequisitionCateMes();
+        this.requisitionCateMesCustom = requisition.getRequisitionCateMesCustom();
+        this.floor = requisition.getFloor();
     }
 
     @Id
@@ -136,5 +145,45 @@ public class RequisitionEvent implements Serializable {
     public void setRequisitionType(RequisitionType requisitionType) {
         this.requisitionType = requisitionType;
     }
- 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisitionCateIms_id")
+    public RequisitionCateIms getRequisitionCateIms() {
+        return requisitionCateIms;
+    }
+
+    public void setRequisitionCateIms(RequisitionCateIms requisitionCateIms) {
+        this.requisitionCateIms = requisitionCateIms;
+    }
+
+    @Nullable
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisitionCateMes_id")
+    public RequisitionCateMes getRequisitionCateMes() {
+        return requisitionCateMes;
+    }
+
+    public void setRequisitionCateMes(RequisitionCateMes requisitionCateMes) {
+        this.requisitionCateMes = requisitionCateMes;
+    }
+
+    @Column(name = "requisitionCateMesCustom", length = 100)
+    public String getRequisitionCateMesCustom() {
+        return requisitionCateMesCustom;
+    }
+
+    public void setRequisitionCateMesCustom(String requisitionCateMesCustom) {
+        this.requisitionCateMesCustom = requisitionCateMesCustom;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "floor_id")
+    public Floor getFloor() {
+        return floor;
+    }
+
+    public void setFloor(Floor floor) {
+        this.floor = floor;
+    }
+
 }

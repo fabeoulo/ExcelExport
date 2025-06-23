@@ -5,7 +5,7 @@
  */
 package com.advantech.repo.db1;
 
-import com.advantech.model.db1.Floor;
+import com.advantech.model.db1.RequisitionCateIms;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Repository;
 
 /**
  *
- * @author Wei.Cheng
+ * @author Justin.Yeh
  */
 @Repository
-public interface FloorRepository extends JpaRepository<Floor, Integer> {
+public interface RequisitionCateImsRepository extends JpaRepository<RequisitionCateIms, Integer> {
 
-//    @EntityGraph(attributePaths = {"requisitionCateImss"})
-    public List<Floor> findAllByEnableState(int state);
-
+    @EntityGraph(attributePaths = {"floors"})
+    @Query("SELECT ims FROM RequisitionCateIms ims") // prevent jpa from querying by method name "findAllWithFloor"
+    public List<RequisitionCateIms> findAllWithFloor();
 }

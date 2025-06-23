@@ -5,8 +5,8 @@
  */
 package com.advantech.service.db1;
 
-import com.advantech.model.db1.RequisitionReason;
-import com.advantech.repo.db1.RequisitionReasonRepository;
+import com.advantech.model.db1.RequisitionCateIms;
+import com.advantech.repo.db1.RequisitionCateImsRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,28 +15,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
- * @author Wei.Cheng
+ * @author Justin.Yeh
  */
 @Service
 @Transactional("tx1")
-public class RequisitionReasonService {
+public class RequisitionCateImsService {
 
     @Autowired
-    private RequisitionReasonRepository repo;
+    private RequisitionCateImsRepository repo;
 
-    public List<RequisitionReason> findAll() {
+    public List<RequisitionCateIms> findAll() {
         return repo.findAll();
     }
 
-    public Optional<RequisitionReason> findById(Integer id) {
-        return repo.findById(id);
+    public List<RequisitionCateIms> findAllWithFloor() {
+        return repo.findAllWithFloor();
     }
 
-    public RequisitionReason getOne(Integer id) {
+    public RequisitionCateIms getOne(Integer id) {
         return repo.getOne(id);
     }
 
-    public List<RequisitionReason> findAllByFlag(int flagNo) {
-        return repo.findAllByFlag(flagNo);
+    public Optional<RequisitionCateIms> findById(Integer id) {
+        return repo.findById(id);
     }
 }
