@@ -68,7 +68,7 @@ public class SapService {
                 JCoFunction function2 = port.getMaterialPrice(materialNumber, f);
                 BigDecimal unitPrice = this.retrievePriceFromTable(function2.getTableParameterList().getTable("LE_ZSD_COST"));
                 pojo.setUnitPrice(unitPrice);
-                pojo.setTotalQty(new BigDecimal(masterTable.getString("GSMNG")));
+                pojo.setPoQty(new BigDecimal(masterTable.getString("GSMNG")));
                 result.add(pojo);
             }
         }

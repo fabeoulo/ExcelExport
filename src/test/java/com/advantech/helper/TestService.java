@@ -5,6 +5,7 @@
  */
 package com.advantech.helper;
 
+import com.advantech.controller.RequisitionController;
 import com.advantech.model.db1.IECalendarLinkou;
 import com.advantech.model.db1.IEWorkdayCalendar;
 import com.advantech.model.db1.Requisition;
@@ -80,7 +81,10 @@ import com.advantech.service.db1.VwM3WorktimeService;
 import com.advantech.service.db1.VwMfgWorkerService;
 import com.advantech.webservice.WareHourseService;
 import static com.google.common.collect.Lists.newArrayList;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import org.joda.time.LocalTime;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -191,8 +195,12 @@ public class TestService {
 
 //    @Test
     public void testUserAgentService() {
-//        List<UserAgent> l = userAgentService.findAll();
+        List<UserAgent> ul2 = userAgentService.findAllLabelAgentWithUser();
+        assertTrue(ul2 != null);
+        String jobNo2 = ul2.get(0).getUser().getJobnumber();
+        HibernateObjectPrinter.print(ul2);
 
+//        List<UserAgent> l = userAgentService.findAll();
         DateTime today = new DateTime(2023, 12, 21, 9, 0).withTime(LocalTime.MIDNIGHT);
 //        DateTime today = new DateTime().withTime(LocalTime.MIDNIGHT);
         List<UserAgent> ul = userAgentService.findAllInDateWithUser(today.toDate());
@@ -205,33 +213,123 @@ public class TestService {
         HibernateObjectPrinter.print(ul);
     }
 
+    @Autowired
+    private RequisitionController requisitionController;
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testWareHourseLabelService() throws Exception {
+        DateTime today = new DateTime(2025, 6, 23, 0, 0).withTime(LocalTime.MIDNIGHT);
+//        DateTime today = new DateTime().withTime(LocalTime.MIDNIGHT);
+
+//        List<UserAgent> ul = userAgentService.findAllLabelAgentWithUser();
+//        if (ul.isEmpty()) {
+//            return;
+//        }
+//        String jobNo = ul.get(0).getUser().getJobnumber();
+
+        DateTime sdt = today;
+        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, 4, newArrayList(7,8));
+        List<String> pos = l.stream().map(r -> r.getPo()).collect(Collectors.toList());
+//        List<String> pos = newArrayList("THP400214ZA", "TPP001365ZA");
+        List<Requisition> historyLabel = rservice.findAllByPoAndFloor(pos, newArrayList(8));
+
+        checkTotalQty(historyLabel);
+
+//        jobNo = "sysop";
+//        try {
+////            UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);
+////            SecurityPropertiesUtils.loginUserManual(user);
+////            rservice.updateWithStateAndEvent(historyLabel, 4);
+////            SecurityPropertiesUtils.logoutUserManual();
+//        } catch (Exception ex) {
+//            HibernateObjectPrinter.print("WareHourse label agent fail. ", ex.toString());
+//        }
+
+        List<Requisition> resultLabel = findRequisitionLabel(historyLabel);
+    }
+
+    private static final BigDecimal QTYRATIO = new BigDecimal(0.4);
+
+    private static List<Requisition> findRequisitionLabel(List<Requisition> historyLabel) {
+        // 1. Group
+        Map<List<String>, List<Requisition>> grouped = historyLabel.stream()
+                .collect(Collectors.groupingBy(item -> newArrayList(item.getPo(), item.getMaterialNumber())));
+
+        List<Requisition> finalResult = new ArrayList<>();
+        for (Map.Entry<List<String>, List<Requisition>> entry : grouped.entrySet()) {
+            List<Requisition> group = entry.getValue();
+            List<Requisition> targetGroup = group.stream().filter(r -> r.getRequisitionState().getId() == 4).collect(Collectors.toList());
+
+            int doneQty = group.stream().filter(r -> r.getRequisitionState().getId() == 5).mapToInt(r -> Math.abs(r.getAmount())).sum();
+            // 2. Find minimum qty * 0.4
+            BigDecimal mostQty = group.stream()
+                    .map(Requisition::getPoQty)
+                    .filter(Objects::nonNull)
+                    .min(Comparator.naturalOrder())
+                    .orElse(BigDecimal.ZERO)
+                    .multiply(QTYRATIO);
+            BigDecimal restQty = mostQty.subtract(new BigDecimal(doneQty)).max(BigDecimal.ZERO);
+
+            // 3. Sort group descending by amount
+            List<Requisition> sortedGroup = targetGroup.stream()
+                    .sorted(Comparator.comparingInt(Requisition::getAmount).reversed())
+                    .collect(Collectors.toList());
+
+            // 4. Greedy approach to pick Rs whose amount sum is closest to restQty (without exceeding)
+            List<Requisition> selected = new ArrayList<>();
+            BigDecimal sum = BigDecimal.ZERO;
+            for (Requisition r : sortedGroup) {
+                BigDecimal tempSum = sum.add(BigDecimal.valueOf(r.getAmount()));
+                if (tempSum.compareTo(restQty) <= 0) {
+                    selected.add(r);
+                    sum = tempSum;
+                }
+            }
+
+            finalResult.addAll(selected);
+        }
+
+        return finalResult;
+    }
+
+    private void checkTotalQty(List<Requisition> l) {
+        Map<String, List<Requisition>> map = l.stream().filter(r -> r.getPoQty() == null).collect(Collectors.groupingBy(r -> r.getPo()));
+        try {
+            for (List<Requisition> values : map.values()) {
+                requisitionController.retrieveSapInfos(values);
+            }
+        } catch (Exception ex) {
+            HibernateObjectPrinter.print("checkTotalQty fail. ", ex.toString());
+        }
+    }
+
 //    @Test
 //    @Transactional
 //    @Rollback(true)
     public void testWareHourseService() {
         DateTime today = new DateTime(2023, 12, 21, 9, 0).withTime(LocalTime.MIDNIGHT);
 //        DateTime today = new DateTime().withTime(LocalTime.MIDNIGHT);
-        List<UserAgent> ul = userAgentService.findAllInDateWithUser(today.toDate());
-
-        if (ul.isEmpty()) {
-            return;
-        }
+//        List<UserAgent> ul = userAgentService.findAllInDateWithUser(today.toDate());
+        List<UserAgent> ul = userAgentService.findAllLabelAgentWithUser();
+        assertTrue(ul != null);
         String jobNo = ul.get(0).getUser().getJobnumber();
 
-        DateTime sdt = today;
+        DateTime sdt = new DateTime();
         int rState = 4;
-        List<Integer> floorIds = newArrayList(9);
+        List<Integer> floorIds = newArrayList(8);
         List<Requisition> l = rservice.findAllByCreateAndStateAndFloor(sdt, rState, floorIds);
 
-//        jobNo = "";
-        try {
-            UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);
-            SecurityPropertiesUtils.loginUserManual(user);
-            String result = wareHourseService.insertEflow(l, jobNo);
-//            SecurityPropertiesUtils.logoutUserManual();
-        } catch (Exception ex) {
-            HibernateObjectPrinter.print("WareHourse agent fail. ", ex.toString());
-        }
+////        jobNo = "";
+//        try {
+//            UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);
+//            SecurityPropertiesUtils.loginUserManual(user);
+//            String result = wareHourseService.insertEflow(l, jobNo);
+////            SecurityPropertiesUtils.logoutUserManual();
+//        } catch (Exception ex) {
+//            HibernateObjectPrinter.print("WareHourse agent fail. ", ex.toString());
+//        }
     }
 
 //    @Test

@@ -12,6 +12,8 @@ import com.advantech.service.db1.UserService;
 import com.advantech.webapi.EmailApiClient;
 import com.advantech.webapi.model.EmailModel;
 import java.util.List;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -31,6 +33,8 @@ public abstract class SendEmailBase extends JobBase {
 
     @Autowired
     protected EmailApiClient emailApiClient;
+
+    protected final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
 
     protected boolean sendByApi(String[] toAddresses, String[] ccAddresses, String subject, String body) {
         return sendByApi(toAddresses, ccAddresses, subject, body, null);

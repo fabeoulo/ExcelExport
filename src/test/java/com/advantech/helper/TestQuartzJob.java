@@ -14,15 +14,18 @@ import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SyncData;
 import com.advantech.job.SyncLackMrp;
 import com.advantech.job.WareHouseAgent;
+import com.advantech.job.WareHouseAgentLabel;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -62,10 +65,22 @@ public class TestQuartzJob {
     @Autowired
     private WareHouseAgent wareHourseAgent;
 
+    @Autowired
+    private WareHouseAgentLabel wareHouseAgentLabel;
+    
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
 //    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testWareHouseAgentLabel() {
+        wareHouseAgentLabel.execute();
+    }
+            
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testWareHourseAgent() {
         wareHourseAgent.execute();
     }

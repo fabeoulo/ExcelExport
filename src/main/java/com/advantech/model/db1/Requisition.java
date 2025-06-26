@@ -56,9 +56,13 @@ public class Requisition implements Serializable {
     private RequisitionFlow requisitionFlow;
     private String remark;
     private Floor floor;
-
     private Date receiveDate;
     private Date returnDate;
+    
+    private BigDecimal poQty;
+    private BigDecimal materialQty;
+    private String storageSpaces;
+    
 
     @JsonIgnore
     private Set<RequisitionEvent> requisitionEvents = new HashSet(0);
@@ -233,7 +237,7 @@ public class Requisition implements Serializable {
         this.returnDate = returnDate;
     }
 
-    @Column(name = "materialType", length = 30)
+    @Column(name = "materialType")
     public String getMaterialType() {
         return materialType;
     }
@@ -289,4 +293,28 @@ public class Requisition implements Serializable {
         this.lackingFlag = lackingFlag;
     }
 
+    public BigDecimal getPoQty() {
+        return poQty;
+    }
+
+    public void setPoQty(BigDecimal poQty) {
+        this.poQty = poQty;
+    }
+
+    public BigDecimal getMaterialQty() {
+        return materialQty;
+    }
+
+    public void setMaterialQty(BigDecimal materialQty) {
+        this.materialQty = materialQty;
+    }
+
+    @Column(name = "storageSpaces", length = 255)
+    public String getStorageSpaces() {
+        return storageSpaces;
+    }
+
+    public void setStorageSpaces(String storageSpaces) {
+        this.storageSpaces = storageSpaces;
+    }
 }

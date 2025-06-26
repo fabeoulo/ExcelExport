@@ -774,11 +774,11 @@
                                 target.html("<h5>No data</h5>");
                                 return;
                             }
-                            const {materialNumber, amount, unitPrice, storageSpaces, totalQty} = arr[0];
-                            var realTotalQty = isNullOrZero(totalQty) ? -1 : totalQty;
-                            var unitAmount = (Number(amount) / Number(realTotalQty)).toFixed(1);
+                            const {materialNumber, amount, unitPrice, storageSpaces, poQty} = arr[0];
+                            var realPoQty = isNullOrZero(poQty) ? -1 : poQty;
+                            var unitAmount = (Number(amount) / Number(realPoQty)).toFixed(1);
                             target.html('<h5>料號: ' + materialNumber +
-                                    ' 工單數量: ' + amount +
+                                    ' 發料量: ' + amount +
                                     ' 單價: ' + unitPrice +
                                     ' 儲區: ' + storageSpaces +
                                     ' 單台用量: ' + unitAmount + '</h5>');
