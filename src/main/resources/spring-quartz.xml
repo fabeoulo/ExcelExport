@@ -124,6 +124,18 @@
         <property name="cronExpression" value="0 0 9-20 ? * MON-SAT *" />
     </bean>
     
+    <!--job11 setting-->
+    <bean name="WareHouseAgentLabel-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="wareHouseAgentLabel" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="WareHouseAgentLabel-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="WareHouseAgentLabel-Job" />
+        <property name="cronExpression" value="0 10 8 ? * MON-SAT *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -138,6 +150,7 @@
                 <ref bean="SendRequiredToPMC-Trig"/>
                 
                 <ref bean="WareHouseAgent-Trig"/>
+                <ref bean="WareHouseAgentLabel-Trig"/>
 <!--                exec on M9 version
                 <ref bean="SyncLackMrp-Trig"/> -->
             </list>

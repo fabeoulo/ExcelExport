@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.advantech.model.db1.ModelMaterialDetails;
+import java.util.Date;
 import org.springframework.data.jpa.repository.EntityGraph;
 
 /**
@@ -31,4 +32,14 @@ public interface RequisitionRepository extends JpaRepository<Requisition, Intege
 
     @EntityGraph(attributePaths = {"requisitionState", "requisitionReason", "requisitionType", "requisitionFlow", "floor", "user"})
     public List<Requisition> findAllByPoInAndMaterialNumberIn(List<String> po, List<String> modelName);
+
+    @EntityGraph(attributePaths = {"user"})
+    public List<Requisition> findAllByCreateDateGreaterThanAndRequisitionState_Id(Date td, int stateId);
+
+    public List<Requisition> findAllByPoIn(List<String> po);
+
+    @EntityGraph(attributePaths = {"user"})
+    public List<Requisition> findAllByCreateDateGreaterThanAndRequisitionState_IdAndFloor_IdIn(Date td, int stateId, List<Integer> floorId);
+
+    public List<Requisition> findAllByPoInAndFloor_IdIn(List<String> po, List<Integer> floorId);
 }

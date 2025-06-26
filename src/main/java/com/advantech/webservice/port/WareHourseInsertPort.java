@@ -37,8 +37,8 @@ public class WareHourseInsertPort {
     @Qualifier("resourceMap")
     private Map<Factory, WebServiceTemplate> resourceMap;
 
-    public String insertWareHourse(List<Requisition> requisitions, String commitJobNo) throws Exception {
-        
+    public String insertWareHourse(List<Requisition> requisitions, String commitJobNo, boolean isAppendUserinfo) throws Exception {
+
         String response = "";
         Map<String, List<Requisition>> groupedMap = requisitions.stream()
                 .collect(Collectors.groupingBy(Requisition::getWerk));
@@ -49,7 +49,7 @@ public class WareHourseInsertPort {
             List<RequitionDetail> details = new ArrayList<>();
             for (Requisition r : rl) {
                 String userInfo = r.getUser().getUsername() + " " + r.getFloor().getName();
-                String reason = r.getRemark() + " " + userInfo;
+                String reason = isAppendUserinfo ? r.getRemark() + " " + userInfo : r.getRemark();
 
                 RequitionDetail aD = new RequitionDetail();
                 aD.setPo(r.getPo());

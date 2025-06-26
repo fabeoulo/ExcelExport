@@ -33,6 +33,8 @@ public class UserAgent implements java.io.Serializable {
 
     private Date beginDate;
 
+    private int labelAgentCode;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", unique = true, nullable = false)
@@ -64,5 +66,14 @@ public class UserAgent implements java.io.Serializable {
 
     public void setBeginDate(Date beginDate) {
         this.beginDate = beginDate;
+    }
+
+    @Column(name = "labelAgent_code", nullable = false)
+    public int getLabelAgentCode() {
+        return labelAgentCode;
+    }
+
+    public void setLabelAgentCode(int labelAgentCode) {
+        this.labelAgentCode = labelAgentCode;
     }
 }

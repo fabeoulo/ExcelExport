@@ -44,7 +44,15 @@ public class WareHourseService {
     @Autowired
     private RequisitionStateChangeTrigger trigger;
 
-    public String insertEflow(List<Requisition> l, String commitJobNo) {
+    public String insertEflowWithUserRemark(List<Requisition> l, String commitJobNo) {
+        return this.insertEflow(l, commitJobNo, true);
+    }
+
+    public String insertEflowWithoutUserRemark(List<Requisition> l, String commitJobNo, String... passRemark) {
+        return this.insertEflow(l, commitJobNo, false, passRemark);
+    }
+
+    private String insertEflow(List<Requisition> l, String commitJobNo, boolean isAppendUserinfo, String... passRemark) {
         String result;
 
         //get sap stock
@@ -71,6 +79,8 @@ public class WareHourseService {
                 lackList.add(t);
             } else {
                 passList.add(t);
+                String remarks = String.join("", passRemark);
+                t.setRemark(t.getRemark() + " " + remarks);
                 return;
             }
 
@@ -81,7 +91,7 @@ public class WareHourseService {
 
         //insert WH
         try {
-            String response = whInsertPort.insertWareHourse(passList, commitJobNo);
+            String response = whInsertPort.insertWareHourse(passList, commitJobNo, isAppendUserinfo);
             if ("".equals(response)) {
 
                 service.updateWithStateAndEvent(lackList, 4);

@@ -103,6 +103,22 @@ public class RequisitionService {
         return repo.findAllByPoInAndMaterialNumberIn(pos, matNos);
     }
 
+    public List<Requisition> findAllByPo(List<String> pos) {
+        return repo.findAllByPoIn(pos);
+    }
+
+    public List<Requisition> findAllByCreateDateRequisitionState(DateTime td, int stateId) {
+        return repo.findAllByCreateDateGreaterThanAndRequisitionState_Id(td.toDate(), stateId);
+    }
+
+    public List<Requisition> findAllByPoAndFloor(List<String> pos, List<Integer> floorId) {
+        return repo.findAllByPoInAndFloor_IdIn(pos, floorId);
+    }
+
+    public List<Requisition> findAllByCreateDateRequisitionStateFloor(DateTime td, int stateId, List<Integer> floorId) {
+        return repo.findAllByCreateDateGreaterThanAndRequisitionState_IdAndFloor_IdIn(td.toDate(), stateId, floorId);
+    }
+
     public List<Requisition> findAllByHalfdayWithUserAndState() {
         return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
             root.fetch(Requisition_.USER, JoinType.LEFT);
@@ -182,7 +198,7 @@ public class RequisitionService {
 
         S result = repo.save(s);
 
-        RequisitionEvent e = new RequisitionEvent(s, user, s.getRequisitionState(), remark,s.getRequisitionReason(),s.getRequisitionType());
+        RequisitionEvent e = new RequisitionEvent(s, user, s.getRequisitionState(), remark, s.getRequisitionReason(), s.getRequisitionType());
         eventRepo.save(e);
 
         return result;
@@ -209,7 +225,7 @@ public class RequisitionService {
             r.setRequisitionReason(reason);
             r.setUser(user);
             repo.save(r);
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(),r.getRequisitionReason(),r.getRequisitionType());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(), r.getRequisitionReason(), r.getRequisitionType());
             eventRepo.save(e);
         }
 
@@ -235,7 +251,7 @@ public class RequisitionService {
                 r.setReturnDate(now);
             }
 
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(),r.getRequisitionReason(),r.getRequisitionType());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(), r.getRequisitionReason(), r.getRequisitionType());
             reLists.add(e);
         }
         repo.saveAll(l);

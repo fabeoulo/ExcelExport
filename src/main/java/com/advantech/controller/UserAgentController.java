@@ -34,7 +34,7 @@ public class UserAgentController {
             HttpServletRequest request,
             @Valid DataTablesInput input) {
 
-        return userAgentService.findAll(input);
+        return userAgentService.findAllUserAgent(input);
     }
 
     @ResponseBody
@@ -54,6 +54,23 @@ public class UserAgentController {
     @RequestMapping(value = "/delete", method = {RequestMethod.POST})
     protected String delete(@Valid @ModelAttribute UserAgent pojo) {
         userAgentService.delete(pojo);
+        return "success";
+    }
+
+    @RequestMapping(value = "/findAllLabelAgent", method = {RequestMethod.GET})
+    protected DataTablesOutput<UserAgent> findAllLabelAgent(
+            HttpServletRequest request,
+            @Valid DataTablesInput input) {
+
+        return userAgentService.findAllLabelAgent(input);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/saveLabelAgent", method = {RequestMethod.POST})
+    protected String saveLabelAgent(@Valid @ModelAttribute UserAgent pojo) {
+
+        pojo.setLabelAgentCode(1);
+        userAgentService.save(pojo);
         return "success";
     }
 }

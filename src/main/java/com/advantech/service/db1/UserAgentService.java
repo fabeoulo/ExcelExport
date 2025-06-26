@@ -14,11 +14,13 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,12 +43,39 @@ public class UserAgentService {
         return repo.findAll(dti);
     }
 
+    public DataTablesOutput<UserAgent> findAllUserAgent(DataTablesInput dti) { 
+        Specification<UserAgent> s = (Root<UserAgent> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            Predicate labelAgentCodeOne = cb.notEqual(root.get(UserAgent_.LABEL_AGENT_CODE), 1);
+
+            return cb.and(labelAgentCodeOne);
+        };
+        return repo.findAll(dti, s);
+    }
+
+    public DataTablesOutput<UserAgent> findAllLabelAgent(DataTablesInput dti) {
+        Specification<UserAgent> s = (Root<UserAgent> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            Predicate labelAgentCodeOne = cb.equal(root.get(UserAgent_.LABEL_AGENT_CODE), 1);
+
+            return cb.and(labelAgentCodeOne);
+        };
+        return repo.findAll(dti, s);
+    }
+
     public List<UserAgent> findAllInDateWithUser(Date today) {
         return repo.findAll((Root<UserAgent> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
             root.fetch(UserAgent_.USER, JoinType.LEFT);
             Path<Date> sdPath = root.get(UserAgent_.beginDate);
 
             return cb.equal(sdPath, today);
+        });
+    }
+
+    public List<UserAgent> findAllLabelAgentWithUser() {
+        return repo.findAll((Root<UserAgent> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            root.fetch(UserAgent_.USER, JoinType.LEFT);
+            Path<Integer> agentCodePath = root.get(UserAgent_.labelAgentCode);
+
+            return cb.equal(agentCodePath, 1);
         });
     }
 
