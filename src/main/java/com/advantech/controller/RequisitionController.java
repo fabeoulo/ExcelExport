@@ -8,13 +8,13 @@ package com.advantech.controller;
 import com.advantech.helper.RequisitionListContainer;
 import com.advantech.sap.SapMaterialInfo;
 import com.advantech.model.db1.Floor;
+import com.advantech.model.db1.Floor_;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionEvent;
 import com.advantech.model.db1.RequisitionEvent_;
 import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.RequisitionReason;
 import com.advantech.model.db1.RequisitionState;
-import com.advantech.model.db1.RequisitionState_;
 import com.advantech.model.db1.RequisitionType;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.User;
@@ -53,18 +53,14 @@ import com.advantech.sap.SapService;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.FloorService;
 import com.advantech.service.db1.RequisitionFlowService;
+import com.advantech.trigger.RequisitionStateChangeTrigger;
 import com.advantech.webservice.WareHourseService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoException;
-import java.math.BigInteger;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
@@ -106,6 +102,9 @@ public class RequisitionController {
     @Autowired
     private WareHourseService wareHourseService;
 
+    @Autowired
+    private RequisitionStateChangeTrigger trigger;
+//
 //    @JsonView(DataTablesOutput.View.class)
 //    @RequestMapping(value = "/findAllOg", method = {RequestMethod.POST})
 //    protected DataTablesOutput<Requisition> findAll(
@@ -140,7 +139,7 @@ public class RequisitionController {
 ////            }
 //        }
 //    }
-//
+
     @JsonView(DataTablesOutput.View.class)
     @RequestMapping(value = "/findAll", method = {RequestMethod.POST})
     protected DataTablesOutput<Requisition> findAllCheckM6(
@@ -223,7 +222,7 @@ public class RequisitionController {
             return "待領料數量0.";
         }
 
-        return wareHourseService.insertEflow(l, commitJobNo);
+        return wareHourseService.insertEflowWithUserRemark(l, commitJobNo);
     }
 
     @ResponseBody
@@ -243,8 +242,10 @@ public class RequisitionController {
 
         this.retrieveSapInfos(newArrayList(requisition));
         this.checkModelMaterial(newArrayList(requisition));
+        this.checkPrintLabel(newArrayList(requisition));
 
         service.save(requisition, remark);
+
         return "success";
 
     }
@@ -278,9 +279,29 @@ public class RequisitionController {
                 r.setModelName(info.getModelName());
                 r.setUnitPrice(info.getUnitPrice());
                 r.setWerk(info.getWerk());
+                r.setPoQty(info.getPoQty());
+                r.setMaterialQty(info.getAmount());
+                r.setStorageSpaces(info.getStorageSpaces());
             }
         }
         return requisitions;
+    }
+
+    private void checkPrintLabel(List<Requisition> requisitions) {
+        List<Integer> floorIds = newArrayList(8, 9, 10);
+        List<String> labelStorages = getLabelStorages();
+        requisitions.forEach(r -> {
+            if (r.getMaterialNumber().startsWith("20")
+                    && floorIds.contains(r.getFloor().getId())
+                    && labelStorages.stream().anyMatch(ls -> r.getStorageSpaces().contains(ls))) {
+
+                r.getFloor().setId(8); // set LABEL floor
+            }
+        });
+    }
+
+    public List<String> getLabelStorages() {
+        return newArrayList("O-3F", "O-IDS", "MFG", "O-4F");
     }
 
     @ResponseBody
@@ -295,6 +316,7 @@ public class RequisitionController {
         List<Requisition> l = container.getMyList();
         l = this.retrieveSapInfos(l);
         this.checkModelMaterial(l);
+        this.checkPrintLabel(l);
         service.batchInsert(l);
         return "success";
 
@@ -329,10 +351,9 @@ public class RequisitionController {
     @ResponseBody
     @RequestMapping(value = "/findRequisitionStateOptions", method = {RequestMethod.GET})
     protected List<RequisitionState> findRequisitionStateOptions() {
-        return requisitionStateService.findAll((Root<RequisitionState> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-            Path<Integer> idEntryPath = root.get(RequisitionState_.ID);
-            return cb.not(idEntryPath.in(newArrayList(1, 3)));
-        });
+        List<Integer> ids = newArrayList(2, 4, 5, 6, 7, 8);
+        List<RequisitionState> states = requisitionStateService.findAll();
+        return states.stream().filter(f -> ids.contains(f.getId())).collect(Collectors.toList());
     }
 
     @ResponseBody

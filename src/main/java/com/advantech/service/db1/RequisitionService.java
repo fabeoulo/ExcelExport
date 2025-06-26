@@ -65,6 +65,8 @@ public class RequisitionService {
     @Autowired
     private RequisitionReasonRepository reasonRepo;
 
+    private Date sD, eD;
+
     public DataTablesOutput<Requisition> findAll(DataTablesInput dti) {
         return repo.findAll(dti);
     }
@@ -99,6 +101,55 @@ public class RequisitionService {
 
     public List<Requisition> findAllByPoAndMatNoWithLazy(List<String> pos, List<String> matNos) {
         return repo.findAllByPoInAndMaterialNumberIn(pos, matNos);
+    }
+
+    public List<Requisition> findAllByPo(List<String> pos) {
+        return repo.findAllByPoIn(pos);
+    }
+
+    public List<Requisition> findAllByCreateDateRequisitionState(DateTime td, int stateId) {
+        return repo.findAllByCreateDateGreaterThanAndRequisitionState_Id(td.toDate(), stateId);
+    }
+
+    public List<Requisition> findAllByPoAndFloor(List<String> pos, List<Integer> floorId) {
+        return repo.findAllByPoInAndFloor_IdIn(pos, floorId);
+    }
+
+    public List<Requisition> findAllByCreateDateRequisitionStateFloor(DateTime td, int stateId, List<Integer> floorId) {
+        return repo.findAllByCreateDateGreaterThanAndRequisitionState_IdAndFloor_IdIn(td.toDate(), stateId, floorId);
+    }
+
+    public List<Requisition> findAllByHalfdayWithUserAndState() {
+        return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            root.fetch(Requisition_.USER, JoinType.LEFT);
+            root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
+
+            setDatetime();
+            Path<Date> dateEntryPath = root.get(Requisition_.receiveDate);
+            Predicate datePredicate = cb.between(dateEntryPath, sD, eD);
+
+            Path<RequisitionState> rsEntryPath = root.get(Requisition_.requisitionState);
+            Predicate statePredicate = cb.equal(rsEntryPath.get(RequisitionState_.id), 5);
+
+            cq.where(cb.and(datePredicate, statePredicate));
+
+            cq.orderBy(cb.asc(root.get(Requisition_.werk)));
+            return cq.getRestriction();
+        });
+    }
+
+    private void setDatetime() {
+        DateTime dt = new DateTime();
+        DateTime sdt, edt;
+        if (dt.getHourOfDay() < 17) {
+            sdt = dt.minusDays(1).withTime(17, 0, 0, 1);
+            edt = dt.withTime(12, 0, 0, 0);
+        } else {
+            sdt = dt.withTime(12, 0, 0, 1);
+            edt = dt.withTime(17, 0, 0, 0);
+        }
+        sD = sdt.toDate();
+        eD = edt.toDate();
     }
 
     public List<Requisition> findAllByCreateAndStateAndFloor(DateTime sdt, int state, List<Integer> floorIds) {
@@ -147,7 +198,7 @@ public class RequisitionService {
 
         S result = repo.save(s);
 
-        RequisitionEvent e = new RequisitionEvent(s, user, s.getRequisitionState(), remark,s.getRequisitionReason(),s.getRequisitionType());
+        RequisitionEvent e = new RequisitionEvent(s, user, s.getRequisitionState(), remark, s.getRequisitionReason(), s.getRequisitionType());
         eventRepo.save(e);
 
         return result;
@@ -174,7 +225,7 @@ public class RequisitionService {
             r.setRequisitionReason(reason);
             r.setUser(user);
             repo.save(r);
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(),r.getRequisitionReason(),r.getRequisitionType());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(), r.getRequisitionReason(), r.getRequisitionType());
             eventRepo.save(e);
         }
 
@@ -200,7 +251,7 @@ public class RequisitionService {
                 r.setReturnDate(now);
             }
 
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(),r.getRequisitionReason(),r.getRequisitionType());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRequisitionState(), r.getRemark(), r.getRequisitionReason(), r.getRequisitionType());
             reLists.add(e);
         }
         repo.saveAll(l);

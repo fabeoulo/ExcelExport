@@ -13,7 +13,6 @@ import com.advantech.service.db1.UserAgentService;
 import com.advantech.webservice.WareHourseService;
 import static com.google.common.collect.Lists.newArrayList;
 import java.util.List;
-import java.util.Map;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Justin.Yeh
  */
 @Component
-public class WareHouseAgent {
+public class WareHouseAgent extends JobBase {
 
     private static final Logger logger = LoggerFactory.getLogger(WareHouseAgent.class);
 
@@ -46,23 +45,12 @@ public class WareHouseAgent {
 
     private final DateTime today = new DateTime().withTime(LocalTime.MIDNIGHT);
     private final int rState = 4;
-    private final List<Integer> floorIds = newArrayList(9,10);
+    private final List<Integer> floorIds = newArrayList(9, 10);
 
-    private boolean isServer() {
-        String hostName = "";
-        Map<String, String> env = System.getenv();
-        if (env.containsKey("COMPUTERNAME")) {
-            hostName = env.get("COMPUTERNAME");
-        } else if (env.containsKey("HOSTNAME")) {
-            hostName = env.get("HOSTNAME");
-        }
-
-        return hostName.contains("IIS");
-    }
-
+    // prevent lazyjoin nosession issue.
     @Transactional
     public void execute() {
-        if (!isServer()) {
+        if (!super.isServer()) {
             return;
         }
 
@@ -82,7 +70,7 @@ public class WareHouseAgent {
         try {
             UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);
             SecurityPropertiesUtils.loginUserManual(user);
-            String result = wareHourseService.insertEflow(l, jobNo);
+            String result = wareHourseService.insertEflowWithUserRemark(l, jobNo);
             SecurityPropertiesUtils.logoutUserManual();
         } catch (Exception ex) {
             logger.error("WareHourse agent fail. ", ex);

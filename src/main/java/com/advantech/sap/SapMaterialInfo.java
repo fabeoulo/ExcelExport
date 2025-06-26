@@ -17,6 +17,7 @@ public class SapMaterialInfo {
     private String materialNumber;
     private BigDecimal amount;
     private BigDecimal unitPrice;
+    private BigDecimal poQty;
     private String storageSpaces;
     private String werk;
 
@@ -58,6 +59,14 @@ public class SapMaterialInfo {
 
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public BigDecimal getPoQty() {
+        return poQty;
+    }
+
+    public void setPoQty(BigDecimal poQty) {
+        this.poQty = poQty;
     }
 
     public String getStorageSpaces() {
