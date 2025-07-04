@@ -133,7 +133,7 @@
                 <ref bean="SyncDataBeforeSendMail-Trig"/>-->
                 <ref bean="SendWhReports-Trig"/>
                 <!--<ref bean="SendOvertimeReport-Trig"/>-->
-                <ref bean="SendWhReportsM8-Trig"/>
+                <!--<ref bean="SendWhReportsM8-Trig"/>-->
                 <ref bean="SendLackWithStock-Trig"/>
                 <ref bean="SendRequiredToPMC-Trig"/>
                 

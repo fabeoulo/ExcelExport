@@ -127,7 +127,7 @@ public abstract class SendWhReports {
         sb.append("</th>");
         sb.append("<th>Quantity</th>");
         sb.append("<th>SAP工時</th>");
-        sb.append("<th>SAP產值</th>");
+        sb.append("<th>SAP實際產值</th>");
         sb.append("<th>部別</th>");
         sb.append("</tr>");
 
@@ -198,7 +198,7 @@ public abstract class SendWhReports {
         sb.append("</th>");
         sb.append("<th>Quantity</th>");
         sb.append("<th>SAP工時</th>");
-        sb.append("<th>SAP產值</th>");
+        sb.append("<th>SAP實際產值</th>");
         sb.append("<th>本月工時預估</th>");
         sb.append("<th>本月產值預估</th>");
         sb.append("<th>工時累計達成率</th>");
