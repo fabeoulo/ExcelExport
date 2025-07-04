@@ -19,11 +19,11 @@ import org.springframework.stereotype.Repository;
 public interface OutputValueViewRepository extends JpaRepository<JpaAbstractEntity, Integer> {
 
     public static final String OUTPUTVALUEGROUP
-            = "SELECT \"ERDAT\", ROUND(SUM(\"ZSTDCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" "
+            = "SELECT \"ERDAT\", ROUND(SUM(\"ZACTCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" "
             + "FROM rv_biprd_ztpp_zrpp87s GROUP BY \"ERDAT\", \"SWERK\" ";
 
     public static final String OUTPUTVALUEGROUPWC
-            = "SELECT \"ERDAT\", ROUND(SUM(\"ZSTDCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK1\" "
+            = "SELECT \"ERDAT\", ROUND(SUM(\"ZACTCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK1\" "
             + "FROM ( "
             + "SELECT *"
             + ", CASE WHEN \"SWERK\"='TWM3' OR \"ZZCFTNO\" LIKE 'MS3F%' THEN 'TWM3' "
@@ -35,7 +35,7 @@ public interface OutputValueViewRepository extends JpaRepository<JpaAbstractEnti
             + "GROUP BY \"ERDAT\", \"SWERK1\" ";
 
     @Query(value
-            = "SELECT \"ERDAT\", ROUND(SUM(\"ZSTDCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" AS \"Plant\" "
+            = "SELECT \"ERDAT\", ROUND(SUM(\"ZACTCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" AS \"Plant\" "
             + "FROM rv_biprd_ztpp_zrpp87s "
             + "WHERE \"SWERK\" IN ?1 AND \"ERDAT\" IN ?2 "
             + "GROUP BY \"ERDAT\", \"SWERK\" ",
@@ -43,7 +43,7 @@ public interface OutputValueViewRepository extends JpaRepository<JpaAbstractEnti
     public List<OutputValueView> findGroupByDateInAndPlantIn(List<String> plants, List<String> dates);
 
     @Query(value
-            = "SELECT \"ERDAT\", ROUND(SUM(\"ZSTDCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" AS \"Plant\" "
+            = "SELECT \"ERDAT\", ROUND(SUM(\"ZACTCST\"),0) AS \"StandardCost\", ROUND(SUM(\"MENGE\"),0) AS \"Quantity\" , \"SWERK\" AS \"Plant\" "
             + "FROM rv_biprd_ztpp_zrpp87s "
             + "WHERE \"ZZCFTNO\" IN ?1 AND \"ERDAT\" IN ?2 "
             + "GROUP BY \"ERDAT\", \"SWERK\" ",

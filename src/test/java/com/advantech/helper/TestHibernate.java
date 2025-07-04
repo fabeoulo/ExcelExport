@@ -90,7 +90,7 @@ public class TestHibernate {
     @Rollback(true)
     public void testFactory3Pojo() {
         EntityManager manager = factory3.createEntityManager();
-        List l = manager.createNativeQuery("SELECT \"ZSTDCST\", \"ERDAT\", \"SWERK\" FROM rv_biprd_ztpp_zrpp87s").setMaxResults(1).getResultList();
+        List l = manager.createNativeQuery("SELECT \"ZACTCST\", \"ERDAT\", \"SWERK\" FROM rv_biprd_ztpp_zrpp87s").setMaxResults(1).getResultList();
         HibernateObjectPrinter.print(l);
 
     }
