@@ -9,17 +9,17 @@ import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserNotification;
 import com.advantech.service.db1.UserNotificationService;
 import com.advantech.service.db1.UserService;
+import com.advantech.webapi.EmailApiClient;
+import com.advantech.webapi.model.EmailModel;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Justin.Yeh
  */
-@Component
-public abstract class SendEmailBase {
-    
+public abstract class SendEmailBase extends JobBase {
+
     @Autowired
     protected MailManager manager;
 
@@ -28,9 +28,23 @@ public abstract class SendEmailBase {
 
     @Autowired
     private UserNotificationService notificationService;
-    
-    
-    protected String[] findEMailByNotifyId(Integer id) {
+
+    @Autowired
+    protected EmailApiClient emailApiClient;
+
+    protected boolean sendByApi(String[] toAddresses, String[] ccAddresses, String subject, String body) {
+        return sendByApi(toAddresses, ccAddresses, subject, body, null);
+    }
+
+    protected boolean sendByApi(String[] toAddresses, String[] ccAddresses, String subject, String body, String setFromAddress) {
+        if (super.isServer()) {
+            EmailModel emailModel = new EmailModel(toAddresses, ccAddresses, subject, body, setFromAddress);
+            return emailApiClient.sendEmail(emailModel);
+        }
+        return false;
+    }
+
+    protected String[] findEmailByNotifyId(Integer id) {
         UserNotification notifi = notificationService.findById(id).get();
         List<User> l = userService.findByUserNotifications(notifi);
         return l.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);

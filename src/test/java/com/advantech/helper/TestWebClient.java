@@ -9,7 +9,12 @@ import com.advantech.webapi.EmployeeApiClient;
 import com.advantech.model.db1.User;
 import com.advantech.repo.db1.UserRepository;
 import com.advantech.service.db1.UserService;
+import com.advantech.webapi.EmailApiClient;
+import com.advantech.webapi.model.EmailModel;
+import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,42 +35,50 @@ import org.springframework.transaction.annotation.Transactional;
 public class TestWebClient {
 
     @Autowired
+    private UserRepository userRepo;
+
+//   @Test
+//    @Transactional //repo inside Transactional //Rollback default is true
+//    @Rollback(false)
+    public void testQuickInsert() {
+        String jobnumber = "A-7060";
+        userRepo.saveUserWithNameByProc(jobnumber, "", jobnumber);
+        System.out.println("testQuickInsert ");
+    }
+
+    @Autowired
     private EmployeeApiClient wc;
 
     @Autowired
-    private UserService userService;
+    private EmailApiClient emailApiClient;
+
+//    @Test
+    public void testEmailApiClient() {
+        EmailModel email = new EmailModel();
+        String[] add = {"justin.yeh@advantech.com.tw"};
+        email.setToAddresses(add);
+        email.setSubject("subj");
+        email.setBody("body");
+
+        Boolean bodyObject = emailApiClient.sendEmail(email);
+    }
 
 //    @Test
     public void testGetUserInAtmc2() {
         String jobNo = "A-F0287";
         System.out.println("wc.baseUrl= " + wc.getBaseUrl());
+        System.out.println(" wc.isUserInAtmc= " + wc.getUserInAtmc(jobNo));
+
         Employee atmcUser = GetUserInAtmc(jobNo);
-        System.out.println(" wc.getUserInAtmc= " + atmcUser);
         if (atmcUser != null) {
             System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.getEmplr_Id());
             HibernateObjectPrinter.print(" atmcUser.getLocal_Name()= " + atmcUser.getLocal_Name());
             System.out.println(" atmcUser.getEmail_Addr= " + atmcUser.getEmail_Addr());
         }
     }
-    
-    private Employee GetUserInAtmc(String jobNo) {
-        return wc.getUserInAtmc(jobNo);
-    }
-    
-//   @Test
-//    @Transactional //repo inside Transactional //Rollback default is true
-//    @Rollback(false)
-    public void testQuickInsert() {
-        String jobNo = "A-7060";
-        Employee atmcUser = GetUserInAtmc(jobNo);
-        if (atmcUser != null) {
-//            System.out.println(" atmcUser.getEmplr_Id()= " + atmcUser.Emplr_Id);
-//            HibernateObjectPrinter.print(" atmcUser.getLocal_Name()= " + atmcUser.Local_Name);
-//            System.out.println(" atmcUser.getEmail_Addr= " + atmcUser.Email_Addr);
-//        userService.saveUserWithNameByProc(jobNo);
-        }
-        System.out.println("testQuickInsert ");
-    }
+
+    @Autowired
+    private UserService userService;
 
 //    @Test
 //    @Transactional
@@ -84,6 +97,10 @@ public class TestWebClient {
         }
     }
 
+    private Employee GetUserInAtmc(String jobNo) {
+        return wc.getUserInAtmc(jobNo);
+    }
+
 //    @Test
     public void testGetUserInAtmc() {
 
@@ -99,11 +116,11 @@ public class TestWebClient {
 //                .retrieve()
 //                .bodyToMono(Object[].class);
 //        Object[] atmcEMP;
-//        List<WebApiUser> urlist = new ArrayList<>();
+//        List<Employee> urlist = new ArrayList<>();
 //        try {
 //            atmcEMP = body.block();
 //            ObjectMapper mapper = new ObjectMapper();
-//            urlist = mapper.convertValue(atmcEMP, new TypeReference<List<WebApiUser>>() {
+//            urlist = mapper.convertValue(atmcEMP, new TypeReference<List<Employee>>() {
 //            });
 //        } catch (Exception e) {
 //            System.out.println("Object[]  e: " + e);

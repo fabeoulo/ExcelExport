@@ -303,7 +303,7 @@
                             },
                             insertWhBtn,
                             {
-                                "text": '轉來料缺',
+                                "text": '轉不良缺',
                                 "attr": {
                                     "class": "dt-button crudBtn"
                                 },
@@ -503,7 +503,7 @@
                 });
 
                 $("#myModal3 #save").click(function () {
-                    if (confirm("資料轉來料缺?")) {
+                    if (confirm("資料轉不良缺?")) {
                         var requision_id = $("#myModal3 #model-table #requision_id").val();
                         var number = $("#myModal3 #model-table #number").val();
                         var po = $("#myModal3 #model-table #itemses\\[0\\]\\.label1").val();
@@ -1127,7 +1127,7 @@
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 id="titleMessage3" class="modal-title">轉來料缺</h4>
+                        <h4 id="titleMessage3" class="modal-title">轉不良缺</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">

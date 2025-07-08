@@ -49,8 +49,8 @@ public class SendRequiredToPMC extends SendEmailBase {
 
     protected void sendMail() throws Exception {
 
-        String[] mailTarget = findEMailByNotifyId(19);
-        String[] mailCcTarget = findEMailByNotifyId(18);
+        String[] mailTarget = findEmailByNotifyId(19);
+        String[] mailCcTarget = findEmailByNotifyId(18);
 
         if (mailTarget.length == 0) {
             logger.info("Job SendLackWithStock can't find mail target in database table.");
