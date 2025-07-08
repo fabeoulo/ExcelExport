@@ -9,7 +9,12 @@ import com.advantech.webapi.EmployeeApiClient;
 import com.advantech.model.db1.User;
 import com.advantech.repo.db1.UserRepository;
 import com.advantech.service.db1.UserService;
+import com.advantech.webapi.EmailApiClient;
+import com.advantech.webapi.model.EmailModel;
+import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +48,20 @@ public class TestWebClient {
 
     @Autowired
     private EmployeeApiClient wc;
+
+    @Autowired
+    private EmailApiClient emailApiClient;
+
+//    @Test
+    public void testEmailApiClient() {
+        EmailModel email = new EmailModel();
+        String[] add = {"justin.yeh@advantech.com.tw"};
+        email.setToAddresses(add);
+        email.setSubject("subj");
+        email.setBody("body");
+
+        Boolean bodyObject = emailApiClient.sendEmail(email);
+    }
 
 //    @Test
     public void testGetUserInAtmc2() {
