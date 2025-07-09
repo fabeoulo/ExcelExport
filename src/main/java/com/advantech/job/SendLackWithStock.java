@@ -106,7 +106,7 @@ public class SendLackWithStock extends SendEmailBase {
     protected void sendMail() throws Exception {
 
         String[] mailTarget = findEMailFromLack();
-        String[] mailCcTarget = findEMailByNotifyId(11);
+        String[] mailCcTarget = findEmailByNotifyId(20);
 
         if (mailTarget.length == 0) {
             logger.info("Job SendLackWithStock can't find mail target in database table.");
@@ -116,8 +116,9 @@ public class SendLackWithStock extends SendEmailBase {
         DateTime now = new DateTime();
         String mailBody = generateMailBody();
         String mailTitle = fmt.print(now) + " - 缺料有良品提醒";
+        String fromName = "領退料平台";
 
-        manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
+        super.sendByApi(mailTarget, mailCcTarget, mailTitle, mailBody, fromName);
     }
 
     private String[] findEMailFromLack() {

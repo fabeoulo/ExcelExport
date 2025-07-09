@@ -326,7 +326,8 @@
                                     $("#model-table #itemses\\[0\\]\\.label1").val(data.po);
                                     $("#model-table #itemses\\[0\\]\\.label3").val(data.materialNumber);
                                     $("#model-table #number").val(data.amount);
-                                    $("#model-table #comment").val(data.remark);
+                                    $("#model-table #comment").val("申請人：" + data.user.username + "。" + data.remark);
+                                    $("#model-table #email").val(data.user.email).attr("disabled", true);
                                 }
                             },
                             {
@@ -443,7 +444,7 @@
 
                         let arr = table.rows('.selected').data();
                         var data = arr[0];
-						
+
                         var dataInput = {
                             po: po,
                             materialNumber: m,
@@ -1181,6 +1182,12 @@
                                     <td class="lab">不良敘述</td>
                                     <td>
                                         <textarea id="comment"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lab">申請人Email</td>
+                                    <td>
+                                        <input type="text" id="email" readonly="readonly">
                                     </td>
                                 </tr>
                             </table>

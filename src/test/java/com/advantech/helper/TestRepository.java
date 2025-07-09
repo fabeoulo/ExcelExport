@@ -413,17 +413,20 @@ public class TestRepository {
 
     //  @Test
     @Transactional("tx2")
-    @Rollback(false)
+    @Rollback(true)
     public void testOrder() {
         System.out.println("testOrder");
 
         OrderTypes od = orderTypesRepo.getOne(1);
-        Users u = usersRepo.getOne("A-0023");
+        Users u = usersRepo.getOne("test2");
         Teams t = teamsRepo.getOne(1);
-
+        
         Orders o = new Orders(od, t, u, 1, "1", new DateTime().toDate(), null, new DateTime().toDate(), null);
 
+        o.setRequisionId(12345678);
+
         ordersRepo.save(o);
+//        Orders o = ordersRepo.getOne(10732);
 
         List<Integer> li = Lists.newArrayList(o.getId());
         ordersRepo.updateTimeStampToZeroByIdIn(li);
