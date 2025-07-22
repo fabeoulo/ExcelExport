@@ -1026,6 +1026,7 @@
                         if ($('#myModal').find('#id').val() > 0) {
                             const arr = table.rows('.selected').data();
                             data = arr[0];
+                            data.agent = "";
                         }
 
                         var dataInput = {

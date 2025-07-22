@@ -178,6 +178,8 @@ public class WareHouseAgentLabel extends SendEmailBase {
                     r.setRemark(r.getRemark() + " #超過" + QTYRATIOSTR);
                     blockResult.add(r);
                 }
+
+                r.setAgent("SYSTEM");
             }
         }
 

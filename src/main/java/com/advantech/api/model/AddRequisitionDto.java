@@ -20,6 +20,9 @@ public class AddRequisitionDto {
     private String jobnumber = "";
     private String po = "";
     private int floorId;
+    @ApiModelProperty(value = "optional", required = false)
+    private String agent = "RepairAI";
+    
     @JsonProperty("lists")
     private List<RequisitionDto> requitionDto = Lists.newArrayList(new RequisitionDto());
 
@@ -45,6 +48,14 @@ public class AddRequisitionDto {
 
     public void setFloorId(int floorId) {
         this.floorId = floorId;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
     }
 
     public List<RequisitionDto> getRequitionDto() {

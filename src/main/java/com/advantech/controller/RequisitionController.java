@@ -237,7 +237,7 @@ public class RequisitionController {
             System.out.println(objectError.getCode());
         });
 
-        this.batchSaveCheck(newArrayList(requisition));
+        this.checkbeforeSave(newArrayList(requisition));
 
         service.save(requisition, remark);
 
@@ -285,12 +285,14 @@ public class RequisitionController {
     private void checkPrintLabel(List<Requisition> requisitions) {
         List<Integer> floorIds = newArrayList(8, 9, 10);
         List<String> labelStorages = getLabelStorages();
+        RequisitionReason defaultReason = requisitionReasonService.getOne(6);
         requisitions.forEach(r -> {
             if (r.getMaterialNumber().startsWith("20")
                     && floorIds.contains(r.getFloor().getId())
                     && labelStorages.stream().anyMatch(ls -> r.getStorageSpaces().contains(ls))) {
 
                 r.getFloor().setId(8); // set LABEL floor
+                r.setRequisitionReason(defaultReason);
             }
         });
     }
@@ -324,12 +326,15 @@ public class RequisitionController {
     @RequestMapping(value = "/batchSave", method = {RequestMethod.POST})
     protected String batchSave(@ModelAttribute RequisitionListContainer container) throws Exception {
         List<Requisition> l = container.getMyList();
+        this.checkbeforeSave(l);
+        service.batchInsert(l);
+        return "success";
+    }
+
+    public void checkbeforeSave(List<Requisition> l) throws Exception {
         l = this.retrieveSapInfos(l);
         this.checkModelMaterial(l);
         this.checkPrintLabel(l);
-        service.batchInsert(l);
-        return "success";
-
     }
 
     @ResponseBody
