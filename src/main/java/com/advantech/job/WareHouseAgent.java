@@ -67,6 +67,7 @@ public class WareHouseAgent extends JobBase {
     private void insertEflowAgent(String jobNo) {
         DateTime sdt = today;
         List<Requisition> l = rservice.findAllByCreateAndStateAndFloor(sdt, rState, floorIds);
+        l.stream().forEach(r -> r.setAgent("SYSTEM"));
 
         try {
             UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);

@@ -37,6 +37,7 @@ public class RequisitionEvent implements Serializable {
     private int id;
     private Requisition requisition;
     private User user;
+    private Integer amount;
     private RequisitionState requisitionState;
     private RequisitionReason requisitionReason;
     private RequisitionCateIms requisitionCateIms;
@@ -45,6 +46,7 @@ public class RequisitionEvent implements Serializable {
     private RequisitionType requisitionType;
     private Date modifiedDate;
     private String remark;
+    private String agent;
     private Floor floor;
 
     public RequisitionEvent() {
@@ -60,7 +62,9 @@ public class RequisitionEvent implements Serializable {
         this.requisitionCateIms = requisition.getRequisitionCateIms();
         this.requisitionCateMes = requisition.getRequisitionCateMes();
         this.requisitionCateMesCustom = requisition.getRequisitionCateMesCustom();
+        this.agent = requisition.getAgent();
         this.floor = requisition.getFloor();
+        this.amount = requisition.getAmount();
     }
 
     @Id
@@ -176,6 +180,15 @@ public class RequisitionEvent implements Serializable {
         this.requisitionCateMesCustom = requisitionCateMesCustom;
     }
 
+    @Column(name = "agent", length = 50)
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floor_id")
     public Floor getFloor() {
@@ -184,6 +197,14 @@ public class RequisitionEvent implements Serializable {
 
     public void setFloor(Floor floor) {
         this.floor = floor;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 
 }

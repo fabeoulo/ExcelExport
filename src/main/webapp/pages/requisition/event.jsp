@@ -68,6 +68,7 @@
                     "columns": [
                         {data: "id"},
                         {data: "user.username"},
+                        {data: "amount"},
                         {data: "requisitionState.name"},
                         {data: "requisitionReason.name"},
                         {data: "requisitionCateIms.name"},
@@ -75,6 +76,7 @@
                         {data: "requisitionType.name"},
                         {data: "modifiedDate"},
                         {data: "remark"},
+                        {data: "agent"},
                         {data: "floor.name"}
                     ],
                     "columnDefs": [
@@ -83,20 +85,20 @@
                             "visible": true
                         },
                         {
-                            "targets": [7],
+                            "targets": [8],
                             'render': function (data, type, full, meta) {
                                 return data == null ? "n/a" : formatDate(data);
                             }
                         },
                         {
-                            "targets": [5],
+                            "targets": [6],
                             'render': function (data, type, full, meta) {
                                 return data ? data :
                                         full.requisitionCateMesCustom ? full.requisitionCateMesCustom : "n/a";
                             }
                         },
                         {
-                            "targets": [3, 4, 5, 6, 8, 9],
+                            "targets": [4, 5, 6, 7, 9, 10, 11],
                             'render': function (data, type, full, meta) {
                                 return data == null ? "n/a" : data;
                             }
@@ -142,6 +144,7 @@
                         <tr>
                             <th>id</th>
                             <th>人員</th>
+                            <th>數量</th>
                             <th>申請狀態</th>
                             <th>產線判定</th>
                             <th>材料類別</th>	
@@ -149,6 +152,7 @@
                             <th>料號狀態</th>
                             <th>異動日期</th>
                             <th>備註</th>
+                            <th>代理</th>
                             <th>位置</th>
                         </tr>
                     </thead>
