@@ -68,6 +68,7 @@ public class Requisition implements Serializable {
     private Date returnDate;
     private String isUrgent;
     private String returnOrderNo;
+    private String agent;
 
     @JsonIgnore
     private Set<RequisitionEvent> requisitionEvents = new HashSet(0);
@@ -77,7 +78,7 @@ public class Requisition implements Serializable {
     public Requisition() {
     }
 
-    public Requisition(String po, String materialNumber, int amount, RequisitionReason requisitionReason, User user, String remark, Floor floor) {
+    public Requisition(String po, String materialNumber, int amount, RequisitionReason requisitionReason, User user, String remark, Floor floor, String agent) {
         this.po = po;
         this.materialNumber = materialNumber;
         this.amount = amount;
@@ -85,6 +86,7 @@ public class Requisition implements Serializable {
         this.user = user;
         this.remark = remark;
         this.floor = floor;
+        this.agent = agent;
     }
 
     @Id
@@ -251,7 +253,6 @@ public class Requisition implements Serializable {
         this.materialType = materialType;
     }
 
-    @Nullable
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requisitionFlow_id")
     public RequisitionFlow getRequisitionFlow() {
@@ -380,6 +381,15 @@ public class Requisition implements Serializable {
 
     public void setRequisitionCateMesCustom(String requisitionCateMesCustom) {
         this.requisitionCateMesCustom = requisitionCateMesCustom;
+    }
+
+    @Column(name = "agent", length = 50)
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
     }
 
 }

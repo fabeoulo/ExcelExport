@@ -31,8 +31,9 @@ public class SwaggerConfig {
 //                .or(RequestHandlerSelectors.basePackage("com.advantech.api.auth"));
 
         return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("0.API auth")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.advantech.api"))
+                .apis(RequestHandlerSelectors.basePackage("com.advantech.api.controller"))
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()

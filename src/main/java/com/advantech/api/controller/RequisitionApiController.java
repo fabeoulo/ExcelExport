@@ -11,10 +11,13 @@ import com.advantech.api.model.FloorDto;
 import com.advantech.api.model.RequisitionReasonDto;
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
+import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.RequisitionReason;
 import com.advantech.model.db1.User;
+import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.CustomUserDetailsService;
 import com.advantech.service.db1.FloorService;
+import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.service.db1.RequisitionReasonService;
 import com.advantech.service.db1.RequisitionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -64,6 +67,9 @@ public class RequisitionApiController {
     private RequisitionReasonService requisitionReasonService;
 
     @Autowired
+    private RequisitionFlowService requisitionFlowService;
+
+    @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
@@ -72,7 +78,7 @@ public class RequisitionApiController {
     @ResponseBody
     @GetMapping(value = "/getFloors")
     public List<FloorDto> getFloors() {
-        return floorService.findAll().stream()
+        return requisitionController.findFloorOptions().stream()
                 .map(f -> new FloorDto(f.getId(), f.getName()))
                 .collect(Collectors.toList());
     }
@@ -80,7 +86,7 @@ public class RequisitionApiController {
     @ResponseBody
     @GetMapping(value = "/getReasons")
     public List<RequisitionReasonDto> getReasons() {
-        return requisitionReasonService.findAll().stream()
+        return requisitionController.findRequisitionReasonOptions().stream()
                 .map(r -> new RequisitionReasonDto(r.getId(), r.getName()))
                 .collect(Collectors.toList());
     }
@@ -104,17 +110,6 @@ public class RequisitionApiController {
 //        return response; // 返回JSON格式的数据
 //    }
 //
-//    @PostMapping("/hello2")
-//    public ResponseEntity<String> sayHello2(@RequestBody List<FloorDto> floors) {
-//        try {
-//            floors.forEach((u) -> {
-//                logger.info("Name: {} id: {} \n", u.getName(), u.getId());
-//            });
-//            return ResponseEntity.ok("Hello, ");
-//        } catch (Exception ex) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JSON data" + ex.getMessage());
-//        }
-//    }
 
     @ResponseBody
     @RequestMapping(value = "/getDtoTemplate", method = RequestMethod.GET)
@@ -130,20 +125,30 @@ public class RequisitionApiController {
 
         String msg = "";
         AddRequisitionDto dto = new AddRequisitionDto();
+        User userDetail = new User();
         try {
             dto = objectMapper.readValue(datas, AddRequisitionDto.class);
+
+            userDetail = (User) customUserDetailsService.loadUserByUsername(dto.getJobnumber());
+            SecurityPropertiesUtils.loginUserManual(userDetail);
         } catch (JsonProcessingException e) {
             msg = e.getMessage();
             logger.error(msg);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
         }
-        User userDetail = (User) customUserDetailsService.loadUserByUsername(dto.getJobnumber());
-        List<Requisition> rL = ConvertToReq(dto, userDetail);
 
-        rL = requisitionController.retrieveSapInfos(rL);
-        requisitionController.checkModelMaterial(rL);
-        requisitionService.batchInsert(rL, userDetail);
+        List<Requisition> rL = this.ConvertToReq(dto, userDetail);
 
+        this.SetDefault(rL);
+
+        requisitionController.checkbeforeSave(rL);
+        requisitionService.batchInsert(rL);
+
+        try {
+            SecurityPropertiesUtils.logoutUserManual();
+        } catch (Exception ex) {
+            logger.error("Fail logoutUserManual. ", ex);
+        }
         return ResponseEntity.ok(msg);
     }
 
@@ -151,16 +156,31 @@ public class RequisitionApiController {
 
         Optional<Floor> oF = floorService.findById(dto.getFloorId());
         checkState(oF.isPresent(), "Floor not found.");
+        List<RequisitionReason> reasons = requisitionReasonService.findAll();
+        Map<Integer, RequisitionReason> mapReason = reasons.stream().collect(Collectors.toMap(RequisitionReason::getId, rt -> rt));
 
         List<Requisition> rL = dto.getRequitionDto().stream().map(
                 rd -> {
-                    Optional<RequisitionReason> oR = requisitionReasonService.findById(rd.getRequisitionReasonId());
-                    checkState(oR.isPresent(), "Reason not found.");
+                    RequisitionReason reason = mapReason.get(rd.getRequisitionReasonId());
+//                    checkNotNull(reason, "Reason not found.");
+                    String remark = dto.getAgent() + ". " + rd.getRemark();
 
                     return new Requisition(dto.getPo(), rd.getMaterialNumber(), rd.getAmount(),
-                            oR.get(), userDetail, "FIMP. " + rd.getRemark(), oF.get());
+                            reason, userDetail, remark, oF.get(),
+                            dto.getAgent());
                 }).collect(Collectors.toList());
 
+        return rL;
+    }
+
+    private List<Requisition> SetDefault(List<Requisition> rL) {
+        RequisitionFlow rf = requisitionFlowService.getOne(1);
+        RequisitionReason rr = requisitionReasonService.getOne(2);
+
+        rL.forEach(r -> {
+            r.setRequisitionFlow(rf);
+            r.setRequisitionReason(rr);
+        });
         return rL;
     }
 }
