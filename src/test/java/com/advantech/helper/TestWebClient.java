@@ -42,7 +42,7 @@ public class TestWebClient {
 //    @Rollback(false)
     public void testQuickInsert() {
         String jobnumber = "A-7060";
-        userRepo.saveUserWithNameByProc(jobnumber, "", jobnumber);
+        userRepo.saveUserWithNameByProc(jobnumber, "", jobnumber, null, null);
         System.out.println("testQuickInsert ");
     }
 
