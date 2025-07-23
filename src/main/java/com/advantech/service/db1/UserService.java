@@ -58,7 +58,7 @@ public class UserService {
     }
 
     public void saveUserWithNameByProc(String JobNo, String email, String name) {
-        repo.saveUserWithNameByProc(JobNo, email, name);
+        repo.saveUserWithNameByProc(JobNo, email, name, null, null);
     }
 
     public <S extends User> S save(S s) {

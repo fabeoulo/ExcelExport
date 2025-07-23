@@ -79,8 +79,9 @@
                 <prop key="hibernate.id.new_generator_mappings" >false</prop>
                 <prop key="hibernate.default_schema">M9_Picking</prop>
                 <prop key="hibernate.dialect">com.advantech.helper.SqlServerDialectWithNvarchar</prop>
-                <!--                <prop key="hibernate.show_sql">true</prop>
-                <prop key="hibernate.format_sql">true</prop>-->
+                <prop key="hibernate.proc.param_null_passing">true</prop>
+                <!--<prop key="hibernate.show_sql">true</prop>-->
+                <!--<prop key="hibernate.format_sql">true</prop>-->
                 <!--<prop key="hibernate.hbm2ddl.auto">update</prop>-->
             </props> 
         </property> 
