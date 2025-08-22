@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db1.ModelMaterialDetails;
 import com.advantech.model.db1.RequisitionState_;
+import com.advantech.model.db1.RequisitionType_;
 import com.advantech.model.db1.Requisition_;
 import static com.google.common.collect.Lists.newArrayList;
 import java.util.ArrayList;
@@ -169,6 +170,10 @@ public class RequisitionService {
 
             return cb.and(datePredicate, statePredicate, floorPredicate);
         });
+    }
+
+    public List<Requisition> findAllByReturnAndTypeAndFloor(DateTime sdt, DateTime edt, List<Integer> typeIds, List<Integer> floorIds) {
+        return repo.findAllByReturnDateBetweenAndRequisitionType_IdInAndFloor_IdIn(sdt.toDate(), edt.toDate(), typeIds, floorIds);
     }
 
     public List<ModelMaterialDetails> findModelMaterialDetails(String modelName) {

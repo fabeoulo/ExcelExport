@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.advantech.api.auth;
+package com.advantech.api.controller.auth;
 
 import com.advantech.api.model.FloorDto;
 import com.advantech.api.model.RequisitionReasonDto;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestController; // Implicitly include ResponseBody
 
 /**
  *
@@ -58,6 +58,19 @@ public class TestApiAuthController {
 
 //    @Autowired
     private HttpSessionCsrfTokenRepository csrfTokenRepository;
+
+//    @PostMapping("/authLogout")
+//    public String logout(HttpServletRequest request, HttpServletResponse response) {
+//        boolean isAuth = false;
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth != null) {
+//            auth.setAuthenticated(false);
+//            SecurityContextHolder.getContext().setAuthentication(null);
+//            new SecurityContextLogoutHandler().logout(request, response, auth);
+//            isAuth = !auth.isAuthenticated();
+//        }
+//        return String.valueOf(isAuth);
+//    }
 
     @GetMapping("/getCsrfToken")
     public String getCsrfToken(@Autowired HttpServletRequest request) {

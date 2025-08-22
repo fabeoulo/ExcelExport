@@ -24,9 +24,8 @@
         <beans:property name="headerName" value="X-CSRF-TOKEN" />
     </beans:bean> -->
     
-    <http pattern="/ApiAuth/**" create-session="stateless">   
-        <intercept-url pattern="/**" access="authenticated" />
-        <intercept-url pattern="/**" access="hasAnyRole('ADMIN')" />
+    <http pattern="/ApiAuth/**" create-session="stateless">
+        <intercept-url pattern="/**" access="hasAnyRole('ADMIN', 'APP')" />
         <http-basic />
         
         <csrf disabled="true"/>

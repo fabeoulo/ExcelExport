@@ -6,6 +6,7 @@
 package com.advantech.helper;
 
 import com.advantech.model.db1.ModelMaterialDetails;
+import com.advantech.api.model.RequisitionDto;
 import com.advantech.controller.RequisitionController;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionFlow;
@@ -399,11 +400,21 @@ public class TestService {
 //    @Test
 //    @Transactional
 //    @Rollback(true)
-    public void testToPMC() {
-//        setDatetime(sD, eD);
+    public void testRequisitionService() {
+        List<Requisition> rl = rservice.findAllByReturnAndTypeAndFloor(DateTime.now().plusDays(-3), DateTime.now(), newArrayList(2), newArrayList(9));
+        checkArgument(!rl.isEmpty());
+        HibernateObjectPrinter.print(rl);
+        
+        List<RequisitionDto> l2 = rl.stream().map(r -> new RequisitionDto(r)).collect(Collectors.toList());
+        return;
+    }
 
-//        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
-//        return;
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testToPMC() {
+        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
+        return;
     }
 
     private void setDate() {
