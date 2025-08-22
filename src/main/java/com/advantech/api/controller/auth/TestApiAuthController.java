@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.advantech.api.auth;
+package com.advantech.api.controller.auth;
 
 import com.advantech.api.model.FloorDto;
 import com.advantech.api.model.RequisitionReasonDto;
@@ -32,13 +32,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestController; // Implicitly include ResponseBody
 
 /**
  *
  * @author Justin.Yeh
  */
-@RestController
+//@RestController
 @RequestMapping("/ApiAuth/test")
 public class TestApiAuthController {
 
@@ -75,7 +75,6 @@ public class TestApiAuthController {
 //        }
 //        return String.valueOf(isAuth);
 //    }
-
     @GetMapping("/getCsrfToken")
     public String getCsrfToken(@Autowired HttpServletRequest request) {
         CsrfToken csrfToken = csrfTokenRepository.loadToken(request);

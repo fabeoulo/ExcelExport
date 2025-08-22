@@ -2,12 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.advantech.api.controller;
+package com.advantech.api.controller.auth;
 
 import com.advantech.controller.RequisitionController;
-import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.api.model.AddRequisitionDto;
 import com.advantech.api.model.FloorDto;
+import com.advantech.api.model.RequisitionDto;
 import com.advantech.api.model.RequisitionReasonDto;
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.*;
+import static com.google.common.collect.Lists.newArrayList;
 import io.swagger.annotations.ApiParam;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,29 +32,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestController; // Implicitly include ResponseBody
 
 /**
  *
  * @author Justin.Yeh
  */
-@RestController
-@RequestMapping("/Api/Requisition")
-public class RequisitionApiController {
+@Controller(value = "RequisitionApiAuthController")
+@RequestMapping("/ApiAuth/Requisition")
+public class RequisitionApiAuthController {
 
-    private final Logger logger = LoggerFactory.getLogger(RequisitionApiController.class);
+    private final Logger logger = LoggerFactory.getLogger(RequisitionApiAuthController.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -104,14 +106,8 @@ public class RequisitionApiController {
 //        return response; // 自動轉JSON格式返回数据
 //    }
 
-    @ResponseBody
-    @RequestMapping(value = "/getDtoTemplate", method = RequestMethod.GET)
-    public AddRequisitionDto getDtoTemplate() {
-        return new AddRequisitionDto();
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/createRequisition", method = RequestMethod.POST, produces = "application/json")
+//    @ResponseBody
+//    @RequestMapping(value = "/createRequisition", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> addRequisition(
             @ApiParam(required = true, value = "String of AddRequisitionDto model.")
             @RequestBody String datas) throws Exception {
@@ -155,7 +151,7 @@ public class RequisitionApiController {
         List<Requisition> rL = dto.getRequitionDto().stream().map(
                 rd -> {
                     RequisitionReason reason = mapReason.get(rd.getRequisitionReasonId());
-//                    checkNotNull(reason, "Reason not found.");
+                    checkNotNull(reason, "Reason not found.");
                     String remark = dto.getAgent() + ". " + rd.getRemark();
 
                     return new Requisition(dto.getPo(), rd.getMaterialNumber(), rd.getAmount(),
@@ -168,12 +164,51 @@ public class RequisitionApiController {
 
     private List<Requisition> SetDefault(List<Requisition> rL) {
         RequisitionFlow rf = requisitionFlowService.getOne(1);
-        RequisitionReason rr = requisitionReasonService.getOne(2);
 
         rL.forEach(r -> {
             r.setRequisitionFlow(rf);
-            r.setRequisitionReason(rr);
         });
         return rL;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/queryRequisition", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<List<RequisitionDto>> queryRequisition(@RequestBody Map<String, Object> body) throws Exception {
+
+        DateTime sd, ed;
+        List<Integer> floorIds;
+
+        String startDateStr = (String) body.get("startDate");
+        String endDateStr = (String) body.get("endDate");
+
+        sd = DateTime.parse(startDateStr);
+        ed = DateTime.parse(endDateStr);
+        checkArgument(ed.isBefore(sd.plusMonths(1).plusDays(1)), "over 1 month");
+        checkIntegerList(body.get("floorId"), "floorId");
+        floorIds = (List<Integer>) body.get("floorId");
+        checkArgument(!floorIds.isEmpty(), "need floorId");
+
+        List<Requisition> l = requisitionService.findAllByReturnAndTypeAndFloor(sd, ed, newArrayList(2), floorIds);
+        List<RequisitionDto> l_dto = l.stream().map(r -> new RequisitionDto(r)).collect(Collectors.toList());
+
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        logger.info("queryRequisition user:  {} id: {}", user.getUsername(), user.getId());
+        return ResponseEntity.ok(l_dto);
+    }
+
+    private static void checkIntegerList(Object value, String key) {
+        if (!(value instanceof List<?>)) {
+            throw new IllegalArgumentException(key + " 必須是序列");
+        }
+
+        ((List<?>) value).stream()
+                .map(elem -> {
+                    if (elem instanceof Integer) {
+                        return (Integer) elem;
+                    } else {
+                        throw new IllegalArgumentException(key + " 包含非整數: " + elem);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }

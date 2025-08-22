@@ -5,6 +5,7 @@
  */
 package com.advantech.helper;
 
+import com.advantech.api.model.RequisitionDto;
 import com.advantech.controller.RequisitionController;
 import com.advantech.model.db1.IECalendarLinkou;
 import com.advantech.model.db1.IEWorkdayCalendar;
@@ -229,7 +230,7 @@ public class TestService {
 //        }
 //        String jobNo = ul.get(0).getUser().getJobnumber();
         DateTime sdt = today;
-        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, 4, newArrayList(7,8));
+        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, 4, newArrayList(7, 8));
         List<String> pos = l.stream().map(r -> r.getPo()).collect(Collectors.toList());
 //        List<String> pos = newArrayList("THP400214ZA", "TPP001365ZA");
         List<Requisition> historyLabel = rservice.findAllByPoAndFloor(pos, newArrayList(8));
@@ -544,9 +545,19 @@ public class TestService {
 //    @Test
 //    @Transactional
 //    @Rollback(true)
-    public void testToPMC() {
-//        setDatetime(sD, eD);
+    public void testRequisitionService() {
+        List<Requisition> rl = rservice.findAllByReturnAndTypeAndFloor(DateTime.now().plusDays(-3), DateTime.now(), newArrayList(2), newArrayList(9));
+        checkArgument(!rl.isEmpty());
+        HibernateObjectPrinter.print(rl);
+        
+        List<RequisitionDto> l2 = rl.stream().map(r -> new RequisitionDto(r)).collect(Collectors.toList());
+        return;
+    }
 
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testToPMC() {
         List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
         return;
     }

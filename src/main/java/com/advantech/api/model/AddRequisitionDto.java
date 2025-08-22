@@ -24,7 +24,7 @@ public class AddRequisitionDto {
     private String agent = "RepairAI";
     
     @JsonProperty("lists")
-    private List<RequisitionDto> requitionDto = Lists.newArrayList(new RequisitionDto());
+    private List<AddRequisitionDetailDto> requitionDto = Lists.newArrayList(new AddRequisitionDetailDto());
 
     public String getJobnumber() {
         return jobnumber;
@@ -58,16 +58,16 @@ public class AddRequisitionDto {
         this.agent = agent;
     }
 
-    public List<RequisitionDto> getRequitionDto() {
+    public List<AddRequisitionDetailDto> getRequitionDto() {
         return requitionDto;
     }
 
-    public void setRequitionDto(List<RequisitionDto> requitionDto) {
+    public void setRequitionDto(List<AddRequisitionDetailDto> requitionDto) {
         this.requitionDto = requitionDto;
     }
 
     // must be static
-    public static class RequisitionDto {
+    public static class AddRequisitionDetailDto {
 
         @JsonProperty("materialNo")
         @ApiModelProperty(position = 0)

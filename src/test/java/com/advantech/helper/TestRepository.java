@@ -504,9 +504,16 @@ public class TestRepository {
 //    @Transactional
 //    @Rollback(true)
     public void testFindAllByPoAndMat() {
-        List< Requisition> l = requisitionRepository.findAllByPoInAndMaterialNumberIn(Lists.newArrayList("TPO000146ZA"), Lists.newArrayList("2000023012-11"));
+//        List< Requisition> l = requisitionRepository.findAllByPoInAndMaterialNumberIn(Lists.newArrayList("TPO000146ZA"), Lists.newArrayList("2000023012-11"));
+//        List< Requisition> l = requisitionRepository.findAllByCreateDateGreaterThanAndRequisitionState_IdAndFloor_IdIn(DateTime.now().plusHours(-8).toDate(), 5, Lists.newArrayList(9));
+        List< Requisition> l = requisitionRepository.findAllByReturnDateBetweenAndRequisitionType_IdInAndFloor_IdIn(
+                DateTime.now().plusDays(-1).toDate(),
+                DateTime.now().toDate(),
+                Lists.newArrayList(2),
+                Lists.newArrayList(9)
+        );
 
-        assertEquals(2, l.size());
+        assertTrue(!l.isEmpty());
 
         HibernateObjectPrinter.print(l);
     }
