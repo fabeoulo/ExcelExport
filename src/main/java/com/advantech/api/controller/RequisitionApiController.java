@@ -75,6 +75,8 @@ public class RequisitionApiController {
     @Autowired
     private RequisitionController requisitionController;
 
+    private final int defaultFloorId = 10;
+
     @ResponseBody
     @GetMapping(value = "/getFloors")
     public List<FloorDto> getFloors() {
@@ -169,10 +171,12 @@ public class RequisitionApiController {
     private List<Requisition> SetDefault(List<Requisition> rL) {
         RequisitionFlow rf = requisitionFlowService.getOne(1);
         RequisitionReason rr = requisitionReasonService.getOne(2);
+        Floor ff = floorService.findById(defaultFloorId).get();
 
         rL.forEach(r -> {
             r.setRequisitionFlow(rf);
             r.setRequisitionReason(rr);
+            r.setFloor(ff);
         });
         return rL;
     }
