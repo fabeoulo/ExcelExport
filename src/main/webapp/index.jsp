@@ -2,10 +2,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
     "http://www.w3.org/TR/html4/loose.dtd">
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Entry</title>
+        <link rel="stylesheet" href="<c:url value="/webjars/jquery-ui-themes/1.12.1/redmond/jquery-ui.min.css" />" >
         <style>
             h1{
                 color: red;
@@ -14,6 +16,25 @@
                 line-height:30px;
             }
         </style>
+        <script src="<c:url value="/webjars/jquery/1.12.4/jquery.min.js" />"></script>
+        <script src="<c:url value="/extraJs/jquery-ui-1.10.0.custom.min.js" />"></script>
+        <script src="<c:url value="/extraJs/jquery.fileDownload.js" />"></script>
+
+        <script>
+            $(function () {
+                $("#generateExcel").click(function () {
+                    $.fileDownload('<c:url value="/Excel/downloadReturn" />' + '?date='
+                            , {
+                                preparingMessageHtml: "We are preparing your report, please wait...",
+                                failMessageHtml: "No reports generated. No Survey data is available.",
+                                successCallback: function (url) {
+                                },
+                                failCallback: function (html, url) {
+                                }
+                            });
+                });
+            });
+        </script>
     </head>
     <body>
         <h1>入口</h1>
@@ -38,6 +59,7 @@
                     </ul>
                 </details>
             </li>-->
+			<li><a href="#" id="generateExcel">不良品報表</a></li>
         </ol>
     </body>
 </html>

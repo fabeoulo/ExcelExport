@@ -136,6 +136,18 @@
         <property name="cronExpression" value="0 10 8 ? * MON-SAT *" />
     </bean>
     
+    <!--job12 setting-->
+    <bean name="SendCheckQualify-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="sendCheckQualify" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="SendCheckQualify-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SendCheckQualify-Job" />
+        <property name="cronExpression" value="0 0 17 ? * MON-SAT *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -148,6 +160,7 @@
                 <!--<ref bean="SendWhReportsM8-Trig"/>-->
                 <ref bean="SendLackWithStock-Trig"/>
                 <!--<ref bean="SendRequiredToPMC-Trig"/>-->
+                <ref bean="SendCheckQualify-Trig"/>
                 
                 <ref bean="WareHouseAgent-Trig"/>
                 <ref bean="WareHouseAgentLabel-Trig"/>

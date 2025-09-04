@@ -54,7 +54,8 @@ public class TestClass {
     public void testDateTime() {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
 
-        DateTime d = new DateTime();
+        DateTime d = new DateTime("2025-09-07");
+        HibernateObjectPrinter.print(d.getDayOfWeek());
 
         DateTime sDOW = d.minusDays(d.getDayOfWeek() - 1);
         DateTime eDOW = sDOW.plusDays(7 - 1);

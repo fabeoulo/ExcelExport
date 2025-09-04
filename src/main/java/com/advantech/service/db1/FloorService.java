@@ -36,4 +36,7 @@ public class FloorService {
         return repo.findById(id);
     }
 
+    public List<Floor> findAllById(List<Integer> ids) {
+        return repo.findAllById(ids);
+    }
 }

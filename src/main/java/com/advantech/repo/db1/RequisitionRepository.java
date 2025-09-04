@@ -30,7 +30,7 @@ public interface RequisitionRepository extends JpaRepository<Requisition, Intege
     @EntityGraph(attributePaths = {"user", "requisitionState"})
     public List<Requisition> findAllByIdIn(List<Integer> ids);
 
-    @EntityGraph(attributePaths = {"requisitionState", "requisitionReason", "requisitionType", "requisitionFlow", "floor", "user"})
+    @EntityGraph(attributePaths = {"requisitionState", "requisitionReason", "requisitionType", "requisitionFlow", "floor", "user", "requisitionCateIms", "requisitionCateMes"})
     public List<Requisition> findAllByPoInAndMaterialNumberIn(List<String> po, List<String> modelName);
 
     @EntityGraph(attributePaths = {"user"})

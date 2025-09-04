@@ -5,6 +5,7 @@
  */
 package com.advantech.helper;
 
+import com.advantech.job.SendCheckQualify;
 import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
@@ -71,9 +72,19 @@ public class TestQuartzJob {
 
     @Autowired
     private WareHouseAgentLabel wareHouseAgentLabel;
-    
+
+    @Autowired
+    private SendCheckQualify sendCheckQualify;
+
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testSendCheckQualify() {
+        sendCheckQualify.execute();
+    }
 
 //    @Test
 //    @Transactional
@@ -81,7 +92,7 @@ public class TestQuartzJob {
     public void testWareHouseAgentLabel() {
         wareHouseAgentLabel.execute();
     }
-            
+
 //    @Test
 //    @Transactional
 //    @Rollback(true)
@@ -102,7 +113,7 @@ public class TestQuartzJob {
 //    @Test
     public void testSendWhReportsDonghu() throws Exception {
 //        sendDonghu.execute();
-        DateTime dt = new DateTime(2024, 9,2, 0, 0, 0);
+        DateTime dt = new DateTime(2024, 12, 31, 0, 0, 0);
         String sb = sendDonghu.generateMailBody(dt);
     }
     

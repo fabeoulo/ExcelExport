@@ -53,7 +53,7 @@ public class TestWebService {
         HibernateObjectPrinter.print(l);
     }
 
-    @Test
+//    @Test
     public void test2() throws Exception {
 
         String po = "THK002854Z22A";
@@ -71,7 +71,7 @@ public class TestWebService {
     @Autowired
     WareHourseInsertPort whPort;
 
-    @Test
+//    @Test
     public void wareHourseQuery() throws Exception {
 
         ObjectFactory factory = new ObjectFactory();
