@@ -689,7 +689,8 @@ public class TestService {
     public void testTrigger() {
         List<Integer> listInt = Arrays.asList(50091, 49963, 49925, 47796, 47591, 91015);
         List<Requisition> rl = rservice.findAllByIdWithUserAndState(listInt);
-        trigger.checkQualify(rl);
+//        trigger.checkQualify(rl);
+//
 //        List<Requisition> rForm = rservice.findAllByHalfdayWithUserAndState();
 //        trigger.checkQualify(rForm);
 

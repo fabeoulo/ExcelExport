@@ -11,7 +11,7 @@ import java.util.Map;
  * @author Justin.Yeh
  */
 public abstract class JobBase {
-    
+
     protected boolean isServer() {
         String hostName = "";
         Map<String, String> env = System.getenv();

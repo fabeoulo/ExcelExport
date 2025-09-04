@@ -5,11 +5,13 @@
  */
 package com.advantech.helper;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,18 +50,27 @@ public class MailManager {
     }
 
     public boolean sendMail(String[] to, String subject, String text) throws MessagingException {
-        return this.sendMail(to, new String[0], subject, text, null);
+        return this.sendMail(to, new String[0], subject, text, null, "");
     }
 
     public boolean sendMail(String[] to, String[] cc, String subject, String text) throws MessagingException {
-        return this.sendMail(to, cc, subject, text, null);
+        return this.sendMail(to, cc, subject, text, null, "");
+    }
+
+    public boolean sendMail(String[] to, String[] cc, String subject, String text, String from) throws MessagingException {
+        return this.sendMail(to, cc, subject, text, null, from);
     }
 
     public boolean sendMail(String[] to, String subject, String text, Map<String, InputStreamSource> imageResources) throws MessagingException {
-        return this.sendMail(to, new String[0], subject, text, imageResources);
+        return this.sendMail(to, new String[0], subject, text, imageResources, "");
     }
 
     public boolean sendMail(String[] to, String[] cc, String subject, String text, Map<String, InputStreamSource> imageResources) throws MessagingException {
+
+        return this.sendMail(to, new String[0], subject, text, imageResources, "");
+    }
+
+    public boolean sendMail(String[] to, String[] cc, String subject, String text, Map<String, InputStreamSource> imageResources, String from) throws MessagingException {
         boolean flag = false;
 
         try {
@@ -72,7 +83,7 @@ public class MailManager {
             helper.setTo(to);
             helper.setCc(cc);
             helper.setSubject(subject);
-            helper.setFrom(hostName);
+            helper.setFrom(new InternetAddress(hostName, from, "UTF-8"));
             if (imageResources != null) {
                 for (Map.Entry<String, InputStreamSource> entry : imageResources.entrySet()) {
                     helper.addAttachment(entry.getKey(), entry.getValue());
@@ -81,7 +92,7 @@ public class MailManager {
 
             this.mailSender.send(mimeMessage);
             flag = true;
-        } catch (MailException | MessagingException ex) {
+        } catch (UnsupportedEncodingException | MessagingException | MailException ex) {
             // simply log it and go on...
             log.error(ex.getMessage());
         }

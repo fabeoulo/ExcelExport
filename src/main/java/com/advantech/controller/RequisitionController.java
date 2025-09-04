@@ -213,7 +213,7 @@ public class RequisitionController {
         service.save(requisition, remark);
 
         trigger.checkRepair(newArrayList(requisition));
-        trigger.checkQualify(newArrayList(requisition));
+//        trigger.checkQualify(newArrayList(requisition));
         return "success";
 
     }

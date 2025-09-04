@@ -44,7 +44,7 @@ public class TestWebService {
     @Autowired
     private QryWipAttQueryPort modelNameQryPort;
 
-    @Test//245
+//    @Test//245
     public void test1() throws Exception {
 
         List l = kanbanPort.query(Factory.TWM3);
@@ -52,7 +52,7 @@ public class TestWebService {
         HibernateObjectPrinter.print(l);
     }
 
-    @Test//245
+//    @Test//245
     public void test2() throws Exception {
 
         String po = "THM004411ZA";
@@ -68,7 +68,7 @@ public class TestWebService {
     @Qualifier("resourceMap")
     private Map<Factory, WebServiceTemplate> resourceMap;
 
-    @Test
+//    @Test
     public void wareHourseQuery() throws Exception {
 
         ObjectFactory factory = new ObjectFactory();

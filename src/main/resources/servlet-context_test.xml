@@ -258,11 +258,14 @@
     <mvc:resources mapping="/webjars/**" location="/webjars/"/>
     <!--Email setting-->
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="Relay.advantech.com.tw" />
-        <property name="port" value="2526" />
+        <property name="host" value="Relay.advantech.com" />
+        <property name="port" value="25" />
+        <!--        <property name="username" value="TWM8.IE" />
+        <property name="password" value="a1234567890-" />-->
 
         <property name="javaMailProperties">
             <props>
+                <!--                <prop key="mail.smtp.auth">true</prop>-->
                 <prop key="mail.smtp.auth">false</prop>
                 <prop key="mail.smtp.starttls.enable">true</prop>
             </props>

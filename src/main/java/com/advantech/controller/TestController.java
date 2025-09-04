@@ -6,6 +6,7 @@
 package com.advantech.controller;
 
 import com.advantech.helper.HibernateObjectPrinter;
+import com.advantech.job.SendCheckQualify;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendWhReportsDonghu;
@@ -49,7 +50,7 @@ public class TestController {
 
     @Autowired
     private SendWhReportsDonghu job;
-    
+
     @Autowired
     private SendWhReportsLinkou job1;
 
@@ -61,39 +62,38 @@ public class TestController {
         job.testSendMail(targetUserId, dt);
         return "success";
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "/testGenerateMailBody", method = {RequestMethod.GET})
     public String testGenerateMailBody(@RequestParam int year,
             @RequestParam int month, @RequestParam int day) throws Exception {
         DateTime dt = new DateTime(year, month, day, 0, 0, 0);
-        
+
         return job.generateMailBody(dt);
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "/testGenerateMailBody1", method = {RequestMethod.GET})
     public String testGenerateMailBody1(@RequestParam int year,
             @RequestParam int month, @RequestParam int day) throws Exception {
         DateTime dt = new DateTime(year, month, day, 0, 0, 0);
-        
+
         return job1.generateMailBody(dt);
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "/testReSendWhReports", method = {RequestMethod.GET})
     public String testReSendWhReports() throws Exception {
         job.execute();
         return "success";
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "/testReSendWhReports1", method = {RequestMethod.GET})
     public String testReSendWhReports1() throws Exception {
         job1.execute();
         return "success";
     }
-
 
     @Autowired
     private SendOvertimeReport job3;
@@ -114,6 +114,16 @@ public class TestController {
             @RequestParam int month, @RequestParam int day) throws Exception {
         DateTime dt = new DateTime(year, month, day, 0, 0, 0);
         job4.sendMail(dt);
+        return "success";
+    }
+
+    @Autowired
+    private SendCheckQualify job5;
+
+    @ResponseBody
+    @RequestMapping(value = "/testReSendCheckQualify", method = {RequestMethod.GET})
+    public String testReSendCheckQualify() throws Exception {
+        job5.execute();
         return "success";
     }
 }
