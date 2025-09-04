@@ -58,7 +58,7 @@ public class Requisition implements Serializable {
     private RequisitionCateIms requisitionCateIms;
     private RequisitionCateMes requisitionCateMes;
     private String requisitionCateMesCustom;
-    private String materialType;
+    private String returnReason;
     private String materialBoardSn;
     private User user;
     private Date createDate;
@@ -244,13 +244,13 @@ public class Requisition implements Serializable {
         this.returnDate = returnDate;
     }
 
-    @Column(name = "materialType")
-    public String getMaterialType() {
-        return materialType;
+    @Column(name = "returnReason")
+    public String getReturnReason() {
+        return returnReason;
     }
 
-    public void setMaterialType(String materialType) {
-        this.materialType = materialType;
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

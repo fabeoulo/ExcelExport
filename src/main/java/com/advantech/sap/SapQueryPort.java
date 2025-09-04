@@ -29,8 +29,8 @@ public class SapQueryPort {
     @Autowired
     private SAPConn1 sapConn;
 
-    private final List<String> lgortGood = Lists.newArrayList("0008", "0012", "0015", "CUST", "0018", "0016");
-    private final List<String> lgortOther = Lists.newArrayList("0055", "0058");
+    private final List<String> lgortGood = Lists.newArrayList("0008", "0012", "0015", "CUST", "0016");
+    private final List<String> lgortOther = Lists.newArrayList("0055", "0058", "0018");
     private List<String> lgort;
 
     @PostConstruct
