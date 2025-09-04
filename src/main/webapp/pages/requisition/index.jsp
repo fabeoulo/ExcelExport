@@ -120,7 +120,7 @@
                         {data: "requisitionReason.name", "defaultContent": "n/a", title: "產線判定", className: "excel_export"},
                         {data: "requisitionCateIms.name", "defaultContent": "n/a", title: "材料類別", className: "excel_export"},
                         {data: "requisitionCateMes.name", "defaultContent": "n/a", title: "異常分類", className: "excel_export"},
-                        {data: "materialType", "defaultContent": "", title: "不良原因", className: "excel_export"},
+                        {data: "returnReason", "defaultContent": "", title: "不良原因", className: "excel_export"},
                         {data: "materialBoardSn", "defaultContent": "", title: "材料序號", className: "excel_export"},
                         {data: "user.username", "defaultContent": "n/a", title: "申請人", className: "excel_export"},
                         {data: "floor.name", "defaultContent": "n/a", title: "位置", className: "excel_export"},
@@ -318,7 +318,7 @@
                         $modelTable.find("#requisitionCateMesCustom").val(data.requisitionCateMesCustom);
                         $modelTable.find("#requisitionState\\.id").val(data.requisitionState.id);
                         $modelTable.find("#user\\.id").val(data.user.id);
-                        $modelTable.find("#materialType").val(data.materialType);
+                        $modelTable.find("#returnReason").val(data.returnReason);
                         $modelTable.find("#materialBoardSn").val(data.materialBoardSn);
                         $modelTable.find("#remark").val(data.remark);
                         $modelTable.find("#isUrgent option").filter(function () {
@@ -709,12 +709,12 @@
 
                 const requestParams = [
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionCateImsRef" />",
+                        url: "<c:url value="/SelectOption/findRequisitionCateImsRef" />",
                         attribute: "floors",
                         kvMapName: "floorToCateImsMap"
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionCateMesRef" />",
+                        url: "<c:url value="/SelectOption/findRequisitionCateMesRef" />",
                         attribute: "requisitionCateImss",
                         kvMapName: "imsToMesMap"
                     }
@@ -767,7 +767,7 @@
             function initDropDownOption() {
                 const requestParams = [
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionReasonOptions" />",
+                        url: "<c:url value="/SelectOption/findRequisitionReasonOptions" />",
                         target: $("#model-table #requisitionReason\\.id"),
                         func: [
                             {
@@ -779,11 +779,11 @@
                         ]
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionStateOptions" />",
+                        url: "<c:url value="/SelectOption/findRequisitionStateOptions" />",
                         target: $("#model-table #requisitionState\\.id")
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionTypeOptions" />",
+                        url: "<c:url value="/SelectOption/findRequisitionTypeOptions" />",
                         target: $("#model-table #requisitionType\\.id")
                     },
                     {
@@ -791,7 +791,7 @@
                         target: $("#model-table #orderTypes\\.id")
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findFloorOptions" />",
+                        url: "<c:url value="/SelectOption/findFloorOptions" />",
                         target: $("#floor\\.id"),
                         func: [
                             {
@@ -803,19 +803,19 @@
                         ]
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionFlowOptions" />",
+                        url: "<c:url value="/SelectOption/findRequisitionFlowOptions" />",
                         target: $("#requisitionFlow\\.id")
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionCateImsOptions" />",
+                        url: "<c:url value="/SelectOption/findRequisitionCateImsOptions" />",
                         target: $("#model-table #requisitionCateIms\\.id")
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findRequisitionCateMesOptions" />",
+                        url: "<c:url value="/SelectOption/findRequisitionCateMesOptions" />",
                         target: $("#model-table #requisitionCateMes\\.id")
                     },
                     {
-                        url: "<c:url value="/RequisitionController/findUrgentOptions" />",
+                        url: "<c:url value="/SelectOption/findUrgentOptions" />",
                         target: $("#model-table #isUrgent")
                     }
                 ];
@@ -1073,7 +1073,7 @@
                             requisitionCateMesCustom: $modelTable.find("#requisitionCateMesCustom").val(),
                             requisitionState: {id: $modelTable.find("#requisitionState\\.id").val()},
                             requisitionType: {id: $modelTable.find("#requisitionType\\.id").val()},
-                            materialType: $modelTable.find("#materialType").val(),
+                            returnReason: $modelTable.find("#returnReason").val(),
                             materialBoardSn: $modelTable.find("#materialBoardSn").val(),
                             remark: $modelTable.find("#remark").val(),
                             isUrgent: $modelTable.find("#isUrgent option:selected").text(),
@@ -1356,7 +1356,7 @@
                                     <tr>
                                         <td class="lab">不良原因</td>
                                         <td>
-                                            <textarea id="materialType"></textarea>
+                                            <textarea id="returnReason"></textarea>
                                         </td>
                                     </tr>
                                     <tr>

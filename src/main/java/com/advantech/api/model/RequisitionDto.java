@@ -36,7 +36,7 @@ public class RequisitionDto {
     @JsonProperty("mesCateName")
     private String requisitionCateMesName;
     @JsonProperty("noGoodReason")
-    private String materialType;
+    private String returnReason;
     @JsonProperty("materialNoGoodSn")
     private String materialBoardSn;
     private String floorName;
@@ -64,7 +64,7 @@ public class RequisitionDto {
         this.requisitionReasonName = r.getRequisitionReason().getName();
         this.requisitionCateImsName = Optional.ofNullable(r.getRequisitionCateIms()).map(RequisitionCateIms::getName).orElse("");
         this.requisitionCateMesName = Optional.ofNullable(r.getRequisitionCateMes()).map(RequisitionCateMes::getName).orElse(r.getRequisitionCateMesCustom());
-        this.materialType = r.getMaterialType();
+        this.returnReason = r.getReturnReason();
         this.materialBoardSn = r.getMaterialBoardSn();
         this.floorName = r.getFloor().getName();
         this.requisitionStateName = r.getRequisitionState().getName();
@@ -179,12 +179,12 @@ public class RequisitionDto {
         this.requisitionCateMesName = requisitionCateMesName;
     }
 
-    public String getMaterialType() {
-        return materialType;
+    public String getReturnReason() {
+        return returnReason;
     }
 
-    public void setMaterialType(String materialType) {
-        this.materialType = materialType;
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
     }
 
     public String getMaterialBoardSn() {

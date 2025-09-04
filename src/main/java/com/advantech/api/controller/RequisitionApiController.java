@@ -9,6 +9,7 @@ import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.api.model.AddRequisitionDto;
 import com.advantech.api.model.FloorDto;
 import com.advantech.api.model.RequisitionReasonDto;
+import com.advantech.controller.SelectOptionController;
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionFlow;
@@ -77,10 +78,13 @@ public class RequisitionApiController {
 
     private final int defaultFloorId = 10;
 
+    @Autowired
+    private SelectOptionController selectOptionController;
+    
     @ResponseBody
     @GetMapping(value = "/getFloors")
     public List<FloorDto> getFloors() {
-        return requisitionController.findFloorOptions().stream()
+        return selectOptionController.findFloorOptions().stream()
                 .map(f -> new FloorDto(f.getId(), f.getName()))
                 .collect(Collectors.toList());
     }
@@ -88,7 +92,7 @@ public class RequisitionApiController {
     @ResponseBody
     @GetMapping(value = "/getReasons")
     public List<RequisitionReasonDto> getReasons() {
-        return requisitionController.findRequisitionReasonOptions().stream()
+        return selectOptionController.findRequisitionReasonOptions().stream()
                 .map(r -> new RequisitionReasonDto(r.getId(), r.getName()))
                 .collect(Collectors.toList());
     }

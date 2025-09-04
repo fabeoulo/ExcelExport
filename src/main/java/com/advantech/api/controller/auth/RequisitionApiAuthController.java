@@ -9,6 +9,7 @@ import com.advantech.api.model.AddRequisitionDto;
 import com.advantech.api.model.FloorDto;
 import com.advantech.api.model.RequisitionDto;
 import com.advantech.api.model.RequisitionReasonDto;
+import com.advantech.controller.SelectOptionController;
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionFlow;
@@ -77,10 +78,13 @@ public class RequisitionApiAuthController {
     @Autowired
     private RequisitionController requisitionController;
 
+    @Autowired
+    private SelectOptionController selectOptionController;
+
     @ResponseBody
     @GetMapping(value = "/getFloors")
     public List<FloorDto> getFloors() {
-        return requisitionController.findFloorOptions().stream()
+        return selectOptionController.findFloorOptions().stream()
                 .map(f -> new FloorDto(f.getId(), f.getName()))
                 .collect(Collectors.toList());
     }
@@ -88,7 +92,7 @@ public class RequisitionApiAuthController {
     @ResponseBody
     @GetMapping(value = "/getReasons")
     public List<RequisitionReasonDto> getReasons() {
-        return requisitionController.findRequisitionReasonOptions().stream()
+        return selectOptionController.findRequisitionReasonOptions().stream()
                 .map(r -> new RequisitionReasonDto(r.getId(), r.getName()))
                 .collect(Collectors.toList());
     }
@@ -177,9 +181,11 @@ public class RequisitionApiAuthController {
 
         DateTime sd, ed;
         List<Integer> floorIds;
+        List<Integer> typeIds;
 
-        String startDateStr = (String) body.get("startDate");
-        String endDateStr = (String) body.get("endDate");
+        typeIds = Optional.ofNullable((List<Integer>) body.get("typeId")).orElse(newArrayList(2));
+        String startDateStr = Optional.ofNullable((String) body.get("startDate")).orElse("");
+        String endDateStr = Optional.ofNullable((String) body.get("endDate")).orElse("");
 
         sd = DateTime.parse(startDateStr);
         ed = DateTime.parse(endDateStr);
@@ -187,8 +193,10 @@ public class RequisitionApiAuthController {
         checkIntegerList(body.get("floorId"), "floorId");
         floorIds = (List<Integer>) body.get("floorId");
         checkArgument(!floorIds.isEmpty(), "need floorId");
+        checkIntegerList(typeIds, "typeId");
+        checkArgument(!typeIds.isEmpty(), "need typeId");
 
-        List<Requisition> l = requisitionService.findAllByReturnAndTypeAndFloor(sd, ed, newArrayList(2), floorIds);
+        List<Requisition> l = requisitionService.findAllByReturnAndTypeAndFloor(sd, ed, typeIds, floorIds);
         List<RequisitionDto> l_dto = l.stream().map(r -> new RequisitionDto(r)).collect(Collectors.toList());
 
         User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
