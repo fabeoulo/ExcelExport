@@ -133,7 +133,7 @@
     
     <bean id="WareHouseAgentLabel-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="WareHouseAgentLabel-Job" />
-        <property name="cronExpression" value="0 10 8 ? * MON-SAT *" />
+        <property name="cronExpression" value="0 30 16 ? * MON-SAT *" />
     </bean>
     
     <!--job12 setting-->
@@ -164,8 +164,8 @@
                 
                 <ref bean="WareHouseAgent-Trig"/>
                 <ref bean="WareHouseAgentLabel-Trig"/>
-<!--                exec on M9 version
-                <ref bean="SyncLackMrp-Trig"/> -->
+                <!--exec on M9 version-->
+                <!--<ref bean="SyncLackMrp-Trig"/>--> 
             </list>
         </property>
         <property name="schedulerName">

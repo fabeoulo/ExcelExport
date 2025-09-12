@@ -51,7 +51,6 @@ public class WareHouseAgentLabel extends SendEmailBase {
     @Autowired
     private UserAgentService userAgentService;
 
-    private final DateTime today = new DateTime();
     private static final int INIT_STATE = 4;
     private final List<Integer> floorIds = newArrayList(8, 9, 10);
     private List<String> labelStorages;
@@ -85,7 +84,8 @@ public class WareHouseAgentLabel extends SendEmailBase {
     }
 
     private void filterdRequisitionLabel() {
-        DateTime sdt = new DateTime(today).minusDays(today.getDayOfWeek() == 1 ? 2 : 1);
+        DateTime today = new DateTime();
+        DateTime sdt = today.minusDays(today.getDayOfWeek() == 1 ? 2 : 1);
 
         List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, INIT_STATE, floorIds);
         l = filterLabelMaterial(l);
@@ -153,7 +153,7 @@ public class WareHouseAgentLabel extends SendEmailBase {
             int doneQty = group.stream()
                     .filter(r -> r.getRequisitionState().getId() == 5)
                     .mapToInt(r -> Math.abs(r.getAmount())).sum();
-            // 2. Find minimum qty * 0.4
+            // 2. Find minimum qty * QTYRATIO
             BigDecimal mostQty = group.stream()
                     .map(Requisition::getMaterialQty)
                     .filter(Objects::nonNull)
@@ -201,7 +201,8 @@ public class WareHouseAgentLabel extends SendEmailBase {
         DateTime now = new DateTime();
         String mailBody = this.getClass().getSimpleName() + ", job successful.";
         String mailTitle = fmt.print(now) + " - 20階標籤代理通知";
+        String mailSenderName = "領退料平台";
 
-        manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
+        manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody, mailSenderName);
     }
 }

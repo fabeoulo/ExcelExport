@@ -12,6 +12,8 @@ import com.advantech.service.db1.UserService;
 import com.advantech.webapi.EmailApiClient;
 import com.advantech.webapi.model.EmailModel;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,5 +54,15 @@ public abstract class SendEmailBase extends JobBase {
         UserNotification notifi = notificationService.findById(id).get();
         List<User> l = userService.findByUserNotifications(notifi);
         return l.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
+    }
+
+    protected String[] findEmailByNotify(String name) {
+        String[] emails = {};
+        Optional<UserNotification> oUn = notificationService.findByNameWithUser(name);
+        if (oUn.isPresent()) {
+            Set<User> users = oUn.get().getUsers();
+            emails = users.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
+        }
+        return emails;
     }
 }

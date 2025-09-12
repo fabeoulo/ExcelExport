@@ -12,14 +12,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 /**
  *
  * @author Justin.Yeh
  */
-@Component
 public class EmployeeApiClient extends BaseApiClient {
 
     private static final Logger log = LoggerFactory.getLogger(EmployeeApiClient.class);
