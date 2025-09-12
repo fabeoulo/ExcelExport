@@ -148,6 +148,18 @@
         <property name="cronExpression" value="0 0 17 ? * MON-SAT *" />
     </bean>
     
+    <!--job13 setting-->
+    <bean name="SendScrapped-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="sendScrapped" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="SendScrapped-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SendScrapped-Job" />
+        <property name="cronExpression" value="0 35 8 ? * MON *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -161,6 +173,7 @@
                 <ref bean="SendLackWithStock-Trig"/>
                 <ref bean="SendRequiredToPMC-Trig"/>
                 <ref bean="SendCheckQualify-Trig"/>
+                <ref bean="SendScrapped-Trig"/>
                 
                 <ref bean="WareHouseAgent-Trig"/>
                 <ref bean="WareHouseAgentLabel-Trig"/>

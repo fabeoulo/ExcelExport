@@ -84,6 +84,15 @@ public class TestClass {
 
 //    @Test
     public void testDateTime() {
+        DateTime now = DateTime.now().withTime(8, 30, 0, 0);
+        DateTime lastWeek = now.plusDays(-7);
+        String lastWeekNo = lastWeek.weekOfWeekyear().getAsShortText();
+        String lastWeekNo3 = lastWeek.year().getAsShortText();
+        
+        DateTime thisMon = now.dayOfWeek().withMinimumValue();
+        DateTime lastMon = thisMon.plusDays(-7);
+        String lastWeekNo2 = lastMon.weekOfWeekyear().getAsShortText();
+
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
 
         DateTime d = new DateTime("2025-09-07");

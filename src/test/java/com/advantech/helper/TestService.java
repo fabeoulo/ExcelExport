@@ -12,6 +12,7 @@ import com.advantech.model.db1.IEWorkdayCalendar;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.Requisition_;
+import com.advantech.model.db1.ScrappedRequisition;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserAgent;
 import com.advantech.model.db1.UserNotification;
@@ -77,6 +78,7 @@ import com.advantech.model.db3.WhReport;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.CustomUserDetailsService;
 import com.advantech.service.db1.RequisitionFlowService;
+import com.advantech.service.db1.ScrappedService;
 import com.advantech.service.db1.UserAgentService;
 import com.advantech.service.db1.VwM3WorktimeService;
 import com.advantech.service.db1.VwMfgWorkerService;
@@ -88,6 +90,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.joda.time.LocalTime;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.TreeMap;
 
 /**
  *
@@ -156,6 +161,9 @@ public class TestService {
 
     @Autowired
     private VwMfgWorkerService vwMfgWorkerService;
+
+    @Autowired
+    private ScrappedService scrappedService;
 
 //    @Test
     public void testVwMfgWorkerService() {
@@ -437,7 +445,7 @@ public class TestService {
 //        HibernateObjectPrinter.print(f);
     }
 
-    @Test
+//    @Test
     @Transactional
     @Rollback(false)
     public void testMatchMrp() throws Exception {
@@ -527,7 +535,7 @@ public class TestService {
 
     private Date sD, eD;
 
-    @Test
+//    @Test
     @Transactional
     @Rollback(true)
     public void testRequisitionFlowService() {
@@ -545,11 +553,67 @@ public class TestService {
 //    @Test
 //    @Transactional
 //    @Rollback(true)
+    public void testScrappedlService() throws Exception {
+        DateTime endDt = DateTime.now().withTime(8, 30, 0, 0);//.dayOfWeek().withMinimumValue();
+        DateTime startDt = new DateTime("2025-09-01");
+        DateTime lastWeek = endDt.plusDays(-7);
+        int lastWeekNo = lastWeek.weekOfWeekyear().get();
+
+        List<ScrappedRequisition> rl = scrappedService.findAllTarget(startDt, endDt);
+        Map<Integer, List<ScrappedRequisition>> grouped = rl.stream().collect(Collectors.groupingBy(
+                sr -> sr.getWeek(),
+                TreeMap::new, // TreeMap for order
+                Collectors.toList()
+        ));
+//        List<ScrappedRequisition> lastWeekL = grouped.getOrDefault(lastWeekNo, newArrayList());
+
+        int priceSumAll = 0;
+        Map<Integer, Integer> mapPrice3f = new HashMap<>(), mapPrice4f = new HashMap<>(), mapPriceBoth = new HashMap<>(), mapPriceAll = new HashMap<>();
+        for (Map.Entry<Integer, List<ScrappedRequisition>> entry : grouped.entrySet()) {
+            Integer keys = entry.getKey();
+            List<ScrappedRequisition> gl = entry.getValue();
+
+            List<ScrappedRequisition> gl3f = scrappedService.getFilterByFloor(gl, 9);
+            List<ScrappedRequisition> gl4f = scrappedService.getFilterByFloor(gl, 10);
+//                    int amountSum = gl.stream().mapToInt(ScrappedRequisition::getAmount).sum();
+            int priceSum3f = getPriceSum(gl3f);
+            int priceSum4f = getPriceSum(gl4f);
+            int priceSumBoth = priceSum3f + priceSum4f;
+            priceSumAll += priceSumBoth;
+
+            mapPrice3f.put(keys, priceSum3f);
+            mapPrice4f.put(keys, priceSum4f);
+            mapPriceBoth.put(keys, priceSumBoth);
+            mapPriceAll.put(keys, priceSumAll);
+        }
+        List<Map<Integer, Integer>> pl = newArrayList(mapPrice3f, mapPrice4f, mapPriceBoth, mapPriceAll);
+
+//        List<Requisition> l = scrappedService.findAllTargetByJson(new DateTime("2025-09-12"), DateTime.now());
+//        HibernateObjectPrinter.print(l);
+//
+//        checkArgument(!rl.isEmpty());
+//        String ss = rl.get(0).getReturnReason();
+//        HibernateObjectPrinter.print(rl);
+//        List<Requisition> rl2 = scrappedService.findAllTargetOg(new DateTime("2025-09-12"), DateTime.now());
+//        checkArgument(!rl2.isEmpty());
+//        HibernateObjectPrinter.print(rl2);
+        return;
+    }
+
+    private int getPriceSum(List<ScrappedRequisition> gl) {
+        return gl.stream().map(sr -> sr.getUnitPrice().multiply(BigDecimal.valueOf(sr.getAmount())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .intValue();
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testRequisitionService() {
         List<Requisition> rl = rservice.findAllByReturnAndTypeAndFloor(DateTime.now().plusDays(-3), DateTime.now(), newArrayList(2), newArrayList(9));
         checkArgument(!rl.isEmpty());
         HibernateObjectPrinter.print(rl);
-        
+
         List<RequisitionDto> l2 = rl.stream().map(r -> new RequisitionDto(r)).collect(Collectors.toList());
         return;
     }

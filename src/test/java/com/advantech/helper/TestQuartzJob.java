@@ -10,6 +10,7 @@ import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendRequiredToPMC;
+import com.advantech.job.SendScrapped;
 import com.advantech.job.SendWhReportsLinkou;
 import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SyncData;
@@ -72,12 +73,18 @@ public class TestQuartzJob {
     @Autowired
     private SendCheckQualify sendCheckQualify;
 
+    @Autowired
+    private SendScrapped sendScrapped;
+    
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
 //    @Test
-//    @Transactional
-//    @Rollback(true)
+    public void testSendScrapped() {
+        sendScrapped.execute();
+    }
+    
+//    @Test
     public void testSendCheckQualify() {
         sendCheckQualify.execute();
     }
