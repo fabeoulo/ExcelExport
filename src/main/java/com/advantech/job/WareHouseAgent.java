@@ -43,7 +43,7 @@ public class WareHouseAgent extends JobBase {
     @Autowired
     private UserAgentService userAgentService;
 
-    private final DateTime today = new DateTime().withTime(LocalTime.MIDNIGHT);
+    private DateTime today; // prop of bean only be set once. i.e. dateTime at webApp start.
     private final int rState = 4;
     private final List<Integer> floorIds = newArrayList(9, 10);
 
@@ -54,6 +54,7 @@ public class WareHouseAgent extends JobBase {
             return;
         }
 
+        today = new DateTime().withTime(LocalTime.MIDNIGHT);
         List<UserAgent> ul = userAgentService.findAllInDateWithUser(today.toDate());
         if (ul.isEmpty()) {
             return;
@@ -64,9 +65,8 @@ public class WareHouseAgent extends JobBase {
     }
 
     private void insertEflowAgent(String jobNo) {
-        DateTime sdt = today;
-        List<Requisition> l = rservice.findAllByCreateAndStateAndFloor(sdt, rState, floorIds);
-        l.stream().forEach(r -> r.setAgent("SYSTEM"));
+        List<Requisition> l = rservice.findAllByCreateAndStateAndFloor(today, rState, floorIds);
+        l.forEach(r -> r.setAgent("SYSTEM"));
 
         try {
             UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);

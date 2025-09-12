@@ -89,7 +89,7 @@
     </bean>
     
     <!--job8 setting-->
-<!--    <bean name="SendRequiredToPMC-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <!--    <bean name="SendRequiredToPMC-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="sendRequiredToPMC" />
         <property name="targetMethod" value="execute"/>  
         <property name="concurrent" value="false"/>
@@ -133,7 +133,7 @@
     
     <bean id="WareHouseAgentLabel-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="WareHouseAgentLabel-Job" />
-        <property name="cronExpression" value="0 10 8 ? * MON-SAT *" />
+        <property name="cronExpression" value="0 30 16 ? * MON-SAT *" />
     </bean>
     
     <!--job12 setting-->

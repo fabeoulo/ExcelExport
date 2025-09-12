@@ -6,22 +6,13 @@ package com.advantech.job;
 
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
-import com.advantech.model.db1.User;
-import com.advantech.model.db1.UserNotification;
-import com.advantech.model.db1.VwM3Worktime;
 import com.advantech.service.db1.FloorService;
 import com.advantech.service.db1.RequisitionService;
 import com.advantech.service.db1.ReturnService;
-import com.advantech.service.db1.UserNotificationService;
-import com.advantech.service.db1.VwM3WorktimeService;
 import static com.google.common.collect.Lists.newArrayList;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.joda.time.DateTime;
@@ -43,16 +34,10 @@ public class SendCheckQualify extends SendEmailBase {
     @Autowired
     private ReturnService returnService;
 
-    private final DateTime edt = DateTime.now().withTime(17, 0, 0, 0);
+    private DateTime edt; // prop of bean only be set once. i.e. dateTime at webApp start.
 
     @Autowired
     private RequisitionService rservice;
-
-    @Autowired
-    private UserNotificationService notificationService;
-
-    @Autowired
-    private VwM3WorktimeService vwM3WorktimeService;
 
     @Autowired
     private FloorService floorService;
@@ -65,6 +50,7 @@ public class SendCheckQualify extends SendEmailBase {
     }
 
     private void filterdRequisition() {
+        edt = new DateTime().withTime(17, 0, 0, 0);
         DateTime sdt = new DateTime(edt).minusDays(edt.getDayOfWeek() == 1 ? 2 : 1);
 
         List<Requisition> l = returnService.findAllNoGood(sdt, edt);
@@ -72,41 +58,44 @@ public class SendCheckQualify extends SendEmailBase {
         checkQualify(l);
     }
 
-// <editor-fold desc="checkQualify.">
     private void checkQualify(List<Requisition> rl) {
 
         List<Requisition> filterSrc = returnService.filterQualify(rl);
-        if (filterSrc.isEmpty()) {
-            return;
-        }
 
-        List<String> pos = filterSrc.stream().map(Requisition::getPo).collect(Collectors.toList());
-        List<String> matNos = filterSrc.stream().map(Requisition::getMaterialNumber).collect(Collectors.toList());
-        List<Requisition> returnAll = rservice.findAllByPoAndMatNoWithLazy(pos, matNos)
-                .stream().filter(a -> a.getReturnDate() != null && a.getReturnDate().before(edt.toDate()))
-                .collect(Collectors.toList());
+        List<Requisition> returnAll = newArrayList();
+        if (!filterSrc.isEmpty()) {
+            List<String> pos = filterSrc.stream().map(Requisition::getPo).collect(Collectors.toList());
+            List<String> matNos = filterSrc.stream().map(Requisition::getMaterialNumber).collect(Collectors.toList());
+            Map<List<String>, List<Requisition>> grouped = filterSrc.stream().collect(Collectors.groupingBy(
+                    i -> newArrayList(i.getPo(), i.getMaterialNumber(), returnService.getCateMesName(i))
+            ));
+
+            returnAll = rservice.findAllByPoAndMatNoWithLazy(pos, matNos)
+                    .stream().filter(
+                            i -> i.getReturnDate() != null && i.getReturnDate().before(edt.toDate())
+                            && grouped.containsKey(
+                                    newArrayList(i.getPo(), i.getMaterialNumber(), returnService.getCateMesName(i))
+                            )
+                    )
+                    .collect(Collectors.toList());
+        }
 
         List<Requisition> checkedList = returnService.getQualifyCheckedList(returnAll);
-        if (checkedList.isEmpty()) {
-            return;
-        }
 
         sendQualifyMail(checkedList);
     }
 
     private void sendQualifyMail(List<Requisition> rl) {
         try {
-            String[] mailTarget = findEmailWithQualify(rl);
-            String[] mailCcTarget = findEmailWithQualifyCc(rl);
+            String[] mailTarget = findEmailByNotify("qualify_target");
+            String[] mailCcTarget = findEmailByNotify("qualify_target_cc");
 
             if (mailTarget.length == 0) {
                 logger.info("SendQualifyMail can't find mail target.");
                 return;
             }
 
-            List<Requisition> rlWithLazy = rl;
-
-            String mailBody = generateQualifyBody(rlWithLazy);
+            String mailBody = generateQualifyBody(rl);
             String mailTitle = getTitleArea() + "領退料平台-累積退料明細-" + returnService.getFormatDate(edt.toDate());
             String mailSenderName = "領退料平台";
 
@@ -117,41 +106,6 @@ public class SendCheckQualify extends SendEmailBase {
             logger.error("Send mail fail.", ex);
         }
     }
-
-    private String[] findEmailWithQualify(List<Requisition> rl) {
-        Set<String> targets = new HashSet<>();
-
-        String[] mailTarget1 = findEmailByNotify("qualify_target");
-        targets.addAll(Arrays.asList(mailTarget1));
-
-//        List<String> modelNames = rl.stream().map(Requisition::getModelName).collect(Collectors.toList());
-//        Set<String> mailTargetPqe = findEmailInWorktime(modelNames, VwM3Worktime::getQcMail);
-//        targets.addAll(mailTargetPqe);
-//
-        return targets.toArray(new String[0]);
-    }
-
-    private String[] findEmailWithQualifyCc(List<Requisition> rl) {
-        Set<String> targets = new HashSet<>();
-
-        String[] mailTarget1 = findEmailByNotify("qualify_target_cc");
-        targets.addAll(Arrays.asList(mailTarget1));
-
-//        List<String> modelNames = rl.stream().map(Requisition::getModelName).collect(Collectors.toList());
-//        Set<String> mailTargetSpe = findEmailInWorktime(modelNames, VwM3Worktime::getSpeMail);
-//        targets.addAll(mailTargetSpe);
-//        Set<String> mailTargetBpe = findEmailInWorktime(modelNames, VwM3Worktime::getBpeMail);
-//        targets.addAll(mailTargetBpe);
-//
-        return targets.toArray(new String[0]);
-    }
-
-    private Set<String> findEmailInWorktime(List<String> modelNames, Function<VwM3Worktime, String> mailProvider) {
-        List<VwM3Worktime> vwM3Wt = vwM3WorktimeService.findAllByModelName(modelNames);
-        Set<String> mails = vwM3Wt.stream().map(mailProvider).filter(s -> s != null).collect(Collectors.toSet());
-        return mails;
-    }
-// </editor-fold>
 
     private String generateQualifyBody(List<Requisition> rl) throws IOException, SAXException, InvalidFormatException {
         StringBuilder sb = new StringBuilder();
@@ -213,19 +167,6 @@ public class SendCheckQualify extends SendEmailBase {
         sb.append("<hr />");
 
         return sb.toString();
-    }
-
-    private String[] findEmailByNotify(String name) {
-        String[] emails = {};
-        Optional<UserNotification> oUn = notificationService.findByNameWithUser(name);
-        if (oUn.isPresent()) {
-            Set<User> users = oUn.get().getUsers();
-            emails = users.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
-        } else {
-            logger.info("Notification name: " + name + " not found.");
-        }
-
-        return emails;
     }
 
     private String getTitleArea() {
