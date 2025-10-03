@@ -14,9 +14,11 @@ import com.advantech.webapi.model.EmailModel;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.servlet.ServletContext;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  *
@@ -37,6 +39,12 @@ public abstract class SendEmailBase extends JobBase {
     protected EmailApiClient emailApiClient;
 
     protected final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
+
+    @Value("${app.base-url.port:8080}")
+    private String webAppPort;
+
+    @Autowired
+    private ServletContext servletContext;
 
     protected boolean sendByApi(String[] toAddresses, String[] ccAddresses, String subject, String body) {
         return sendByApi(toAddresses, ccAddresses, subject, body, null);
@@ -64,5 +72,17 @@ public abstract class SendEmailBase extends JobBase {
             emails = users.stream().map(u -> u.getEmail()).toArray(size -> new String[size]);
         }
         return emails;
+    }
+
+    protected String getBaseUrl() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("http://");
+        sb.append(super.getHostName());
+        sb.append(":");
+        sb.append(webAppPort);
+        sb.append(servletContext.getContextPath());
+        sb.append("/pages/requisition/");
+
+        return sb.toString();
     }
 }

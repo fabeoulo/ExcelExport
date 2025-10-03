@@ -87,8 +87,8 @@ public class SendCheckQualify extends SendEmailBase {
 
     private void sendQualifyMail(List<Requisition> rl) {
         try {
-            String[] mailTarget = findEmailByNotify("qualify_target");
-            String[] mailCcTarget = findEmailByNotify("qualify_target_cc");
+            String[] mailTarget = super.findEmailByNotify("qualify_target");
+            String[] mailCcTarget = super.findEmailByNotify("qualify_target_cc");
 
             if (mailTarget.length == 0) {
                 logger.info("SendQualifyMail can't find mail target.");
@@ -121,6 +121,9 @@ public class SendCheckQualify extends SendEmailBase {
         sb.append("<div id='mailBody'>");
         sb.append("<h3>Dears：</h3>");
         sb.append("<h3>以下 原材 於同工單已累積相同異常達到三筆(含)以上，請相關單位協助確認。</h3>");
+        sb.append("<h3><a href='");
+        sb.append(super.getBaseUrl());
+        sb.append("'>平台連結</a></h3>");
 
         sb.append("<table>");
         sb.append("<tr>");

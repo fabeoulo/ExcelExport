@@ -142,7 +142,7 @@ public class RequisitionController {
         boolean isFindAll = SecurityPropertiesUtils.checkUserInAuthorities(user,
                 newArrayList(
                         new SimpleGrantedAuthority("ROLE_ADMIN"),
-                        new SimpleGrantedAuthority("ROLE_OPER"),
+//                        new SimpleGrantedAuthority("ROLE_OPER"),
                         new SimpleGrantedAuthority("ROLE_GUEST")
                 ));
 
