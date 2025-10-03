@@ -287,18 +287,18 @@
 //                                        $("#model-table #po, #materialNumber, #amount").attr("disabled", true);
 //                                    }
 
-                        const $myModal = $("#myModal");
-                        $myModal.find(".modal-title").html("編輯紀錄");
-                        $myModal.find("#dialog-msg").html("");
-
-
+                        // before modal show.
                         var cnt = table.rows('.selected').count();
                         if (cnt !== 1) {
                             alert("Please select a row.");
                             return false;
                         }
 
-                        $('#myModal').modal('show');
+                        const $myModal = $("#myModal");
+                        $myModal.find(".modal-title").html("編輯紀錄");
+                        $myModal.find("#dialog-msg").html("");
+                        $myModal.modal('show');
+
                         const arr = table.rows('.selected').data();
                         const data = arr[0];
 
@@ -311,10 +311,10 @@
                         $modelTable.find("#materialNumber").val(data.materialNumber);
                         $modelTable.find("#amount").val(data.amount);
                         $modelTable.find("#floor\\.id").val(data.floor.id);
-                        $modelTable.find("#requisitionFlow\\.id").val(data['requisitionFlow'] && data.requisitionFlow != null ? data.requisitionFlow.id : 1);
+                        $modelTable.find("#requisitionFlow\\.id").val(data['requisitionFlow'] ? data.requisitionFlow.id : 1);
                         $modelTable.find("#requisitionReason\\.id").val(data.requisitionReason.id);
-                        $modelTable.find("#requisitionCateIms\\.id").val(data['requisitionCateIms'] && data.requisitionCateIms != null ? data.requisitionCateIms.id : 0);
-                        $modelTable.find("#requisitionCateMes\\.id").val(data['requisitionCateMes'] && data.requisitionCateMes != null ? data.requisitionCateMes.id : 0);
+                        $modelTable.find("#requisitionCateIms\\.id").val(data['requisitionCateIms'] ? data.requisitionCateIms.id : 0);
+                        $modelTable.find("#requisitionCateMes\\.id").val(data['requisitionCateMes'] ? data.requisitionCateMes.id : 0);
                         $modelTable.find("#requisitionCateMesCustom").val(data.requisitionCateMesCustom);
                         $modelTable.find("#requisitionState\\.id").val(data.requisitionState.id);
                         $modelTable.find("#user\\.id").val(data.user.id);
@@ -691,7 +691,15 @@
             });
 
             function refreshTable() {
-                table.ajax.reload(null, false);
+                var selectedIds = table.rows('.selected').data().pluck('id').toArray();
+
+                table.ajax.reload(function () {
+                    table.rows().every(function () {
+                        if (selectedIds.includes(this.data().id)) {
+                            $(this.node()).addClass('selected');
+                        }
+                    });
+                }, false);// false means keep page.
             }
 
             function isNullOrZero(testString) {
@@ -1051,11 +1059,11 @@
                     }
 
                     if (confirm("Confirm save?")) {
-                        let data = {};
+                        let sendData = {};
                         if ($('#myModal').find('#id').val() > 0) {
                             const arr = table.rows('.selected').data();
-                            data = arr[0];
-                            data.agent = "";
+                            sendData = arr[0];
+                            sendData.agent = "";
                         }
 
                         const valIms = $modelTable.find("#requisitionCateIms\\.id").val();
@@ -1083,8 +1091,8 @@
                             delete dataInput["user.id"];
                         }
 
-                        $.extend(data, dataInput);
-                        save(data);
+                        $.extend(sendData, dataInput);
+                        save(sendData);
                     }
                 });
 
@@ -1313,7 +1321,7 @@
                                     </td>
                                 </tr>
 
-                                <c:if test="${isUser && (!isOper || !isAdmin)}">
+                                <c:if test="${isUser && !(isOper || isAdmin || isOperM8)}">
                                     <tr>
                                         <td class="lab">製程</td>
                                         <td>

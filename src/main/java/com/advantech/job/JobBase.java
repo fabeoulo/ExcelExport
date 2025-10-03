@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public abstract class JobBase {
 
-    protected boolean isServer() {
+    protected String getHostName() {
         String hostName = "";
         Map<String, String> env = System.getenv();
         if (env.containsKey("COMPUTERNAME")) {
@@ -21,6 +21,10 @@ public abstract class JobBase {
             hostName = env.get("HOSTNAME");
         }
 
-        return hostName.contains("IIS");
+        return hostName;
+    }
+
+    protected boolean isServer() {
+        return getHostName().contains("IIS");
     }
 }

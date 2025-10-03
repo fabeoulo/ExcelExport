@@ -80,7 +80,7 @@ public class RequisitionApiController {
 
     @Autowired
     private SelectOptionController selectOptionController;
-    
+
     @ResponseBody
     @GetMapping(value = "/getFloors")
     public List<FloorDto> getFloors() {
@@ -107,7 +107,7 @@ public class RequisitionApiController {
 //
 //        Map<String, String> response = new HashMap<>();
 //        response.put("message", "Hello, World!");
-//        return response; // 自動轉JSON格式返回数据
+//        return response; // ResponseBody or RestController 自動轉JSON格式返回数据
 //    }
 
     @ResponseBody
@@ -123,8 +123,8 @@ public class RequisitionApiController {
             @RequestBody String datas) throws Exception {
 
         String msg = "";
-        AddRequisitionDto dto = new AddRequisitionDto();
-        User userDetail = new User();
+        AddRequisitionDto dto;
+        User userDetail;
         try {
             dto = objectMapper.readValue(datas, AddRequisitionDto.class);
 
@@ -161,7 +161,7 @@ public class RequisitionApiController {
         List<Requisition> rL = dto.getRequitionDto().stream().map(
                 rd -> {
                     RequisitionReason reason = mapReason.get(rd.getRequisitionReasonId());
-//                    checkNotNull(reason, "Reason not found.");
+                    checkNotNull(reason, "Reason not found.");
                     String remark = dto.getAgent() + ". " + rd.getRemark();
 
                     return new Requisition(dto.getPo(), rd.getMaterialNumber(), rd.getAmount(),
@@ -174,12 +174,12 @@ public class RequisitionApiController {
 
     private List<Requisition> SetDefault(List<Requisition> rL) {
         RequisitionFlow rf = requisitionFlowService.getOne(1);
-        RequisitionReason rr = requisitionReasonService.getOne(2);
+//        RequisitionReason rr = requisitionReasonService.getOne(2);
         Floor ff = floorService.findById(defaultFloorId).get();
 
         rL.forEach(r -> {
             r.setRequisitionFlow(rf);
-            r.setRequisitionReason(rr);
+//            r.setRequisitionReason(rr);
             r.setFloor(ff);
         });
         return rL;
