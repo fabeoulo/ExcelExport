@@ -52,6 +52,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Join;
@@ -142,7 +143,7 @@ public class RequisitionController {
         boolean isFindAll = SecurityPropertiesUtils.checkUserInAuthorities(user,
                 newArrayList(
                         new SimpleGrantedAuthority("ROLE_ADMIN"),
-//                        new SimpleGrantedAuthority("ROLE_OPER"),
+                        //                        new SimpleGrantedAuthority("ROLE_OPER"),
                         new SimpleGrantedAuthority("ROLE_GUEST")
                 ));
 
@@ -239,9 +240,13 @@ public class RequisitionController {
             }
 
             for (Requisition r : requisitions) {
-                SapMaterialInfo info = sapInfos.stream()
+
+                List<SapMaterialInfo> infoList = sapInfos.stream()
                         .filter(s -> s.getMaterialNumber().equals(r.getMaterialNumber()))
-                        .findFirst().orElse(null);
+                        .collect(Collectors.toList());
+
+                BigDecimal totalAmount = infoList.stream().map(s -> s.getAmount()).reduce(BigDecimal.ZERO, BigDecimal::add);
+                SapMaterialInfo info = infoList.stream().findFirst().orElse(null);
                 if (info == null) {
                     continue;
                 }
@@ -249,7 +254,7 @@ public class RequisitionController {
                 r.setUnitPrice(info.getUnitPrice());
                 r.setWerk(info.getWerk());
                 r.setPoQty(info.getPoQty());
-                r.setMaterialQty(info.getAmount());
+                r.setMaterialQty(totalAmount);
                 r.setStorageSpaces(info.getStorageSpaces());
             }
         }
@@ -278,7 +283,10 @@ public class RequisitionController {
     @ResponseBody
     @RequestMapping(value = "/retrieveSapInfos", method = {RequestMethod.GET, RequestMethod.POST})
     protected List<SapMaterialInfo> retrieveSapInfos(@RequestParam String po, @RequestParam(value = "materialNumbers[]") String[] materialNumbers) throws Exception {
-        return this.sapService.retrieveSapMaterialInfos(po, materialNumbers);
+        List<SapMaterialInfo> infoList = sapService.retrieveSapMaterialInfos(po, materialNumbers);
+        BigDecimal totalAmount = infoList.stream().map(s -> s.getAmount()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        infoList.get(0).setAmount(totalAmount);
+        return infoList;
     }
 
     @ResponseBody

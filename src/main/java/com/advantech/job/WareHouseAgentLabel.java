@@ -155,9 +155,9 @@ public class WareHouseAgentLabel extends SendEmailBase {
                     .mapToInt(r -> Math.abs(r.getAmount())).sum();
             // 2. Find minimum qty * QTYRATIO
             BigDecimal mostQty = group.stream()
+                    .max(Comparator.comparingInt(Requisition::getId)) // latest one
                     .map(Requisition::getMaterialQty)
                     .filter(Objects::nonNull)
-                    .min(Comparator.naturalOrder())
                     .orElse(BigDecimal.ZERO)
                     .multiply(QTYRATIO);
             BigDecimal restQty = mostQty.subtract(new BigDecimal(doneQty)).max(BigDecimal.ZERO);
