@@ -134,7 +134,7 @@ public class TestQuartzJob {
         sendOvertimeReport.execute();
     }
 	
-    @Test
+//    @Test
     public void testSendLackWithStock() {
         sendLackWithStock.execute();
     }

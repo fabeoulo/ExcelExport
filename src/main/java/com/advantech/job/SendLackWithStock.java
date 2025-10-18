@@ -122,8 +122,8 @@ public class SendLackWithStock extends SendEmailBase {
     }
 
     private String[] findEMailFromLack() {
-        Set<String> lackMails = checkedOrders.stream().map(l -> l.getUsers().getMail())
-                .filter(e -> e != null && !e.trim().equals("")).collect(Collectors.toSet());
+        String[] mailTarget = findEmailByNotifyId(27);
+        Set<String> lackMails = Arrays.asList(mailTarget).stream().collect(Collectors.toSet());
         Set<String> reqMails = checkedReq.stream().map(r -> r.getUser().getEmail())
                 .filter(e -> e != null && !e.trim().equals("")).collect(Collectors.toSet());
         lackMails.addAll(reqMails);

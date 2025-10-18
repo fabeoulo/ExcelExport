@@ -72,21 +72,25 @@ public class WareHourseService {
 
         l.forEach(t -> {
             String mat = t.getMaterialNumber();
+            BigDecimal amount = BigDecimal.valueOf(Math.abs(t.getAmount()));
             BigDecimal stock = stockMap.get(mat);
+
             if (stock != null && stock.compareTo(BigDecimal.ZERO) == 0) {
                 noStockList.add(t);
-            } else if (stock != null && stock.compareTo(BigDecimal.valueOf(Math.abs(t.getAmount()))) == -1) {
+            } else if (stock != null && stock.compareTo(amount) == -1) {
                 lackList.add(t);
             } else {
                 passList.add(t);
                 String remarks = String.join("", passRemark);
                 t.setRemark(t.getRemark() + " " + remarks);
+
+                stockMap.merge(mat, amount, BigDecimal::subtract);
                 return;
             }
 
-            String newStock = schema + stock + tail;
-            t.setRemark(replaceStockRemark(t.getRemark(), newStock));
-            stockMsg[0] += " 料號：" + mat + " " + newStock;
+            String stockRemark = schema + stock + tail;
+            t.setRemark(replaceStockRemark(t.getRemark(), stockRemark));
+            stockMsg[0] += " 料號：" + mat + " " + stockRemark;
         });
 
         //insert WH

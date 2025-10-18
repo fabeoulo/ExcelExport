@@ -592,7 +592,7 @@
                             var realPoQty = isNullOrZero(poQty) ? -1 : poQty;
                             var unitAmount = (Number(amount) / Number(realPoQty)).toFixed(1);
                             target.html('<h5>料號: ' + materialNumber +
-                                    ' 發料量: ' + amount +
+                                    ' SAP總需求量: ' + amount +
                                     ' 單價: ' + unitPrice +
                                     ' 儲區: ' + storageSpaces +
                                     ' 單台用量: ' + unitAmount + '</h5>');
@@ -1370,7 +1370,7 @@
                                     <tr>
                                         <td class="lab">材料序號</td>
                                         <td>
-                                            <input type="text" id="materialBoardSn"/>
+                                            <textarea id="materialBoardSn"></textarea>
                                         </td>
                                     </tr>
                                     <tr class="hide_col">

@@ -325,7 +325,7 @@ public class Requisition implements Serializable {
         this.storageSpaces = storageSpaces;
     }
 
-    @Column(name = "materialBoardSn", length = 50)
+    @Column(name = "materialBoardSn")
     public String getMaterialBoardSn() {
         return materialBoardSn;
     }

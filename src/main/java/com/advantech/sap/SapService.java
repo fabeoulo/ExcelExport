@@ -14,9 +14,11 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +46,9 @@ public class SapService {
             return result;
         }
 
-        String modelName = detailTable.getString("BAUGR").trim();
+        String modelName = masterTable.getString("MATNR").trim();
         modelName = CharMatcher.is('0').trimLeadingFrom(modelName);
+        BigDecimal poQty = new BigDecimal(masterTable.getString("GSMNG"));
 
         //Retrieve model name info
         for (int i = 0; i < detailTable.getNumRows(); i++) {
@@ -59,17 +62,17 @@ public class SapService {
                 SapMaterialInfo pojo = new SapMaterialInfo();
                 pojo.setPo(po);
                 pojo.setModelName(modelName);
+                pojo.setPoQty(poQty);
                 pojo.setMaterialNumber(materialNumber);
                 pojo.setAmount(new BigDecimal(detailTable.getString("BDMNG").trim()));
                 pojo.setStorageSpaces(detailTable.getString("STORLOC_BIN").trim());
-
                 pojo.setWerk(detailTable.getString("WERKS").trim());
-                Factory f = Factory.valueOf(detailTable.getString("WERKS").trim());
 
+                Factory f = Factory.valueOf(pojo.getWerk());
                 JCoFunction function2 = port.getMaterialPrice(materialNumber, f);
                 BigDecimal unitPrice = this.retrievePriceFromTable(function2.getTableParameterList().getTable("LE_ZSD_COST"));
                 pojo.setUnitPrice(unitPrice);
-                pojo.setPoQty(new BigDecimal(masterTable.getString("GSMNG")));
+
                 result.add(pojo);
             }
         }
@@ -86,6 +89,15 @@ public class SapService {
     }
 
     public Map<String, BigDecimal> getStockMap(List<Requisition> l) throws Exception {
+        // Deduplicate
+        l = l.stream()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(()
+                                -> new TreeSet<>(Comparator.comparing(i -> i.getWerk() + "_" + i.getMaterialNumber()))
+                        ),
+                        ArrayList::new
+                ));
+
         JCoFunction function = port.getMaterialStock(l);
         JCoTable output = function.getTableParameterList().getTable("ZMARD_OUTPUT");
         Map<String, BigDecimal> stockMap = new HashMap<>();
