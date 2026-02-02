@@ -48,7 +48,6 @@ public class SendLackWithStock extends SendEmailBase {
     private List<Orders> checkedOrders = Arrays.asList();
     private List<Requisition> checkedReq = Arrays.asList();
 
-    protected final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
     protected final DateTimeFormatter fmtD = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
 
     public void execute() {

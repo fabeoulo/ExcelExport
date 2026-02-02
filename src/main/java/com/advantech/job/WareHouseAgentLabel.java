@@ -51,7 +51,7 @@ public class WareHouseAgentLabel extends SendEmailBase {
     @Autowired
     private UserAgentService userAgentService;
 
-    private static final int INIT_STATE = 4;
+    private static final List<Integer> stateIds = newArrayList(4);
     private final List<Integer> floorIds = newArrayList(8, 9, 10);
     private List<String> labelStorages;
     private String jobNo;
@@ -67,8 +67,7 @@ public class WareHouseAgentLabel extends SendEmailBase {
         this.labelStorages = requisitionController.getLabelStorages();
     }
 
-    // prevent lazyjoin nosession issue.
-    @Transactional
+    @Transactional // prevent lazyjoin nosession issue.
     public void execute() {
         if (!super.isServer()) {
             return;
@@ -87,7 +86,7 @@ public class WareHouseAgentLabel extends SendEmailBase {
         DateTime today = new DateTime();
         DateTime sdt = today.minusDays(today.getDayOfWeek() == 1 ? 2 : 1);
 
-        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, INIT_STATE, floorIds);
+        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, stateIds, floorIds);
         l = filterLabelMaterial(l);
 
         List<String> pos = l.stream().map(r -> r.getPo()).collect(Collectors.toList());
@@ -148,7 +147,7 @@ public class WareHouseAgentLabel extends SendEmailBase {
         List<Requisition> blockResult = new ArrayList<>();
         for (Map.Entry<List<String>, List<Requisition>> entry : grouped.entrySet()) {
             List<Requisition> group = entry.getValue();
-            List<Requisition> targetGroup = group.stream().filter(r -> r.getRequisitionState().getId() == INIT_STATE).collect(Collectors.toList());
+            List<Requisition> targetGroup = group.stream().filter(r -> stateIds.contains(r.getRequisitionState().getId())).collect(Collectors.toList());
 
             int doneQty = group.stream()
                     .filter(r -> r.getRequisitionState().getId() == 5)
