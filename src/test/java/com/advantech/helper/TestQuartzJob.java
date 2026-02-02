@@ -5,6 +5,7 @@
  */
 package com.advantech.helper;
 
+import com.advantech.job.CheckRequisitionSap;
 import com.advantech.job.SendCheckQualify;
 import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
@@ -75,15 +76,23 @@ public class TestQuartzJob {
 
     @Autowired
     private SendScrapped sendScrapped;
-    
+
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
+
+    @Autowired
+    private CheckRequisitionSap checkRequisitionSap;
+
+//    @Test
+    public void testCheckRequisitionSap() {
+        checkRequisitionSap.execute();
+    }
 
 //    @Test
     public void testSendScrapped() {
         sendScrapped.execute();
     }
-    
+
 //    @Test
     public void testSendCheckQualify() {
         sendCheckQualify.execute();

@@ -54,6 +54,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.sap.conn.jco.JCoException;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
@@ -87,43 +88,6 @@ public class RequisitionController {
     @Autowired
     private RequisitionStateChangeTrigger trigger;
 
-// <editor-fold desc="findAll Original">
-//    @JsonView(DataTablesOutput.View.class)
-//    @RequestMapping(value = "/findAllOg", method = {RequestMethod.POST})
-//    protected DataTablesOutput<Requisition> findAll(
-//            HttpServletRequest request,
-//            @Valid DataTablesInput input,
-//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime startDate,
-//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") DateTime endDate) {
-//
-////        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-////        Floor floor = user.getFloor();
-//        if (startDate != null && endDate != null) {
-//            final Date sD = startDate.toDate();
-//            final Date eD = endDate.withHourOfDay(23).toDate();
-//
-//            return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-//                Path<Date> dateEntryPath = root.get(Requisition_.createDate);
-////                if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-//                return cb.between(dateEntryPath, sD, eD);
-////                } else {
-////                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-////                    return cq.where(cb.and(cb.between(dateEntryPath, sD, eD), cb.equal(userJoin.get(User_.FLOOR), floor))).getRestriction();
-////                }
-//            });
-//        } else {
-////            if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_OPER")) {
-//            return service.findAll(input);
-////            } else {
-////                return service.findAll(input, (Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-////                    Join<Requisition, User> userJoin = root.join(Requisition_.user, JoinType.INNER);
-////                    return cb.equal(userJoin.get(User_.FLOOR), floor);
-////                });
-////            }
-//        }
-//    }
-// </editor-fold>
-//    
     @JsonView(DataTablesOutput.View.class)
     @RequestMapping(value = "/findAll", method = {RequestMethod.POST})
     protected DataTablesOutput<Requisition> findAll(
@@ -211,7 +175,7 @@ public class RequisitionController {
 
         this.checkbeforeSave(newArrayList(requisition));
 
-        service.save(requisition, remark);
+        service.save(requisition, requisition.getRemark());
 
         trigger.checkRepair(newArrayList(requisition));
 //        trigger.checkQualify(newArrayList(requisition));
@@ -250,12 +214,16 @@ public class RequisitionController {
                 if (info == null) {
                     continue;
                 }
+                String status = Arrays.stream(info.getStatus().split(" ")).findFirst().orElse("");
+                String remark = r.getRemark().startsWith(status) ? r.getRemark() : status + " " + r.getRemark();
+
                 r.setModelName(info.getModelName());
                 r.setUnitPrice(info.getUnitPrice());
                 r.setWerk(info.getWerk());
                 r.setPoQty(info.getPoQty());
                 r.setMaterialQty(totalAmount);
                 r.setStorageSpaces(info.getStorageSpaces());
+                r.setRemark(remark);
             }
         }
         return requisitions;
@@ -306,12 +274,16 @@ public class RequisitionController {
 
     @ResponseBody
     @RequestMapping(value = "/batchSave", method = {RequestMethod.POST})
-    protected String batchSave(@ModelAttribute RequisitionListContainer container) throws Exception {
+    protected List<Requisition> batchSave(@ModelAttribute RequisitionListContainer container) throws Exception {
 
         List<Requisition> l = container.getMyList();
         this.checkbeforeSave(l);
         service.batchInsert(l);
-        return "success";
+        return checkPoRelease(l);
+    }
+
+    private List<Requisition> checkPoRelease(List<Requisition> l) {
+        return l.stream().filter(i -> !i.getRemark().startsWith("REL")).collect(Collectors.toList());
     }
 
     public void checkbeforeSave(List<Requisition> l) throws Exception {

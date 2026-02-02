@@ -20,6 +20,7 @@ public class SapMaterialInfo {
     private BigDecimal poQty;
     private String storageSpaces;
     private String werk;
+    private String status;
 
     public String getPo() {
         return po;
@@ -83,6 +84,14 @@ public class SapMaterialInfo {
 
     public void setWerk(String werk) {
         this.werk = werk;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }

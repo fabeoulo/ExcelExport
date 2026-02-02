@@ -160,10 +160,10 @@ public class RequisitionApiController {
                 rd -> {
                     RequisitionReason reason = mapReason.get(rd.getRequisitionReasonId());
                     checkNotNull(reason, "Reason not found.");
-                    String remark = dto.getAgent() + ". " + rd.getRemark();
+//                    String remark = dto.getAgent() + ". " + rd.getRemark();
 
                     return new Requisition(dto.getPo(), rd.getMaterialNumber(), rd.getAmount(),
-                            reason, userDetail, remark, oF.get(),
+                            reason, userDetail, rd.getRemark(), oF.get(),
                             dto.getAgent());
                 }).collect(Collectors.toList());
 

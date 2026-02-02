@@ -160,6 +160,18 @@
         <property name="cronExpression" value="0 35 8 ? * MON *" />
     </bean>
     
+    <!--job14 setting-->
+    <bean name="CheckRequisitionSap-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="checkRequisitionSap" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="CheckRequisitionSap-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="CheckRequisitionSap-Job" />
+        <property name="cronExpression" value="0 30 7 ? * * *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -174,6 +186,7 @@
                 <ref bean="SendRequiredToPMC-Trig"/>
                 <ref bean="SendCheckQualify-Trig"/>
                 <ref bean="SendScrapped-Trig"/>
+                <ref bean="CheckRequisitionSap-Trig"/>
                 
                 <ref bean="WareHouseAgent-Trig"/>
                 <ref bean="WareHouseAgentLabel-Trig"/>

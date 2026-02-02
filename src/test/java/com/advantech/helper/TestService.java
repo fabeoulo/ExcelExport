@@ -77,6 +77,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.advantech.model.db3.WhReport;
 import com.advantech.security.SecurityPropertiesUtils;
 import com.advantech.service.db1.CustomUserDetailsService;
+import com.advantech.service.db1.FloorService;
 import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.service.db1.ScrappedService;
 import com.advantech.service.db1.UserAgentService;
@@ -165,6 +166,20 @@ public class TestService {
     @Autowired
     private ScrappedService scrappedService;
 
+    @Autowired
+    private FloorService floorService;
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testCheckRequisitionSap() throws Exception {
+        DateTime today = new DateTime();
+        DateTime sdt = today.minusMonths(1);
+        List<Integer> floorIds = floorService.findAllEnableState().stream().map(f -> f.getId()).collect(Collectors.toList());
+        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, newArrayList(4, 6), floorIds);
+        HibernateObjectPrinter.print(l.get(0));
+    }
+
 //    @Test
     public void testVwMfgWorkerService() {
 //        List<VwMfgWorker> rl = vwMfgWorkerService.findAll();
@@ -238,7 +253,7 @@ public class TestService {
 //        }
 //        String jobNo = ul.get(0).getUser().getJobnumber();
         DateTime sdt = today;
-        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, 4, newArrayList(7, 8));
+        List<Requisition> l = rservice.findAllByCreateDateRequisitionStateFloor(sdt, newArrayList(4, 6), newArrayList(7, 8));
         List<String> pos = l.stream().map(r -> r.getPo()).collect(Collectors.toList());
 //        List<String> pos = newArrayList("THP400214ZA", "TPP001365ZA");
         List<Requisition> historyLabel = rservice.findAllByPoAndFloor(pos, newArrayList(8));

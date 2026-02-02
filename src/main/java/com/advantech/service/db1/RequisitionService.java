@@ -112,8 +112,8 @@ public class RequisitionService {
         return repo.findAllByPoInAndFloor_IdIn(pos, floorId);
     }
 
-    public List<Requisition> findAllByCreateDateRequisitionStateFloor(DateTime td, int stateId, List<Integer> floorId) {
-        return repo.findAllByCreateDateGreaterThanAndRequisitionState_IdAndFloor_IdIn(td.toDate(), stateId, floorId);
+    public List<Requisition> findAllByCreateDateRequisitionStateFloor(DateTime td, List<Integer> stateId, List<Integer> floorId) {
+        return repo.findAllByCreateDateGreaterThanAndRequisitionState_IdInAndFloor_IdIn(td.toDate(), stateId, floorId);
     }
 
     public List<Requisition> findAllByHalfdayWithUserAndState() {

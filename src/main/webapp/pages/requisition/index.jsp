@@ -156,11 +156,11 @@
                                 return data == null ? "n/a" : formatDate(data);
                             }
                         },
-                        {
-                            "targets": [eventColumnIndex - 1],
-                            "visible": isEditor || isInsertWh,
-                            "searchable": isEditor || isInsertWh ? true : false
-                        },
+//                        {
+//                            "targets": [eventColumnIndex - 1],
+//                            "visible": isEditor || isInsertWh,
+//                            "searchable": isEditor || isInsertWh
+//                        },
                         {
                             "targets": [eventColumnIndex],
                             "searchable": false,
@@ -201,7 +201,7 @@
                 };
 
                 const addBtn = {
-                    "text": '新增需求',
+                    "text": '新增需求/Add',
                     init: function (dt, node, config) {
 //                        $(node).toggle(!isM8User);
                     },
@@ -588,14 +588,16 @@
                                 target.html("<h5>No data</h5>");
                                 return;
                             }
-                            const {materialNumber, amount, unitPrice, storageSpaces, poQty} = arr[0];
+                            const {materialNumber, amount, unitPrice, storageSpaces, poQty, status} = arr[0];
                             var realPoQty = isNullOrZero(poQty) ? -1 : poQty;
                             var unitAmount = (Number(amount) / Number(realPoQty)).toFixed(1);
+                            var statusFirst = status.split(' ')[0];
                             target.html('<h5>料號: ' + materialNumber +
                                     ' SAP總需求量: ' + amount +
                                     ' 單價: ' + unitPrice +
                                     ' 儲區: ' + storageSpaces +
-                                    ' 單台用量: ' + unitAmount + '</h5>');
+                                    ' 單台用量: ' + unitAmount +
+                                    ' 狀態: ' + statusFirst + '</h5>');
 
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
@@ -696,7 +698,7 @@
                 table.ajax.reload(function () {
                     table.rows().every(function () {
                         if (selectedIds.includes(this.data().id)) {
-                            $(this.node()).addClass('selected');
+                            this.select();
                         }
                     });
                 }, false);// false means keep page.
@@ -1232,6 +1234,13 @@
                         if (fn != null) {
                             fn();
                         }
+
+                        if (response.length > 0) {
+                            let po = response[0].po;
+                            let remark = response[0].remark;
+                            let status = remark.split(" ")[0];
+                            alert(po + " status is : " + status);
+                        }
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         $("#dialog-msg2").html(xhr.responseText);
@@ -1443,22 +1452,22 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="lab">工單號碼</td>
+                                    <td class="lab">工單號碼/<br/>Work order no.</td>
                                     <td> 
                                         <input type="text" id="po">
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="lab">詳細</td>
+                                    <td class="lab">詳細/mat.</td>
                                     <td>
                                         <table id="material-detail" class="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th width="25%">料號</th>
-                                                    <th>數量</th>
-                                                    <th width="20%">製程</th>
-                                                    <th>備註</th>
-                                                    <th>動作</th>
+                                                    <th width="25%">料號/material no.</th>
+                                                    <th>數量/qty</th>
+                                                    <th width="20%">製程/process</th>
+                                                    <th>備註/memo</th>
+                                                    <th>動作/op.</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1484,12 +1493,12 @@
                                             </tbody>
                                         </table>
                                         <div class="material-detail-footer">
-                                            <button type="button" class="btn btn-default btn-sm btn-outline-dark" id="add-material">新增料號</button>
+                                            <button type="button" class="btn btn-default btn-sm btn-outline-dark" id="add-material">新增料號/more</button>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="lab">位置</td>
+                                    <td class="lab">位置/area</td>
                                     <td> 
                                         <select id="floor.id"></select>
                                     </td>

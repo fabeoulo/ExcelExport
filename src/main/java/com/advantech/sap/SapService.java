@@ -49,6 +49,7 @@ public class SapService {
         String modelName = masterTable.getString("MATNR").trim();
         modelName = CharMatcher.is('0').trimLeadingFrom(modelName);
         BigDecimal poQty = new BigDecimal(masterTable.getString("GSMNG"));
+        String lbl_madesc = masterTable.getString("LBL_MADESC");
 
         //Retrieve model name info
         for (int i = 0; i < detailTable.getNumRows(); i++) {
@@ -67,6 +68,7 @@ public class SapService {
                 pojo.setAmount(new BigDecimal(detailTable.getString("BDMNG").trim()));
                 pojo.setStorageSpaces(detailTable.getString("STORLOC_BIN").trim());
                 pojo.setWerk(detailTable.getString("WERKS").trim());
+                pojo.setStatus(lbl_madesc);
 
                 Factory f = Factory.valueOf(pojo.getWerk());
                 JCoFunction function2 = port.getMaterialPrice(materialNumber, f);
