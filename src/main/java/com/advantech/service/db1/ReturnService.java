@@ -88,8 +88,7 @@ public class ReturnService {
                     Requisition latest = gl.stream().max(Comparator.comparing(r -> r.getReturnDate())).orElse(new Requisition());
                     int amountSum = gl.stream().mapToInt(Requisition::getAmount).sum();
                     String returnReasonAll = gl.stream()
-                            .filter(o -> !this.getStringSafely(o.getReturnReason(), String::toString, "").equals(""))
-                            .map(o -> "【" + o.getReturnReason() + "】")
+                            .map(o -> "【" + this.getStringSafely(o.getReturnReason(), String::toString, "") + "】*" + o.getAmount())
                             .collect(Collectors.joining("、"));
                     String imsCateName = gl.stream()
                             .filter(o -> !this.getStringSafely(o.getRequisitionCateIms(), RequisitionCateIms::getName, "").equals(""))
