@@ -62,7 +62,7 @@ public class OrdersController {
 
         Requisition req = requisitionService.findById(requision_id).get();
         req.setLackingFlag(1);
-        requisitionService.save(req, "Save data to lacking db");
+        requisitionService.save(req, "Save data to lacking db", "");
         return "success";
 
     }

@@ -242,8 +242,6 @@
                             return  alert("待領料數量0.");
                         }
 
-                        datas.forEach(item => item.agent = "");
-
                         eFlow({
                             "datas": JSON.stringify(datas),
                             "commitJobNo": "<c:out value="${user.jobnumber}" />"
@@ -1065,7 +1063,6 @@
                         if ($('#myModal').find('#id').val() > 0) {
                             const arr = table.rows('.selected').data();
                             sendData = arr[0];
-                            sendData.agent = "";
                         }
 
                         const valIms = $modelTable.find("#requisitionCateIms\\.id").val();
