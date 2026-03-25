@@ -52,7 +52,7 @@ public class RequisitionEvent implements Serializable {
     public RequisitionEvent() {
     }
 
-    public RequisitionEvent(Requisition requisition, User user, String remark) {
+    public RequisitionEvent(Requisition requisition, User user, String remark, String agent) {
         this.requisition = requisition;
         this.user = user;
         this.requisitionState = requisition.getRequisitionState();
@@ -62,7 +62,7 @@ public class RequisitionEvent implements Serializable {
         this.requisitionCateIms = requisition.getRequisitionCateIms();
         this.requisitionCateMes = requisition.getRequisitionCateMes();
         this.requisitionCateMesCustom = requisition.getRequisitionCateMesCustom();
-        this.agent = requisition.getAgent();
+        this.agent = agent;
         this.floor = requisition.getFloor();
         this.amount = requisition.getAmount();
     }

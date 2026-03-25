@@ -175,7 +175,7 @@ public class RequisitionController {
 
         this.checkbeforeSave(newArrayList(requisition));
 
-        service.save(requisition, requisition.getRemark());
+        service.save(requisition, requisition.getRemark(), "");
 
         trigger.checkRepair(newArrayList(requisition));
 //        trigger.checkQualify(newArrayList(requisition));

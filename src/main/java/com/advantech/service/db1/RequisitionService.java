@@ -176,7 +176,7 @@ public class RequisitionService {
         return repo.findModelMaterialDetails(modelName);
     }
 
-    public <S extends Requisition> S save(S s, String remark) {
+    public <S extends Requisition> S save(S s, String remark, String agent) {
         this.autoSetType(s);
 
         RequisitionState stat;
@@ -207,7 +207,7 @@ public class RequisitionService {
 
         S result = repo.save(s);
 
-        RequisitionEvent e = new RequisitionEvent(s, user, remark);
+        RequisitionEvent e = new RequisitionEvent(s, user, remark, agent);
         eventRepo.save(e);
 
         return result;
@@ -252,7 +252,7 @@ public class RequisitionService {
             this.autoSetType(r);
             r.setUser(user);
             repo.save(r);
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRemark());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRemark(), r.getAgent());
             eventRepo.save(e);
         }
 
@@ -265,6 +265,10 @@ public class RequisitionService {
     }
 
     public int updateWithStateAndEvent(List<Requisition> l, int state_id) {
+        return updateWithStateAndEvent(l, state_id, "");
+    }
+
+    public int updateWithStateAndEvent(List<Requisition> l, int state_id, String agent) {
 
         RequisitionState state = stateRepo.getOne(state_id);
         User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
@@ -278,7 +282,7 @@ public class RequisitionService {
                 r.setReturnDate(now);
             }
 
-            RequisitionEvent e = new RequisitionEvent(r, user, r.getRemark());
+            RequisitionEvent e = new RequisitionEvent(r, user, r.getRemark(), agent);
             reLists.add(e);
         }
         repo.saveAll(l);

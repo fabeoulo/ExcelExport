@@ -66,10 +66,10 @@ public class CheckRequisitionSap extends SendEmailBase {
         try {
             filterdRequisitionLabel();
             if (!checkedReq.isEmpty()) {
-                loginOpration(checkedReq);
+                loginOpration();
             }
         } catch (Exception ex) {
-            logger.error("Send mail fail.", ex);
+            logger.error("Fail on filterdRequisitionLabel().", ex);
         }
     }
 
@@ -88,18 +88,18 @@ public class CheckRequisitionSap extends SendEmailBase {
         checkedReq = l;
     }
 
-    private void loginOpration(List<Requisition> l) {
+    private void loginOpration() {
         try {
             UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);
             SecurityPropertiesUtils.loginUserManual(user);
 
-            rservice.updateWithStateAndEvent(l, 4);
+            checkedReq.forEach(r -> rservice.save(r, r.getRemark(), "SYSTEM"));
 
             SecurityPropertiesUtils.logoutUserManual();
 
             this.sendMail();
         } catch (Exception ex) {
-            logger.error("Fail. ", ex);
+            logger.error("Fail on loginOpration(). ", ex);
         }
     }
 
