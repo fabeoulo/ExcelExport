@@ -102,7 +102,7 @@ public class WareHouseAgentLabel extends SendEmailBase {
             UserDetails user = customUserDetailsService.loadUserByUsername(jobNo);
             SecurityPropertiesUtils.loginUserManual(user);
 
-            String result = wareHourseService.insertEflowWithoutUserRemark(l.get(0), jobNo, "單據作業");
+            String result = wareHourseService.insertEflowWithUserRemark(l.get(0), jobNo, "單據作業");
             logger.info(result);
             rservice.updateWithStateAndEvent(l.get(1), 2, "SYSTEM");
 

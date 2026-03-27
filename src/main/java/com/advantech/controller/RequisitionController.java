@@ -259,7 +259,7 @@ public class RequisitionController {
 
     @ResponseBody
     @RequestMapping(value = "/insertEflow", method = {RequestMethod.POST})
-    protected String insertEflow(@RequestParam String datas, @RequestParam String commitJobNo) throws Exception {
+    public String insertEflow(@RequestParam String datas, @RequestParam String commitJobNo) throws Exception {
 
         //check state
         List<Requisition> l = new ObjectMapper().readValue(datas, new TypeReference<List<Requisition>>() {
@@ -286,12 +286,16 @@ public class RequisitionController {
         return l.stream().filter(i -> !i.getRemark().startsWith("REL")).collect(Collectors.toList());
     }
 
-    public void checkbeforeSave(List<Requisition> l) throws Exception {
+    public void checkbeforeSaveCommon(List<Requisition> l) throws Exception {
         l = this.retrieveSapInfos(l);
         this.checkModelMaterial(l);
-        this.checkPrintLabel(l);
     }
 
+    public void checkbeforeSave(List<Requisition> l) throws Exception {
+        this.checkbeforeSaveCommon(l);		
+        this.checkPrintLabel(l);
+    }
+	
     @ResponseBody
     @RequestMapping(value = "/updateState", method = {RequestMethod.POST})
     protected String updateState(@RequestParam int requisition_id, @RequestParam int state_id,

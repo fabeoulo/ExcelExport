@@ -78,7 +78,7 @@ public class Requisition implements Serializable {
     public Requisition() {
     }
 
-    public Requisition(String po, String materialNumber, int amount, RequisitionReason requisitionReason, User user, String remark, Floor floor, String agent) {
+    public Requisition(String po, String materialNumber, int amount, RequisitionReason requisitionReason, User user, String remark, Floor floor, String agent, RequisitionFlow requisitionFlow) {
         this.po = po;
         this.materialNumber = materialNumber;
         this.amount = amount;
@@ -87,6 +87,7 @@ public class Requisition implements Serializable {
         this.remark = remark;
         this.floor = floor;
         this.agent = agent;
+        this.requisitionFlow = requisitionFlow;
     }
 
     @Id

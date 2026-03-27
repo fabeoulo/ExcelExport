@@ -96,6 +96,10 @@ public class RequisitionService {
         return repo.getOne(id);
     }
 
+    public List<Requisition> findAllByIdInWithLazy(List<Integer> ids) {
+        return repo.findAllByIdIn(ids);
+    }
+
     public List<Requisition> findAllByIdWithUserAndState(List<Integer> ids) {
         return repo.findAllByIdIn(ids);
     }

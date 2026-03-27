@@ -6,10 +6,10 @@ package com.advantech.api.controller.auth;
 
 import com.advantech.controller.RequisitionController;
 import com.advantech.api.model.AddRequisitionDto;
-import com.advantech.api.model.FloorDto;
 import com.advantech.api.model.RequisitionDto;
-import com.advantech.api.model.RequisitionReasonDto;
+import com.advantech.api.model.SelectOptionDto;
 import com.advantech.controller.SelectOptionController;
+import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionFlow;
@@ -22,10 +22,10 @@ import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.service.db1.RequisitionReasonService;
 import com.advantech.service.db1.RequisitionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Lists.newArrayList;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RestController; // Implicitly inc
  *
  * @author Justin.Yeh
  */
-@Controller(value = "RequisitionApiAuthController")
+@RestController//(value = "requisitionApiAuthController")
 @RequestMapping("/ApiAuth/Requisition")
 public class RequisitionApiAuthController {
 
@@ -81,19 +81,30 @@ public class RequisitionApiAuthController {
     @Autowired
     private SelectOptionController selectOptionController;
 
+    @ApiOperation(value = "Floors")
     @ResponseBody
     @GetMapping(value = "/getFloors")
-    public List<FloorDto> getFloors() {
+    public List<SelectOptionDto> getFloors() {
         return selectOptionController.findFloorOptions().stream()
-                .map(f -> new FloorDto(f.getId(), f.getName()))
+                .map(f -> new SelectOptionDto(f.getId(), f.getName()))
                 .collect(Collectors.toList());
     }
 
+    @ApiOperation(value = "Reasons")
     @ResponseBody
     @GetMapping(value = "/getReasons")
-    public List<RequisitionReasonDto> getReasons() {
+    public List<SelectOptionDto> getReasons() {
         return selectOptionController.findRequisitionReasonOptions().stream()
-                .map(r -> new RequisitionReasonDto(r.getId(), r.getName()))
+                .map(r -> new SelectOptionDto(r.getId(), r.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @ApiOperation(value = "Process")
+    @ResponseBody
+    @GetMapping(value = "/getProcess")
+    public List<SelectOptionDto> getFlows() {
+        return selectOptionController.findRequisitionFlowOptions().stream()
+                .map(r -> new SelectOptionDto(r.getId(), r.getName()))
                 .collect(Collectors.toList());
     }
 //
@@ -110,9 +121,10 @@ public class RequisitionApiAuthController {
 //        return response; // 自動轉JSON格式返回数据
 //    }
 
-//    @ResponseBody
-//    @RequestMapping(value = "/createRequisition", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> addRequisition(
+    @ApiOperation(value = "createRequisitionAndInsertWh")
+    @ResponseBody
+    @RequestMapping(value = "/createRequisitionAndInsertWh", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<String> addRequisitionAndInsert(
             @ApiParam(required = true, value = "String of AddRequisitionDto model.")
             @RequestBody String datas) throws Exception {
 
@@ -124,18 +136,24 @@ public class RequisitionApiAuthController {
 
             userDetail = (User) customUserDetailsService.loadUserByUsername(dto.getJobnumber());
             SecurityPropertiesUtils.loginUserManual(userDetail);
+
+            List<Requisition> rL = this.ConvertToReq(dto, userDetail);
+//            this.SetDefault(rL);
+
+            requisitionController.checkbeforeSaveCommon(rL);
+            requisitionService.batchInsert(rL);
+
+            List<Integer> ids = rL.stream().map(r -> r.getId()).collect(Collectors.toList());
+            List<Requisition> rL_Saved = requisitionService.findAllByIdInWithLazy(ids);
+
+            String dataEflow = objectMapper.writeValueAsString(rL_Saved);
+            String debug = requisitionController.insertEflow(dataEflow, userDetail.getJobnumber());
+
         } catch (JsonProcessingException e) {
             msg = e.getMessage();
             logger.error(msg);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
         }
-
-        List<Requisition> rL = this.ConvertToReq(dto, userDetail);
-
-        this.SetDefault(rL);
-
-        requisitionController.checkbeforeSave(rL);
-        requisitionService.batchInsert(rL);
 
         try {
             SecurityPropertiesUtils.logoutUserManual();
@@ -149,28 +167,31 @@ public class RequisitionApiAuthController {
 
         Optional<Floor> oF = floorService.findById(dto.getFloorId());
         checkState(oF.isPresent(), "Floor not found.");
-        List<RequisitionReason> reasons = requisitionReasonService.findAll();
-        Map<Integer, RequisitionReason> mapReason = reasons.stream().collect(Collectors.toMap(RequisitionReason::getId, rt -> rt));
+//        List<RequisitionReason> reasons = requisitionReasonService.findAll();
+//        Map<Integer, RequisitionReason> mapReason = reasons.stream().collect(Collectors.toMap(RequisitionReason::getId, rt -> rt));
+        List<RequisitionFlow> flows = requisitionFlowService.findAll();
+        Map<Integer, RequisitionFlow> mapFlows = flows.stream().collect(Collectors.toMap(RequisitionFlow::getId, rt -> rt));
 
         List<Requisition> rL = dto.getRequitionDto().stream().map(
                 rd -> {
-                    RequisitionReason reason = mapReason.get(rd.getRequisitionReasonId());
-                    checkNotNull(reason, "Reason not found.");
-                    String remark = dto.getAgent() + ". " + rd.getRemark();
+//                    RequisitionReason reason = mapReason.get(rd.getRequisitionReasonId());
+//                    checkNotNull(reason, "Reason not found.");
+                    RequisitionFlow flow = mapFlows.get(rd.getProcessId());
+                    checkNotNull(flow, "Process not found.");
+                    String remark = rd.getRemark();
 
                     return new Requisition(dto.getPo(), rd.getMaterialNumber(), rd.getAmount(),
-                            reason, userDetail, remark, oF.get(),
-                            dto.getAgent());
+                            null, userDetail, remark, oF.get(),
+                            dto.getAgent(), flow);
                 }).collect(Collectors.toList());
 
         return rL;
     }
 
     private List<Requisition> SetDefault(List<Requisition> rL) {
-        RequisitionFlow rf = requisitionFlowService.getOne(1);
-
         rL.forEach(r -> {
-            r.setRequisitionFlow(rf);
+//            boolean isRepair = r.getAgent().equals("RepairAI"); //RepairAI 維修助手
+
         });
         return rL;
     }

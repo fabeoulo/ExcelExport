@@ -80,7 +80,7 @@ public class SelectOptionController {
 
     @ResponseBody
     @RequestMapping(value = "/findRequisitionFlowOptions", method = {RequestMethod.GET})
-    protected List<RequisitionFlow> findRequisitionFlowOptions() {
+    public List<RequisitionFlow> findRequisitionFlowOptions() {
         return requisitionFlowService.findAll();
     }
 
