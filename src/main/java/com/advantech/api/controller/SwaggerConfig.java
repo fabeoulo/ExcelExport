@@ -4,8 +4,8 @@
  */
 package com.advantech.api.controller;
 
+import com.google.common.base.Predicate;
 import java.util.Collections;
-import java.util.function.Predicate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,13 +31,19 @@ public class SwaggerConfig {
 
     @Bean
     public Docket api() {
-//        Predicate<RequestHandler> selector = RequestHandlerSelectors.basePackage("com.advantech.api.controller")
-//                .or(RequestHandlerSelectors.basePackage("com.advantech.api.controller.auth"));
+        Predicate<RequestHandler> selector = input -> {
+            Class<?> clazz = input.declaringClass();
+            if (clazz != null && clazz.getPackage() != null) {
+                String pkg = clazz.getPackage().getName();
+                return "com.advantech.api.controller".equals(pkg);
+            }
+            return false;
+        };
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("0.API auth")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.advantech.api.controller"))
+                .apis(selector)
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
@@ -54,7 +60,7 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
-                .securitySchemes(Collections.singletonList(new BasicAuth("basicAuth")))// use for test account ,however still cannot lock page.
+                .securitySchemes(Collections.singletonList(new BasicAuth("basicAuth")))// use for test account, however still cannot lock page.
                 .securityContexts(Collections.singletonList(SecurityContext.builder()
                         .securityReferences(Collections.singletonList(
                                 new SecurityReference("basicAuth", new springfox.documentation.service.AuthorizationScope[0])

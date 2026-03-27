@@ -7,8 +7,7 @@ package com.advantech.api.controller;
 import com.advantech.controller.RequisitionController;
 import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.api.model.AddRequisitionDto;
-import com.advantech.api.model.FloorDto;
-import com.advantech.api.model.RequisitionReasonDto;
+import com.advantech.api.model.SelectOptionDto;
 import com.advantech.controller.SelectOptionController;
 import com.advantech.model.db1.Floor;
 import com.advantech.model.db1.Requisition;
@@ -83,23 +82,23 @@ public class RequisitionApiController {
 
     @ResponseBody
     @GetMapping(value = "/getFloors")
-    public List<FloorDto> getFloors() {
+    public List<SelectOptionDto> getFloors() {
         return selectOptionController.findFloorOptions().stream()
-                .map(f -> new FloorDto(f.getId(), f.getName()))
+                .map(f -> new SelectOptionDto(f.getId(), f.getName()))
                 .collect(Collectors.toList());
     }
 
     @ResponseBody
     @GetMapping(value = "/getReasons")
-    public List<RequisitionReasonDto> getReasons() {
+    public List<SelectOptionDto> getReasons() {
         return selectOptionController.findRequisitionReasonOptions().stream()
-                .map(r -> new RequisitionReasonDto(r.getId(), r.getName()))
+                .map(r -> new SelectOptionDto(r.getId(), r.getName()))
                 .collect(Collectors.toList());
     }
 //
 //    @ResponseBody
 //    @PostMapping("/hello")
-//    public Map<String, String> sayHello(@RequestBody List<FloorDto> floors) {
+//    public Map<String, String> sayHello(@RequestBody List<SelectOptionDto> floors) {
 //
 //        floors.forEach((u) -> {
 //            logger.info("Name: {} id: {} \n", u.getName(), u.getId());
@@ -166,7 +165,7 @@ public class RequisitionApiController {
 
                     return new Requisition(dto.getPo(), rd.getMaterialNumber(), rd.getAmount(),
                             reason, userDetail, rd.getRemark(), oF.get(),
-                            dto.getAgent());
+                            dto.getAgent(), null);
                 }).collect(Collectors.toList());
 
         return rL;

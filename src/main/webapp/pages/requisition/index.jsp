@@ -134,7 +134,8 @@
                         {data: "id", "defaultContent": "n/a", title: "紀錄"},
                         {data: "lackingFlag", "defaultContent": "N", title: "已掛缺", className: "excel_export"},
                         {data: "isUrgent", "defaultContent": "", title: "急件", className: "excel_export"},
-                        {data: "returnOrderNo", "defaultContent": "", title: "退料單號", className: "excel_export"}
+                        {data: "returnOrderNo", "defaultContent": "", title: "退料單號", className: "excel_export"},
+                        {data: "agent", "defaultContent": "", title: "代理", className: "excel_export"}
                     ],
                     "columnDefs": [
                         {

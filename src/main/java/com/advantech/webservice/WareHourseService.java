@@ -44,10 +44,12 @@ public class WareHourseService {
     @Autowired
     private RequisitionStateChangeTrigger trigger;
 
-    public String insertEflowWithUserRemark(List<Requisition> l, String commitJobNo) {
+    // always use UserRemark by Repair demand.
+    public String insertEflowWithUserRemark(List<Requisition> l, String commitJobNo, String... passRemark) {
         return this.insertEflow(l, commitJobNo, true);
     }
 
+    // deprecate
     public String insertEflowWithoutUserRemark(List<Requisition> l, String commitJobNo, String... passRemark) {
         return this.insertEflow(l, commitJobNo, false, passRemark);
     }

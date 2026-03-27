@@ -21,8 +21,8 @@ public class AddRequisitionDto {
     private String po = "";
     private int floorId;
     @ApiModelProperty(value = "optional", required = false)
-    private String agent = "RepairAI";
-    
+    private String agent = "";
+
     @JsonProperty("lists")
     private List<AddRequisitionDetailDto> requitionDto = Lists.newArrayList(new AddRequisitionDetailDto());
 
@@ -83,6 +83,10 @@ public class AddRequisitionDto {
         @ApiModelProperty(position = 2)
         private int requisitionReasonId;
 
+        @JsonProperty("processId")
+        @ApiModelProperty(position = 4)
+        private Integer processId;
+
         public String getMaterialNumber() {
             return materialNumber;
         }
@@ -114,5 +118,14 @@ public class AddRequisitionDto {
         public void setRequisitionReasonId(int requisitionReasonId) {
             this.requisitionReasonId = requisitionReasonId;
         }
+
+        public Integer getProcessId() {
+            return processId;
+        }
+
+        public void setProcessId(Integer processId) {
+            this.processId = processId;
+        }
+
     }
 }
