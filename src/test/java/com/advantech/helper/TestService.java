@@ -13,6 +13,7 @@ import com.advantech.model.db1.Requisition;
 import com.advantech.model.db1.RequisitionFlow;
 import com.advantech.model.db1.Requisition_;
 import com.advantech.model.db1.ScrappedRequisition;
+import com.advantech.model.db1.ScrappedSummary;
 import com.advantech.model.db1.User;
 import com.advantech.model.db1.UserAgent;
 import com.advantech.model.db1.UserNotification;
@@ -80,6 +81,7 @@ import com.advantech.service.db1.CustomUserDetailsService;
 import com.advantech.service.db1.FloorService;
 import com.advantech.service.db1.RequisitionFlowService;
 import com.advantech.service.db1.ScrappedService;
+import com.advantech.service.db1.ScrappedSummaryService;
 import com.advantech.service.db1.UserAgentService;
 import com.advantech.service.db1.VwM3WorktimeService;
 import com.advantech.service.db1.VwMfgWorkerService;
@@ -93,7 +95,10 @@ import org.joda.time.LocalTime;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
+import javax.persistence.Tuple;
+import javax.persistence.TupleElement;
 
 /**
  *
@@ -168,6 +173,130 @@ public class TestService {
 
     @Autowired
     private FloorService floorService;
+
+    @Autowired
+    private ScrappedSummaryService scrappedSummaryService;
+
+    private DateTime lastWeek, thisMon;
+    int lastWeekNo, lastWeekYear, lastWeekYw;
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+    public void testScrappedSummaryService() throws Exception {
+
+        DateTime now = new DateTime("2026-03-24").withTime(0, 0, 0, 0);
+        for (DateTime i = now; i.compareTo(now) >= 0; i = lastWeek) {
+
+            lastWeek = i.minusWeeks(1);
+            thisMon = i.dayOfWeek().withMinimumValue();
+            lastWeekNo = lastWeek.getWeekOfWeekyear();
+            lastWeekYear = lastWeek.getWeekyear();
+
+            saveWeekData();
+            DateTime startDt, endDt, startDtLast26, endDtLast26;
+            if (lastWeekNo <= 17) {
+                startDt = lastWeek.minusYears(1).withWeekOfWeekyear(44).dayOfWeek().withMinimumValue();
+                endDt = thisMon;
+                startDtLast26 = startDt.minusWeeks(26);
+                endDtLast26 = startDt.minusWeeks(1);
+            } else if (lastWeekNo >= 44) {
+                startDt = lastWeek.withWeekOfWeekyear(44).dayOfWeek().withMinimumValue();
+                endDt = thisMon;
+                startDtLast26 = startDt.minusWeeks(26);
+                endDtLast26 = startDt.minusWeeks(1);
+            } else //(lastWeekNo > 17 && lastWeekNo < 44) 
+            {
+                startDt = lastWeek.withWeekOfWeekyear(18).dayOfWeek().withMinimumValue();
+                endDt = thisMon;
+                startDtLast26 = lastWeek.withYear(lastWeekYear - 1).withWeekOfWeekyear(44).dayOfWeek().withMinimumValue();
+                endDtLast26 = startDt.minusWeeks(1);
+            }
+
+            int from = startDt.getWeekyear() * 100 + startDt.getWeekOfWeekyear();
+            int to = endDt.getWeekyear() * 100 + endDt.getWeekOfWeekyear();
+            int startDtYwLast26 = startDtLast26.getWeekyear() * 100 + startDtLast26.getWeekOfWeekyear();
+            int endDtYwLast26 = endDtLast26.getWeekyear() * 100 + endDtLast26.getWeekOfWeekyear();
+//            List<Tuple> reports = scrappedSummaryService.findAllReportByYkBetween(from, to, startDtYwLast26, endDtYwLast26);
+//
+////            HibernateObjectPrinter.print(reports);
+////
+//            for (Tuple t : reports) {
+//                for (TupleElement<?> e : t.getElements()) {
+//                    String name = e.getAlias(); // 有機會拿到欄位名
+//                    Object value = t.get(e);
+//
+//                    HibernateObjectPrinter.print(name);
+//                    HibernateObjectPrinter.print(value);
+//                }
+//            }
+        }
+    }
+
+    private void saveWeekData() {
+        lastWeekYw = lastWeekYear * 100 + lastWeekNo;
+
+        DateTime sD = lastWeek.dayOfWeek().withMinimumValue();
+        DateTime eD = thisMon;
+
+        List<ScrappedRequisition> rlShort = scrappedService.findAllShort(sD, eD, lastWeekYw);
+        List<ScrappedRequisition> rl = scrappedService.findAllScrapped(sD, eD, lastWeekYw);
+        List<ScrappedRequisition> rlExtra = scrappedService.findAllScrappedExtra(sD, eD, lastWeekYw);
+
+        Predicate<ScrappedRequisition> prUp = sr -> new BigDecimal(100).compareTo(sr.getUnitPrice()) < 0;
+        Predicate<ScrappedRequisition> prDown = sr -> new BigDecimal(100).compareTo(sr.getUnitPrice()) >= 0;
+        Map<Integer, List<ScrappedRequisition>> groupedUp = scrappedService.getWeeklyGroup(rl, prUp);
+        Map<Integer, List<ScrappedRequisition>> groupedDown = scrappedService.getWeeklyGroup(rl, prDown);
+        Map<Integer, List<ScrappedRequisition>> groupedExtraUp = scrappedService.getWeeklyGroup(rlExtra, prUp);
+        Map<Integer, List<ScrappedRequisition>> groupedExtraDown = scrappedService.getWeeklyGroup(rlExtra, prDown);
+        Map<Integer, List<ScrappedRequisition>> groupedShortUp = scrappedService.getWeeklyGroup(rlShort, prUp);
+        Map<Integer, List<ScrappedRequisition>> groupedShortDown = scrappedService.getWeeklyGroup(rlShort, prDown);
+
+        ScrappedSummary summaryM9_3F = new ScrappedSummary();
+        ScrappedSummary summaryM9_4F = new ScrappedSummary();
+        ScrappedSummary summaryM6 = new ScrappedSummary();
+        summaryM9_3F.setYk(lastWeekYw);
+        summaryM9_3F.setArea("M9_3F");
+        summaryM9_4F.setYk(lastWeekYw);
+        summaryM9_4F.setArea("M9_4F");
+        summaryM6.setYk(lastWeekYw);
+        summaryM6.setArea("M6");
+
+        List<Integer> priceAmountSums = scrappedService.getPriceAmountSumByFloor(groupedUp.getOrDefault(lastWeekYw, Arrays.asList()));
+        summaryM9_4F.setScrapSumHundredUp(priceAmountSums.get(0));
+        summaryM9_4F.setScrapPcsHundredUp(priceAmountSums.get(1));
+        summaryM9_3F.setScrapSumHundredUp(priceAmountSums.get(2));
+        summaryM9_3F.setScrapPcsHundredUp(priceAmountSums.get(3));
+        summaryM6.setScrapSumHundredUp(priceAmountSums.get(4));
+        summaryM6.setScrapPcsHundredUp(priceAmountSums.get(5));
+        priceAmountSums = scrappedService.getPriceAmountSumByFloor(groupedDown.getOrDefault(lastWeekYw, Arrays.asList()));
+        List<Integer> priceAmountSumsExtraUp = scrappedService.getPriceAmountSumByFloor(groupedExtraUp.getOrDefault(lastWeekYw, Arrays.asList()));
+        List<Integer> priceAmountSumsExtraDown = scrappedService.getPriceAmountSumByFloor(groupedExtraDown.getOrDefault(lastWeekYw, Arrays.asList()));
+        summaryM9_4F.setScrapSumHundredDown(priceAmountSums.get(0) + priceAmountSumsExtraUp.get(0) + priceAmountSumsExtraDown.get(0));
+        summaryM9_4F.setScrapPcsHundredDown(priceAmountSums.get(1) + priceAmountSumsExtraUp.get(1) + priceAmountSumsExtraDown.get(1));
+        summaryM9_3F.setScrapSumHundredDown(priceAmountSums.get(2) + priceAmountSumsExtraUp.get(2) + priceAmountSumsExtraDown.get(2));
+        summaryM9_3F.setScrapPcsHundredDown(priceAmountSums.get(3) + priceAmountSumsExtraUp.get(3) + priceAmountSumsExtraDown.get(3));
+        summaryM6.setScrapSumHundredDown(priceAmountSums.get(4) + priceAmountSumsExtraUp.get(4) + priceAmountSumsExtraDown.get(4));
+        summaryM6.setScrapPcsHundredDown(priceAmountSums.get(5) + priceAmountSumsExtraUp.get(5) + priceAmountSumsExtraDown.get(5));
+        priceAmountSums = scrappedService.getPriceAmountSumByFloor(groupedShortUp.getOrDefault(lastWeekYw, Arrays.asList()));
+        summaryM9_4F.setShortSumHundredUp(priceAmountSums.get(0));
+        summaryM9_4F.setShortPcsHundredUp(priceAmountSums.get(1));
+        summaryM9_3F.setShortSumHundredUp(priceAmountSums.get(2));
+        summaryM9_3F.setShortPcsHundredUp(priceAmountSums.get(3));
+        summaryM6.setShortSumHundredUp(priceAmountSums.get(4));
+        summaryM6.setShortPcsHundredUp(priceAmountSums.get(5));
+        priceAmountSums = scrappedService.getPriceAmountSumByFloor(groupedShortDown.getOrDefault(lastWeekYw, Arrays.asList()));
+        summaryM9_4F.setShortSumHundredDown(priceAmountSums.get(0));
+        summaryM9_4F.setShortPcsHundredDown(priceAmountSums.get(1));
+        summaryM9_3F.setShortSumHundredDown(priceAmountSums.get(2));
+        summaryM9_3F.setShortPcsHundredDown(priceAmountSums.get(3));
+        summaryM6.setShortSumHundredDown(priceAmountSums.get(4));
+        summaryM6.setShortPcsHundredDown(priceAmountSums.get(5));
+
+        scrappedSummaryService.save(summaryM9_3F);
+        scrappedSummaryService.save(summaryM9_4F);
+        scrappedSummaryService.save(summaryM6);
+    }
 
 //    @Test
 //    @Transactional
@@ -568,13 +697,77 @@ public class TestService {
 //    @Test
 //    @Transactional
 //    @Rollback(true)
+    public void testShortService() throws Exception {
+        DateTime now = DateTime.now().withTime(8, 30, 0, 0);
+        DateTime lastWeek = now.minusWeeks(1);
+
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
+
+        DateTime sd, ed;
+        if (lastWeek.weekOfWeekyear().get() > 17 && lastWeek.weekOfWeekyear().get() < 44) {
+            sd = lastWeek.withWeekOfWeekyear(18).dayOfWeek().withMinimumValue();
+            ed = lastWeek.withWeekOfWeekyear(44).dayOfWeek().withMinimumValue();
+        } else {
+            sd = lastWeek.minusYears(1).withWeekOfWeekyear(44).dayOfWeek().withMinimumValue();
+            ed = lastWeek.withWeekOfWeekyear(18).dayOfWeek().withMinimumValue();
+        }
+
+        DateTime endDt = DateTime.now().withTime(8, 30, 0, 0).dayOfWeek().withMinimumValue();
+        DateTime startDt = new DateTime("2026-03-01");
+//        DateTime lastWeek = endDt.plusDays(-7);
+        int lastWeekNo = lastWeek.weekOfWeekyear().get();
+
+        List<ScrappedRequisition> rl = scrappedService.findAllShort(sd, ed, lastWeekYw);
+        HibernateObjectPrinter.print(rl.get(0));
+        Map<Integer, List<ScrappedRequisition>> grouped = rl.stream().collect(Collectors.groupingBy(
+                sr -> sr.getWeek(),
+                TreeMap::new, // TreeMap for order
+                Collectors.toList()
+        ));
+
+//        List<ScrappedRequisition> lastWeekL = grouped.getOrDefault(lastWeekNo, newArrayList());
+        int priceSumAll = 0;
+        Map<Integer, Integer> mapPrice3f = new HashMap<>(), mapPrice4f = new HashMap<>(), mapPriceBoth = new HashMap<>(), mapPriceAll = new HashMap<>();
+        for (Map.Entry<Integer, List<ScrappedRequisition>> entry : grouped.entrySet()) {
+            Integer keys = entry.getKey();
+            List<ScrappedRequisition> gl = entry.getValue();
+
+            List<ScrappedRequisition> gl3f = scrappedService.getFilterByFloor(gl, 9);
+            List<ScrappedRequisition> gl4f = scrappedService.getFilterByFloor(gl, 10);
+//                    int amountSum = gl.stream().mapToInt(ScrappedRequisition::getAmount).sum();
+            int priceSum3f = getPriceSum(gl3f);
+            int priceSum4f = getPriceSum(gl4f);
+            int priceSumBoth = priceSum3f + priceSum4f;
+            priceSumAll += priceSumBoth;
+
+            mapPrice3f.put(keys, priceSum3f);
+            mapPrice4f.put(keys, priceSum4f);
+            mapPriceBoth.put(keys, priceSumBoth);
+            mapPriceAll.put(keys, priceSumAll);
+        }
+        List<Map<Integer, Integer>> pl = newArrayList(mapPrice3f, mapPrice4f, mapPriceBoth, mapPriceAll);
+
+//        List<Requisition> l = scrappedService.findAllTargetByJson(new DateTime("2025-09-12"), DateTime.now());
+//        HibernateObjectPrinter.print(l);
+//
+//        checkArgument(!rl.isEmpty());
+//        String ss = rl.get(0).getReturnReason();
+//        HibernateObjectPrinter.print(rl);
+//        List<Requisition> rl2 = scrappedService.findAllTargetOg(new DateTime("2025-09-12"), DateTime.now());
+//        checkArgument(!rl2.isEmpty());
+//        HibernateObjectPrinter.print(rl2);
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback(true)
     public void testScrappedlService() throws Exception {
         DateTime endDt = DateTime.now().withTime(8, 30, 0, 0);//.dayOfWeek().withMinimumValue();
         DateTime startDt = new DateTime("2025-09-01");
         DateTime lastWeek = endDt.plusDays(-7);
         int lastWeekNo = lastWeek.weekOfWeekyear().get();
 
-        List<ScrappedRequisition> rl = scrappedService.findAllTarget(startDt, endDt);
+        List<ScrappedRequisition> rl = scrappedService.findAllScrapped(startDt, endDt, lastWeekYw);
         Map<Integer, List<ScrappedRequisition>> grouped = rl.stream().collect(Collectors.groupingBy(
                 sr -> sr.getWeek(),
                 TreeMap::new, // TreeMap for order

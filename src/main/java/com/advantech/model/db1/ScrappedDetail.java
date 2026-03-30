@@ -22,6 +22,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -45,6 +46,8 @@ public class ScrappedDetail implements Serializable {
     private String remark;
     private Date createDate;
     private Floor floor;
+    private int requisitionId;
+    private int yk;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -84,7 +87,8 @@ public class ScrappedDetail implements Serializable {
         this.materialNumber = materialNumber;
     }
 
-    @Column(name = "amount")
+    @NotNull
+    @Column(name = "amount", nullable = false)
     public int getAmount() {
         return amount;
     }
@@ -111,6 +115,7 @@ public class ScrappedDetail implements Serializable {
         this.kind = kind;
     }
 
+    @NotNull
     @Column(name = "price", nullable = false)
     public int getPrice() {
         return price;
@@ -150,14 +155,35 @@ public class ScrappedDetail implements Serializable {
         this.createDate = createDate;
     }
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "floor_id")
+    @JoinColumn(name = "floor_id", nullable = false)
     public Floor getFloor() {
         return floor;
     }
 
     public void setFloor(Floor floor) {
         this.floor = floor;
+    }
+
+    @NotNull
+    @Column(name = "requisition_id", nullable = false)
+    public int getRequisitionId() {
+        return requisitionId;
+    }
+
+    public void setRequisitionId(int requisitionId) {
+        this.requisitionId = requisitionId;
+    }
+
+    @NotNull
+    @Column(name = "yk", nullable = false)
+    public int getYk() {
+        return yk;
+    }
+
+    public void setYk(int yk) {
+        this.yk = yk;
     }
 
     @Override

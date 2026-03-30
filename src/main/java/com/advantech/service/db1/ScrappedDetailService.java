@@ -53,6 +53,10 @@ public class ScrappedDetailService {
         return repo.findUserScrappedDetailCount(sD, eD, startDateOfYear);
     }
 
+    public List<ScrappedDetail> findByFloorAndYk(List<Floor> floors, int yk) {
+        return repo.findByFloorInAndYk(floors, yk);
+    }
+
     public DataTablesOutput<ScrappedDetail> findAll(DataTablesInput dti) {
         return repo.findAll(dti);
     }

@@ -37,9 +37,11 @@ public interface ScrappedDetailRepository extends JpaRepository<ScrappedDetail, 
 
     @Query(value = "{CALL usp_GetMaterialNumberSum(:sD, :eD)}", nativeQuery = true)
     public List<MaterialNumberSum> findMaterialNumberSum(@Param("sD") Date sD, @Param("eD") Date eD);
-    
+
     @Query(value = "{CALL usp_GetUserScrappedDetailCount(:sD, :eD, :startDateOfYear)}", nativeQuery = true)
-    public List<ScrappedDetailCount> findUserScrappedDetailCount(@Param("sD") Date sD, 
+    public List<ScrappedDetailCount> findUserScrappedDetailCount(@Param("sD") Date sD,
             @Param("eD") Date eD, @Param("startDateOfYear") Date startDateOfYear);
+
+    public List<ScrappedDetail> findByFloorInAndYk(List<Floor> floor, int yk);
 
 }

@@ -85,15 +85,32 @@ public class TestClass {
 //    @Test
     public void testDateTime() {
         DateTime now = DateTime.now().withTime(8, 30, 0, 0);
-        DateTime lastWeek = now.plusDays(-7);
-        String lastWeekNo = lastWeek.weekOfWeekyear().getAsShortText();
+        now = new DateTime("2027-01-07").withTime(8, 30, 0, 0);
+        DateTime lastWeek = now.minusWeeks(1);
+        int lastWeekNo = lastWeek.getWeekOfWeekyear();
+        int lastWeekYear = lastWeek.getWeekyear();
+
+//        String lastWeekNo = lastWeek.weekOfWeekyear().getAsShortText();
         String lastWeekNo3 = lastWeek.year().getAsShortText();
-        
+
         DateTime thisMon = now.dayOfWeek().withMinimumValue();
         DateTime lastMon = thisMon.plusDays(-7);
         String lastWeekNo2 = lastMon.weekOfWeekyear().getAsShortText();
 
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
+
+        DateTime startDt, endDt;
+        if (lastWeekNo <= 17) {
+            startDt = lastWeek.withYear(lastWeekYear - 1).withWeekOfWeekyear(44).dayOfWeek().withMinimumValue();
+            endDt = thisMon;
+        } else if (lastWeekNo >= 44) {
+            startDt = lastWeek.withWeekOfWeekyear(44).dayOfWeek().withMinimumValue();
+            endDt = thisMon;
+        } else //(lastWeekNo > 17 && lastWeekNo < 44) 
+        {
+            startDt = lastWeek.withWeekOfWeekyear(18).dayOfWeek().withMinimumValue();
+            endDt = thisMon;
+        }
 
         DateTime d = new DateTime("2025-09-07");
         HibernateObjectPrinter.print(d.getDayOfWeek());

@@ -149,18 +149,30 @@
     </bean>
     
     <!--job13 setting-->
-    <bean name="SendScrapped-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="sendScrapped" />
+    <bean name="SyncDataScrappedReport-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="syncDataScrappedReport" />
         <property name="targetMethod" value="execute"/>  
         <property name="concurrent" value="false"/>
     </bean>
     
-    <bean id="SendScrapped-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="jobDetail" ref="SendScrapped-Job" />
-        <property name="cronExpression" value="0 35 8 ? * MON *" />
+    <bean id="SyncDataScrappedReport-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SyncDataScrappedReport-Job" />
+        <property name="cronExpression" value="0 33 8 ? * MON *" />
     </bean>
     
     <!--job14 setting-->
+    <bean name="SendScrappedReport-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="sendScrappedReport" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="SendScrappedReport-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SendScrappedReport-Job" />
+        <property name="cronExpression" value="0 35 8 ? * MON *" />
+    </bean>
+    
+    <!--job15 setting-->
     <bean name="CheckRequisitionSap-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="checkRequisitionSap" />
         <property name="targetMethod" value="execute"/>  
@@ -185,7 +197,8 @@
                 <ref bean="SendLackWithStock-Trig"/>
                 <ref bean="SendRequiredToPMC-Trig"/>
                 <ref bean="SendCheckQualify-Trig"/>
-                <ref bean="SendScrapped-Trig"/>
+                <ref bean="SyncDataScrappedReport-Trig"/>
+                <ref bean="SendScrappedReport-Trig"/>
                 <ref bean="CheckRequisitionSap-Trig"/>
                 
                 <ref bean="WareHouseAgent-Trig"/>

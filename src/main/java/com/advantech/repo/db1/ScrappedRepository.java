@@ -20,8 +20,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ScrappedRepository extends JpaRepository<Requisition, Integer> {
 
-    @Query(value = "{CALL usp_Excel_Scrapped_M9All (?1, ?2)}", nativeQuery = true)
-    public List<ScrappedRequisition> findAllScrapped(Date sD, Date eD);
+    @Query(value = "{CALL usp_Excel_Scrapped_M9All (?1, ?2, ?3)}", nativeQuery = true)
+    public List<ScrappedRequisition> findAllScrapped(Date sD, Date eD, int lastWeekYw);
+
+    @Query(value = "{CALL usp_Excel_ScrappedExtra_M9All (?1, ?2, ?3)}", nativeQuery = true)
+    public List<ScrappedRequisition> findAllScrappedExtra(Date sD, Date eD, int lastWeekYw);
+
+    @Query(value = "{CALL usp_Excel_ScrappedShort_M9All (?1, ?2, ?3)}", nativeQuery = true)
+    public List<ScrappedRequisition> findAllShort(Date sD, Date eD, int lastWeekYw);
 
     @Query(value = "{CALL usp_Excel_Scrapped_M9All_Json (?1, ?2)}", nativeQuery = true)
     public Object findAllScrappedByTbfn(Date sD, Date eD);

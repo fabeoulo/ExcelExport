@@ -16,9 +16,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.collect.Lists.newArrayList;
 import java.sql.Clob;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,16 +35,39 @@ public class ScrappedService {
     @Autowired
     private ScrappedRepository repo;
 
-    public List<ScrappedRequisition> findAllTarget(DateTime sdt, DateTime edt) {
-        return repo.findAllScrapped(sdt.toDate(), edt.toDate());
+    public List<ScrappedRequisition> findAllScrapped(DateTime sdt, DateTime edt, int lastWeekYw) {
+        return repo.findAllScrapped(sdt.toDate(), edt.toDate(), lastWeekYw);
     }
 
-    public Map<Integer, List<ScrappedRequisition>> getWeeklyGroup(List<ScrappedRequisition> rl) {
-        return rl.stream().collect(Collectors.groupingBy(
-                sr -> sr.getWeek(),
+    public List<ScrappedRequisition> findAllScrappedExtra(DateTime sdt, DateTime edt, int lastWeekYw) {
+        return repo.findAllScrappedExtra(sdt.toDate(), edt.toDate(), lastWeekYw);
+    }
+
+    public List<ScrappedRequisition> findAllShort(DateTime sdt, DateTime edt, int lastWeekYw) {
+        return repo.findAllShort(sdt.toDate(), edt.toDate(), lastWeekYw);
+    }
+
+    public Map<Integer, List<ScrappedRequisition>> getWeeklyGroup(List<ScrappedRequisition> rl, Predicate<ScrappedRequisition> pr) {
+        return rl.stream().filter(pr).collect(Collectors.groupingBy(
+                sr -> sr.getYk(),
                 TreeMap::new, // TreeMap for order
                 Collectors.toList()
         ));
+    }
+
+    public List<Integer> getPriceAmountSumByFloor(List<ScrappedRequisition> weekList) {
+        List<ScrappedRequisition> gl3f = this.getFilterByFloor(weekList, 9);
+        List<ScrappedRequisition> gl4f = this.getFilterByFloor(weekList, 10);
+        List<ScrappedRequisition> glM6 = this.getFilterByFloor(weekList, 7);
+
+        int price4f = this.getPriceSum(gl4f);
+        int price3f = this.getPriceSum(gl3f);
+        int priceM6 = this.getPriceSum(glM6);
+        int amountSum3f = gl3f.stream().mapToInt(ScrappedRequisition::getAmount).sum();
+        int amountSum4f = gl4f.stream().mapToInt(ScrappedRequisition::getAmount).sum();
+        int amountSumM6 = glM6.stream().mapToInt(ScrappedRequisition::getAmount).sum();
+
+        return Arrays.asList(price4f, amountSum4f, price3f, amountSum3f, priceM6, amountSumM6);
     }
 
     public List<Map<Integer, List<Integer>>> getPriceMap(Map<Integer, List<ScrappedRequisition>> grouped) {
@@ -78,7 +103,7 @@ public class ScrappedService {
     }
 
     public List<ScrappedRequisition> getFilterByFloor(List<ScrappedRequisition> gl, int floorId) {
-        return gl.stream().filter(all -> all.getFloorIdBoth().equals(floorId)).collect(Collectors.toList());
+        return gl.stream().filter(all -> all.getFloorIdBoth() == floorId).collect(Collectors.toList());
     }
 
     public int getPriceSum(List<ScrappedRequisition> gl) {

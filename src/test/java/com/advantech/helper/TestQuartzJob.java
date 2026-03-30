@@ -11,10 +11,11 @@ import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
 import com.advantech.job.SendRequiredToPMC;
-import com.advantech.job.SendScrapped;
 import com.advantech.job.SendWhReportsLinkou;
 import com.advantech.job.SendWhReportsDonghu;
+import com.advantech.job.SendScrappedReport;
 import com.advantech.job.SyncData;
+import com.advantech.job.SyncDataScrappedReport;
 import com.advantech.job.SyncLackMrp;
 import com.advantech.job.WareHouseAgent;
 import com.advantech.job.WareHouseAgentLabel;
@@ -74,23 +75,31 @@ public class TestQuartzJob {
     @Autowired
     private SendCheckQualify sendCheckQualify;
 
-    @Autowired
-    private SendScrapped sendScrapped;
-
     @Value("${floor.five.fileLocation}")
     private String fileLocation;
 
     @Autowired
     private CheckRequisitionSap checkRequisitionSap;
 
+    @Autowired
+    private SendScrappedReport syncAndSendScrapped;
+
+    @Autowired
+    private SyncDataScrappedReport syncDataScrappedReport;
+
 //    @Test
-    public void testCheckRequisitionSap() {
-        checkRequisitionSap.execute();
+    public void testSyncDataScrappedReport() {
+        syncDataScrappedReport.execute();
     }
 
 //    @Test
-    public void testSendScrapped() {
-        sendScrapped.execute();
+    public void testSyncAndSendScrapped() {
+        syncAndSendScrapped.execute();
+    }
+
+//    @Test
+    public void testCheckRequisitionSap() {
+        checkRequisitionSap.execute();
     }
 
 //    @Test

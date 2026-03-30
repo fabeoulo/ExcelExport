@@ -22,7 +22,7 @@ public interface ScrappedRequisition {
 
     public String getModelName();
 
-    public Integer getFloorIdBoth();
+    public int getFloorIdBoth();
 
     public Integer getStateId();
 
@@ -37,10 +37,17 @@ public interface ScrappedRequisition {
     public int getAmount();
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
+    public Date getReceivedate();
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
     public Date getReturnDate();
 
     public Integer getWeek();
 
+    public Integer getYk();
+
     public String getReturnReason();
+
+    public String getWerk();
 
 }
