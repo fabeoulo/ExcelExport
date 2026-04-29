@@ -131,12 +131,16 @@ public class TestService {
     }
 
 ////    @Test
+//    public void testVwMfgWorkerService() {
+////        List<VwMfgWorker> rl = vwMfgWorkerService.findAll();
+////        assertTrue(rl != null);
+//        VwMfgWorker vw = vwMfgWorkerService.findByJobnumber("MI-1483");
+//        assertTrue(vw != null);
+//    }
+
+////    @Test
 //    public void testVwM3WorktimeService() {
-//        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
-//        List<String> modelNames = rl.stream().map(Requisition::getModelName).collect(Collectors.toList());
-////        List<String> modelNames = newArrayList("2070001832", "AMIS50FM11502E-T");
-//
-//        Requisition r0 = rl.get(0);
+//        List<String> modelNames = newArrayList("2070001832", "AMIS50FM11502E-T");
 //
 ////        List<VwM3Worktime> ul = vwM3WorktimeService.findAll();
 //        List<VwM3Worktime> vwM3Wt = vwM3WorktimeService.findAllByModelName(modelNames);
@@ -148,6 +152,7 @@ public class TestService {
 //        String jobNo = vwM3Wt.get(0).getQcMail();
 //        HibernateObjectPrinter.print(vwM3Wt);
 //    }
+
     private <T> String testType(T obj, Function<T, String> getter) {
         return obj != null ? getter.apply(obj) : "";
     }
@@ -396,9 +401,7 @@ public class TestService {
                 .orElse(null);
     }
 
-    private Date sD, eD;
-
-    @Test
+//    @Test
     @Transactional
     @Rollback(true)
     public void testRequisitionFlowService() {
@@ -429,8 +432,24 @@ public class TestService {
 //    @Transactional
 //    @Rollback(true)
     public void testToPMC() {
-        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
-        return;
+        setDatetime();
+        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState(sD, eD);
+    }
+
+    private Date sD, eD;
+
+    private void setDatetime() {
+        DateTime dt = new DateTime();
+        DateTime sdt, edt;
+        if (dt.getHourOfDay() < 16) {
+            sdt = dt.minusDays(1).withTime(16, 0, 0, 1);
+            edt = dt.withTime(11, 0, 0, 0);
+        } else {
+            sdt = dt.withTime(11, 0, 0, 1);
+            edt = dt.withTime(16, 0, 0, 0);
+        }
+        sD = sdt.toDate();
+        eD = edt.toDate();
     }
 
     private void setDate() {

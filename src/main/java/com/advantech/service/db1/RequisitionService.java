@@ -66,8 +66,6 @@ public class RequisitionService {
     @Autowired
     private RequisitionReasonRepository reasonRepo;
 
-    private Date sD, eD;
-
     public DataTablesOutput<Requisition> findAll(DataTablesInput dti) {
         return repo.findAll(dti);
     }
@@ -120,12 +118,11 @@ public class RequisitionService {
         return repo.findAllByCreateDateGreaterThanAndRequisitionState_IdInAndFloor_IdIn(td.toDate(), stateId, floorId);
     }
 
-    public List<Requisition> findAllByHalfdayWithUserAndState() {
+    public List<Requisition> findAllByHalfdayWithUserAndState(Date sD, Date eD) {
         return repo.findAll((Root<Requisition> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
             root.fetch(Requisition_.USER, JoinType.LEFT);
             root.fetch(Requisition_.REQUISITION_STATE, JoinType.LEFT);
 
-            setDatetime();
             Path<Date> dateEntryPath = root.get(Requisition_.receiveDate);
             Predicate datePredicate = cb.between(dateEntryPath, sD, eD);
 
@@ -137,20 +134,6 @@ public class RequisitionService {
             cq.orderBy(cb.asc(root.get(Requisition_.werk)));
             return cq.getRestriction();
         });
-    }
-
-    private void setDatetime() {
-        DateTime dt = new DateTime();
-        DateTime sdt, edt;
-        if (dt.getHourOfDay() < 17) {
-            sdt = dt.minusDays(1).withTime(17, 0, 0, 1);
-            edt = dt.withTime(12, 0, 0, 0);
-        } else {
-            sdt = dt.withTime(12, 0, 0, 1);
-            edt = dt.withTime(17, 0, 0, 0);
-        }
-        sD = sdt.toDate();
-        eD = edt.toDate();
     }
 
     public List<Requisition> findAllByCreateAndStateAndFloor(DateTime sdt, int state, List<Integer> floorIds) {

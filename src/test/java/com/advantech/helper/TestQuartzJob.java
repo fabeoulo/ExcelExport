@@ -10,6 +10,7 @@ import com.advantech.job.SendCheckQualify;
 import com.advantech.job.SendLackWithStock;
 import com.advantech.job.SendOvertimeReport;
 import com.advantech.job.SendReport;
+import com.advantech.job.SendRequiredToPMC;
 import com.advantech.job.SendWhReports;
 import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SendWhReportsLinkou;
@@ -61,9 +62,9 @@ public class TestQuartzJob {
 	
     @Autowired
     private SendLackWithStock sendLackWithStock;
-//
-//    @Autowired
-//    private SendRequiredToPMC sendRequiredToPMC;
+
+    @Autowired
+    private SendRequiredToPMC sendRequiredToPMC;
 
     @Autowired
     private SyncLackMrp syncLackMrp;
@@ -82,7 +83,7 @@ public class TestQuartzJob {
 
     @Autowired
     private CheckRequisitionSap checkRequisitionSap;
-
+    
 //    @Test
     public void testCheckRequisitionSap() {
         checkRequisitionSap.execute();
@@ -146,10 +147,10 @@ public class TestQuartzJob {
         sendLackWithStock.execute();
     }
 
-////    @Test
-//    public void testSendRequiredToPMC() {
-//        sendRequiredToPMC.execute();
-//    }
+//    @Test
+    public void testSendRequiredToPMC() {
+        sendRequiredToPMC.execute();
+    }
 
     @Test
     public void testsyncLackMrp() throws Exception {
