@@ -39,6 +39,7 @@ public abstract class SendEmailBase extends JobBase {
     protected EmailApiClient emailApiClient;
 
     protected final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
+    protected final String titleFloor = "3F";
 
     @Value("${app.base-url.port:8080}")
     private String webAppPort;

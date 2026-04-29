@@ -8,8 +8,12 @@ import com.advantech.model.db1.Requisition;
 import com.advantech.sap.SapService;
 import com.advantech.service.db1.RequisitionService;
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.joda.time.DateTime;
@@ -30,7 +34,8 @@ public class SendRequiredToPMC extends SendEmailBase {
 
     private static final Logger logger = LoggerFactory.getLogger(SendRequiredToPMC.class);
 
-    protected final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/M/d");
+    private Date sD, eD;
+
     protected final DateTimeFormatter fmtD = DateTimeFormat.forPattern("yyyy/M/d HH:mm:ss");
 
     @Autowired
@@ -58,15 +63,42 @@ public class SendRequiredToPMC extends SendEmailBase {
         }
 
         String mailBody = generateMailBody();
-        String mailTitle = fmt.print(new DateTime()) + " - 半日領料通知";
+        String mailTitle = fmt.print(new DateTime()) + " - 半日領料通知 " + titleFloor;
+        String fromName = "領退料平台";
 
-        manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody);
+        manager.sendMail(mailTarget, mailCcTarget, mailTitle, mailBody, fromName);
+//        super.sendByApi(mailTarget, mailCcTarget, mailTitle, mailBody, fromName);
+    }
+
+    private void setDatetime() {
+        DateTime dt = new DateTime();
+        DateTime sdt, edt;
+        if (dt.getHourOfDay() < 16) {
+            sdt = dt.minusDays(1).withTime(16, 0, 0, 1);
+            edt = dt.withTime(11, 0, 0, 0);
+        } else {
+            sdt = dt.withTime(11, 0, 0, 1);
+            edt = dt.withTime(16, 0, 0, 0);
+        }
+        sD = sdt.toDate();
+        eD = edt.toDate();
     }
 
     public String generateMailBody() throws IOException, SAXException, InvalidFormatException, Exception {
 
-        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState();
+        setDatetime();
+        List<Requisition> rl = rservice.findAllByHalfdayWithUserAndState(sD, eD);
         Map<String, String> mrpCodeMap = sapService.getMrpCodeMap(rl);
+
+        List<Map.Entry<Requisition, String>> list = rl.stream()
+                .map(r -> new AbstractMap.SimpleEntry<>(r, mrpCodeMap.get(r.getMaterialNumber() + "," + r.getWerk())))
+                .sorted(Comparator
+                        .comparing((Map.Entry<Requisition, String> e) -> e.getKey().getWerk())
+                        .thenComparing(Map.Entry.comparingByValue())
+                        .thenComparing((Map.Entry<Requisition, String> e) -> e.getKey().getMaterialNumber())
+                        .thenComparing((Map.Entry<Requisition, String> e) -> e.getKey().getPo())
+                )
+                .collect(Collectors.toList());
 
         StringBuilder sb = new StringBuilder();
 
@@ -90,15 +122,16 @@ public class SendRequiredToPMC extends SendEmailBase {
         sb.append("<tr>");
         sb.append("<th>時間</th>");
         sb.append("<th>工單</th>");
+        sb.append("<th>成品料號</th>");
         sb.append("<th>料號</th>");
         sb.append("<th>數量</th>");
         sb.append("<th>廠區</th>");
         sb.append("<th>MRP_Code</th>");
         sb.append("</tr>");
 
-        for (Requisition r : rl) {
-            String mapKey = r.getMaterialNumber() + "," + r.getWerk();
-            String mrpCode = mrpCodeMap.get(mapKey);
+        for (Map.Entry<Requisition, String> item : list) {
+            Requisition r = item.getKey();
+            String mrpCode = item.getValue();
 
             if ("TWM3".equals(r.getWerk()) || "TWM9".equals(r.getWerk())) {
                 sb.append("<tr class='m3'>");
@@ -110,6 +143,9 @@ public class SendRequiredToPMC extends SendEmailBase {
             sb.append("</td>");
             sb.append("<td>");
             sb.append(r.getPo());
+            sb.append("</td>");
+            sb.append("<td>");
+            sb.append(r.getModelName());
             sb.append("</td>");
             sb.append("<td>");
             sb.append(r.getMaterialNumber());

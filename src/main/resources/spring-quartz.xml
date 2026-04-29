@@ -97,7 +97,7 @@
     
     <bean id="SendRequiredToPMC-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="SendRequiredToPMC-Job" />
-        <property name="cronExpression" value="0 0 12,17 ? * MON-FRI *" />
+        <property name="cronExpression" value="0 0 11,16 ? * MON-FRI *" />
     </bean>
     
     <!--job9 setting-->
