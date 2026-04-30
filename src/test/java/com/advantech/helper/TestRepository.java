@@ -187,6 +187,15 @@ public class TestRepository {
 
     }
 
+//   @Test
+//    @Transactional //repo inside Transactional //Rollback default is true
+//    @Rollback(false)
+    public void testQuickInsert() {
+        String jobnumber = "A-7060";
+        userRepo.saveUserWithNameByProc(jobnumber, "", jobnumber, null, null);
+        System.out.println("testQuickInsert ");
+    }
+
 //    @Test
     @Transactional
     @Rollback(true)

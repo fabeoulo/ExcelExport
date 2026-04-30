@@ -48,7 +48,7 @@ public class IECalendarController {
 
     @ResponseBody
     @RequestMapping(value = SAVE_URL, method = {RequestMethod.POST})
-    protected String save(@Valid @ModelAttribute IECalendarLinkou pojo) {
+    public String save(@Valid @ModelAttribute IECalendarLinkou pojo) {
 
         Optional<IECalendarLinkou> pojoInDb = calendarLinkouService.findByDateMark(pojo.getDateMark());
         if (pojoInDb.isPresent()) {

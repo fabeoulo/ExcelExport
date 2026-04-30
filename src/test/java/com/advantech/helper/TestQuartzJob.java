@@ -14,6 +14,7 @@ import com.advantech.job.SendRequiredToPMC;
 import com.advantech.job.SendWhReportsLinkou;
 import com.advantech.job.SendWhReportsDonghu;
 import com.advantech.job.SendScrappedReport;
+import com.advantech.job.SyncCalendar;
 import com.advantech.job.SyncData;
 import com.advantech.job.SyncDataScrappedReport;
 import com.advantech.job.SyncLackMrp;
@@ -87,6 +88,14 @@ public class TestQuartzJob {
     @Autowired
     private SyncDataScrappedReport syncDataScrappedReport;
 
+    @Autowired
+    private SyncCalendar syncCalendar;
+    
+//    @Test
+    public void testSyncCalendar() {
+        syncCalendar.execute();
+    }
+    
 //    @Test
     public void testSyncDataScrappedReport() {
         syncDataScrappedReport.execute();

@@ -184,6 +184,18 @@
         <property name="cronExpression" value="0 30 7 ? * * *" />
     </bean>
     
+    <!--job16 setting-->
+    <bean name="SyncCalendar-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="syncCalendar" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="SyncCalendar-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="SyncCalendar-Job" />
+        <property name="cronExpression" value="0 20 22 2,21 * ? *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -200,6 +212,7 @@
                 <ref bean="SyncDataScrappedReport-Trig"/>
                 <ref bean="SendScrappedReport-Trig"/>
                 <ref bean="CheckRequisitionSap-Trig"/>
+                <ref bean="SyncCalendar-Trig"/>
                 
                 <ref bean="WareHouseAgent-Trig"/>
                 <ref bean="WareHouseAgentLabel-Trig"/>

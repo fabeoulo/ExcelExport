@@ -92,7 +92,7 @@
                     "columns": [
                         {data: "id", title: "id"},
                         {data: "dateMark", title: "日期"},
-                        {data: "dateName", title: "假日補班"}
+                        {data: "dateName", title: "假日/補班"}
                     ],
                     "columnDefs": [
                         {

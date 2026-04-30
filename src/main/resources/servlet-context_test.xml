@@ -213,6 +213,16 @@
     <bean id="emailApiClient" class="com.advantech.webapi.EmailApiClient">
         <property name="baseUrl" value="http://172.22.250.120/emailsystem/Email/SendMailTemplate"></property>
     </bean>
+    <bean id="ezReactiveClient" class="com.advantech.webscraper.EzReactiveClient">
+        <property name="baseUrl" value="https://employeezone.advantech.com.tw"></property>
+        <property name="userName" value="${EZHTTPCLIENT.USERNAME}"></property>
+        <property name="password" value="${EZHTTPCLIENT.PASSWORD}"></property>
+    </bean>
+    <bean id="ezScraperClient" class="com.advantech.webscraper.EzScraperClient">
+        <property name="baseUrl" value="https://employeezone.advantech.com.tw"></property>
+        <property name="userName" value="${EZHTTPCLIENT.USERNAME}"></property>
+        <property name="password" value="${EZHTTPCLIENT.PASSWORD}"></property>
+    </bean>
     
     <!--要使用 @Transactional 時需要--> 
     <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>

@@ -330,6 +330,11 @@
     <bean id="emailApiClient" class="com.advantech.webapi.EmailApiClient">
         <property name="baseUrl" value="http://172.22.250.120/emailsystem/Email/SendMailTemplate"></property>
     </bean>
+    <bean id="ezScraperClient" class="com.advantech.webscraper.EzScraperClient">
+        <property name="baseUrl" value="https://employeezone.advantech.com.tw"></property>
+        <property name="userName" value="${EZHTTPCLIENT.USERNAME}"></property>
+        <property name="password" value="${EZHTTPCLIENT.PASSWORD}"></property>
+    </bean>    
         
     <import resource="classpath:spring-security.xml"/>
     <import resource="classpath:spring-quartz.xml"/>

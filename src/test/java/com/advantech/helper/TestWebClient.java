@@ -7,14 +7,18 @@ package com.advantech.helper;
 import com.advantech.webapi.model.Employee;
 import com.advantech.webapi.EmployeeApiClient;
 import com.advantech.model.db1.User;
-import com.advantech.repo.db1.UserRepository;
 import com.advantech.service.db1.UserService;
 import com.advantech.webapi.EmailApiClient;
 import com.advantech.webapi.model.EmailModel;
+import com.advantech.webscraper.EzReactiveClient;
+import com.advantech.webscraper.EzScraperClient;
+import com.advantech.webscraper.model.EzCalendar;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,22 +39,45 @@ import org.springframework.transaction.annotation.Transactional;
 public class TestWebClient {
 
     @Autowired
-    private UserRepository userRepo;
-
-//   @Test
-//    @Transactional //repo inside Transactional //Rollback default is true
-//    @Rollback(false)
-    public void testQuickInsert() {
-        String jobnumber = "A-7060";
-        userRepo.saveUserWithNameByProc(jobnumber, "", jobnumber, null, null);
-        System.out.println("testQuickInsert ");
-    }
-
-    @Autowired
     private EmployeeApiClient wc;
 
     @Autowired
     private EmailApiClient emailApiClient;
+
+    @Autowired
+    private EzReactiveClient ezReactiveClient;
+
+    @Autowired
+    private EzScraperClient ezScraperClient;
+
+//    @Test
+    public void testEzScraperClient() {
+        DateTime now = DateTime.parse("2025-12-31");
+        List<EzCalendar> la = new ArrayList<>();
+        try {
+            ezScraperClient.loginAndSetClient();
+            for (int i = 1; i < 13; i++) {
+                now = now.plusMonths(1);
+                int y = now.year().get();
+                int m = now.monthOfYear().get();
+                HibernateObjectPrinter.print(y, m);
+
+                List<EzCalendar> temp = ezScraperClient.getCalendarInfo(y, m);
+                la.addAll(temp);
+            }
+        } catch (Exception e) {
+            HibernateObjectPrinter.print(e.toString());
+        }
+
+    }
+
+//    @Test
+    public void testEzReactiveClient() {
+        ezReactiveClient.loginAndSetCookie();
+        Object[] bodyObject = ezReactiveClient.getCalendarInfo(2026, 1);
+
+        List<EzCalendar> result = ezReactiveClient.convertObject(bodyObject, ArrayList::new);
+    }
 
 //    @Test
     public void testEmailApiClient() {
